@@ -51,6 +51,17 @@ fi
 
 # End ubuntu defaults
 
+PROMPT_COMMAND=_promptcommand
+function _promptcommand() {
+    for command in "${_PROMPT_COMMANDS[@]}"; do
+        eval "$command"
+    done
+}
+function add_prompt_command() {
+    _PROMPT_COMMANDS=( "${_PROMPT_COMMANDS[@]}" "$1" );
+}
+PATH="$HOME/dotfiles/bin:$PATH"
+
 
 # set color prompt
 function color {
@@ -69,6 +80,16 @@ unset c
 
 
 # see also http://mywiki.wooledge.org/BashFAQ/088
-unset HISTSIZE
-unset HISTFILESIZE
+HISTSIZE=10000000000000
+HISTFILESIZE=10000000000000
+HISTIGNORE=""
 export HISTTIMEFORMAT=" "
+function flushhistory() {
+    history -a;
+}
+add_prompt_command flushhistory
+
+function displaygit() {
+    pushd ~/dotfiles >&/dev/null ; git status -s | _gitabs; popd >&/dev/null 
+}
+add_prompt_command displaygit
