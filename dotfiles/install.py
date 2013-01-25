@@ -96,6 +96,22 @@ def install_file(master, target):
         else:
             raise
 
+def delete_text(filename, *text):
+    logger.info("deleting text from %s", filename)
+    filename = fullpath(filename)
+    text = "\n%s\n" % ("\n".join(text).strip("\n"))
+
+    with open(filename, "r") as reader:
+        contents = reader.read()
+
+    if text in contents:
+        contents = contents.replace(text, "\n")
+
+        with open(filename, "w") as writer:
+            # rewrite whole thing to prevent race conditions
+            writer.write(contents)
+    
+
 def readfile(filename):
     with open(path(filename), "r") as reader:
         result = reader.read().strip()
@@ -127,6 +143,14 @@ def user_install():
 
     install_text("~/.bashrc", "source ~/.bashrc_global")
     install_file("files/bashrc", "~/.bashrc_global")
+    delete_text("~/.bashrc",
+        "# enable programmable completion features (you don't need to enable",
+        "# this, if it's already enabled in /etc/bash.bashrc and /etc/profile",
+        "# sources /etc/bash.bashrc).",
+        "if [ -f /etc/bash_completion ] && ! shopt -oq posix; then",
+        "    . /etc/bash_completion",
+        "fi"
+    )
 
     install_text("~/.profile", readfile("files/profile_include"))
     install_text("~/.profile", "source ~/.profile_global")

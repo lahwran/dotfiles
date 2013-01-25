@@ -83,6 +83,7 @@ unset c
 HISTSIZE=10000000000000
 HISTFILESIZE=10000000000000
 HISTIGNORE=""
+HISTCONTROL=""
 export HISTTIMEFORMAT=" "
 function flushhistory() {
     history -a;
