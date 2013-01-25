@@ -1,2 +1,4 @@
-.install*.log
+/.install*.log
 *.pyc
+/build/
+*.sw*

@@ -5,6 +5,8 @@ import pty
 import os
 import sys
 
+from highlight import highlight
+
 def de_ret(line):
     thelist = []
     index = 0
@@ -20,16 +22,19 @@ def de_ret(line):
     return "".join(thelist)
 
 def call(name, args):
-    logger = logging.getLogger(name)
+    logger = logging.getLogger(highlight(name))
     logger.info("starting %s...", args)
 
     master, slave = pty.openpty()
 
-    process = subprocess.Popen(args, stdin=slave, stdout=slave, stderr=subprocess.STDOUT, close_fds=True)
+    process = subprocess.Popen(args, bufsize=1, stdin=slave, stdout=slave, stderr=subprocess.STDOUT, close_fds=True)
     os.close(slave)
     process.stdout = os.fdopen(master)
     try:
-        for line in process.stdout:
+        while True:
+            line = process.stdout.readline()
+            if not line: break
+
             line = line.replace("\n", "")
             if "\r" in line:
                 line = de_ret(line)
