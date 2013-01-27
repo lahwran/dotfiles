@@ -23,7 +23,8 @@ logger = logging.getLogger("-")
 os_dependencies = [
     "vim",
     "git",
-    "pip"
+    "pip",
+    "fail2ban"
 ]
 
 pip_dependencies = [
@@ -34,7 +35,8 @@ pip_dependencies = [
 debian_mapping = {
     "git": "git",
     "vim": "vim",
-    "pip": "python-pip"
+    "pip": "python-pip",
+    "fail2ban": "fail2ban"
 }
 
 ensure_nonexistant = [
