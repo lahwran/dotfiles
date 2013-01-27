@@ -26,6 +26,7 @@ os_dependencies = [
     "pip",
     "fail2ban",
     "build-essential",
+    "python-dev"
 ]
 
 pip_dependencies = [
@@ -38,7 +39,8 @@ debian_mapping = {
     "vim": "vim",
     "pip": "python-pip",
     "fail2ban": "fail2ban",
-    "build-essential": "build-essential"
+    "build-essential": "build-essential",
+    "python-dev": "python-dev",
 }
 
 ensure_nonexistant = [
