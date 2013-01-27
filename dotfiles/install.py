@@ -24,7 +24,8 @@ os_dependencies = [
     "vim",
     "git",
     "pip",
-    "fail2ban"
+    "fail2ban",
+    "build-essential",
 ]
 
 pip_dependencies = [
@@ -36,7 +37,8 @@ debian_mapping = {
     "git": "git",
     "vim": "vim",
     "pip": "python-pip",
-    "fail2ban": "fail2ban"
+    "fail2ban": "fail2ban",
+    "build-essential": "build-essential"
 }
 
 ensure_nonexistant = [
@@ -165,7 +167,7 @@ def root_install():
     # install os packages
     logger.info("Installing OS packages...")
     deps = [debian_mapping[package] for package in os_dependencies]
-    wrap_process.call("apt-get", ["apt-get", "install"] + deps)
+    wrap_process.call("apt-get", ["apt-get", "install", "-y"] + deps)
 
     # install pip packages
     logger.info("Installing pip packages...")
