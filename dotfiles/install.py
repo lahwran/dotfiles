@@ -141,7 +141,7 @@ def user_install():
         filename = fullpath(filename)
         basename = os.path.basename(filename)
         dirname = os.path.dirname(filename)
-        target = os.path.join(dirname, ".__dotfiles_deleted_%s_%s_" % (basename, int(time.time()))
+        target = os.path.join(dirname, ".__dotfiles_deleted_%s_%s_" % (basename, int(time.time())))
         logger.info("moving %s to %s", filename, target)
         try:
             os.rename(filename, target)
