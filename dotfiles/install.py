@@ -81,18 +81,26 @@ def install_text(filename, text, permissions=None,
     if permissions is not None:
         os.chmod(filename, permissions)
 
-def install_file(master, target):
-    # link master to target
-    logger.info("installing %s -> %s", master, target)
-    master = path(master)
+
+def install_dir(target, log=True):
     target = fullpath(target)
     try:
-        os.makedirs(os.path.dirname(target))
+        os.makedirs(target)
     except OSError as e:
         if e.errno == 17:
             pass
         else:
             raise
+
+
+def install_file(master, target):
+    # link master to target
+    logger.info("installing %s -> %s", master, target)
+    master = path(master)
+    target = fullpath(target)
+
+    install_dir(os.path.dirname(target), log=False)
+
     try:
         os.symlink(master, target)
     except OSError as e:
@@ -131,7 +139,9 @@ def user_install():
 
     for filename in ensure_nonexistant:
         filename = fullpath(filename)
-        target = ".__dotfiles_deleted_%s_%s_" % (filename, int(time.time()))
+        basename = os.path.basename(filename)
+        dirname = os.path.dirname(filename)
+        target = os.path.join(dirname, ".__dotfiles_deleted_%s_%s_" % (basename, int(time.time()))
         logger.info("moving %s to %s", filename, target)
         try:
             os.rename(filename, target)
@@ -146,6 +156,7 @@ def user_install():
     install_text("~/.vimrc", "set nocompatible", 0600,
             before=True)
     install_file("files/vimrc", "~/.vimrc_global")
+    install_file("files/vimrc_newsession", "~/.vimrc_newsession")
 
     install_text("~/.bashrc", "source ~/.bashrc_global")
     install_file("files/bashrc", "~/.bashrc_global")
@@ -161,6 +172,13 @@ def user_install():
     install_text("~/.profile", readfile("files/profile_include"))
     install_text("~/.profile", "source ~/.profile_global")
     install_file("files/profile", "~/.profile_global")
+
+    wrap_process.call("git submodule", ["git", "submodule", "init"], wd=projectroot)
+    wrap_process.call("git submodule", ["git", "submodule", "update"], wd=projectroot)
+
+    install_file("submodules/pathogen/autoload/pathogen.vim", "~/.vim/autoload/pathogen.vim")
+    install_file("submodules/nerdtree/", "~/.vim/bundle/nerdtree/")
+
 
 def root_install():
     global logger

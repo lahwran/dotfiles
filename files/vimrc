@@ -1,5 +1,9 @@
 filetype plugin on
 filetype indent on
+
+call pathogen#infect()
+call pathogen#helptags()
+
 set guioptions-=m " turn off menu bar
 set guioptions-=T " turn off toolbar
 
@@ -68,3 +72,5 @@ noh
 
 hi Search cterm=NONE ctermfg=grey ctermbg=darkblue
 hi Visual cterm=NONE ctermfg=black ctermbg=darkyellow
+
+autocmd VimEnter * if argc() == 0 | source ~/.vimrc_newsession | endif

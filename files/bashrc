@@ -93,4 +93,4 @@ add_prompt_command flushhistory
 function displaygit() {
     pushd ~/dotfiles >&/dev/null ; git status -s | _gitabs; popd >&/dev/null 
 }
-add_prompt_command displaygit
+#add_prompt_command displaygit

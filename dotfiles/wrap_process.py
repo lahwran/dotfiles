@@ -21,13 +21,13 @@ def de_ret(line):
         index += 1
     return "".join(thelist)
 
-def call(name, args):
+def call(name, args, wd=None):
     logger = logging.getLogger(highlight(name))
     logger.info("starting %s...", args)
 
     master, slave = pty.openpty()
 
-    process = subprocess.Popen(args, bufsize=1, stdin=slave, stdout=slave, stderr=subprocess.STDOUT, close_fds=True)
+    process = subprocess.Popen(args, bufsize=1, stdin=slave, stdout=slave, stderr=subprocess.STDOUT, close_fds=True, cwd=wd)
     os.close(slave)
     process.stdout = os.fdopen(master)
     try:
