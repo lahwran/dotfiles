@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """
 Tool for deleting large downloadable files without losing information on what
 they were
