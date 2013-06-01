@@ -1,0 +1,26 @@
+#!/bin/bash
+
+TO_FULL="$1"
+FROM="$2"
+if [ "$FROM" = "" ]; then
+    FROM="$(hostname)"
+fi
+TO="$(@ 'name.rpartition(".")[0].replace(".", "_")' -v name="$TO_FULL")"
+FILE=~/.ssh/"id_rsa__${FROM}__${TO}"
+echo "making $FILE"
+if ( ( [ -e "$FILE" ] && @ 'raw_input("file %r exists. overwrite? y/n " % filename) == ' -v filename="$FILE" ) ||
+     ! [ -e "$FILE" ] ); then
+    ssh-keygen -t rsa -f "$FILE" -C "lahwran@lahwran.net/$FROM:$TO"
+fi
+TEMPFILE="$(mktemp)"
+cat > "$TEMPFILE" << END
+Host $TO_FULL
+    IdentityFile $FILE
+
+# hostname:
+$(host $TO_FULL)
+END
+
+vim -o ~/.ssh/config "$TEMPFILE" "$FILE.pub"
+cat "$FILE.pub"
+
