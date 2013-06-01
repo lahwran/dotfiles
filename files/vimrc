@@ -74,3 +74,11 @@ hi Search cterm=NONE ctermfg=grey ctermbg=darkblue
 hi Visual cterm=NONE ctermfg=black ctermbg=darkyellow
 
 autocmd VimEnter * if argc() == 0 | source ~/.vimrc_newsession | endif
+
+hi Search cterm=NONE ctermfg=grey ctermbg=darkblue
+hi Visual cterm=NONE ctermfg=black ctermbg=darkyellow
+
+set timeout timeoutlen=1000 ttimeoutlen=100
+vnoremap < <gv
+vnoremap > >gv
+
