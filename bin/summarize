@@ -1,0 +1,125 @@
+"""
+Tool for deleting large downloadable files without losing information on what
+they were
+"""
+import os
+import sys
+import stat
+import json
+import grp
+import pwd
+import datetime
+import hashlib
+import time
+import platform
+import socket
+
+
+def iterfile(f, bufsize=None):
+    if not bufsize:
+        bufsize = 8192
+    while True:
+        buff = f.read(bufsize)
+        if not buff:
+            break
+        yield buff
+
+
+def hashfile(filename, statsize, bufsize=None):
+    with open(filename, "rb") as f:
+        sha = hashlib.sha256()
+        md5 = hashlib.md5()
+        progress = 0
+        lastprogress = 0
+
+        for chunk in iterfile(f):
+            progress += len(chunk)
+            if time.time() - lastprogress > 1:
+                print "%0.2f%%" % ((float(progress) / float(statsize)) * 100)
+                lastprogress = time.time()
+
+            sha.update(chunk)
+            md5.update(chunk)
+            
+
+    return {
+        "sha256": sha.hexdigest(),
+        "md5": md5.hexdigest()
+    }
+
+
+def summarize_gid(gid):
+    group = grp.getgrgid(gid)
+    return {
+        "name": group.gr_name,
+        "gid": group.gr_gid
+    }
+
+
+def summarize_uid(uid):
+    user = pwd.getpwuid(uid)
+    return {
+        "name": user.pw_name,
+        "uid": user.pw_uid,
+        "group": summarize_gid(user.pw_gid),
+        "gecos": user.pw_gecos,
+    }
+
+
+def summarize(filename):
+    filename = os.path.expanduser(filename)
+    filename = os.path.normpath(filename)
+    filename = os.path.abspath(filename)
+    summary = {}
+
+    stat = os.stat(filename)
+
+    summary["stat"] = {
+        "mode": stat.st_mode,
+        "mode_oct": oct(stat.st_mode),
+        "mode_bin": bin(stat.st_mode),
+        "inode": stat.st_ino,
+        "device": stat.st_dev,
+        "links": stat.st_nlink,
+        "owner_user": summarize_uid(stat.st_uid),
+        "owner_group": summarize_gid(stat.st_gid),
+        "size": stat.st_size,
+        "time": {
+            "access": stat.st_atime,
+            "modification": stat.st_mtime,
+            "creation": stat.st_ctime
+        }
+    }
+
+    summary["filename"] = {
+        "basename": os.path.basename(filename),
+        "dirname": os.path.dirname(filename)
+    }
+    summary["hash"] = hashfile(filename, stat.st_size)
+    
+    timeformat = "%B %d, %Y %I:%M:%S %p"
+    summary["timestamp"] = datetime.datetime.now().strftime(timeformat)
+    summary["hostname"] = platform.node()
+    summary["hostdns"] = socket.gethostname()
+
+    summaryfile = filename + ".summary"
+    with open(summaryfile, "wb") as writer:
+        writer.write(json.dumps(summary, indent=4, sort_keys=True))
+
+    print "Written to", summaryfile
+    print "You may now delete original file:"
+    filename = filename.replace("'", """'"'"'""")
+    print "rm '%s'" % filename
+
+if __name__ == "__main__":
+    deletes = []
+    do_delete = False
+    for x in sys.argv[1:]:
+        if x == "--delete-when-done":
+            do_delete = True
+        else:
+            deletes.append(x)
+            summarize(x)
+    if do_delete:
+        for x in deletes:
+            os.unlink(x)
