@@ -5,10 +5,8 @@ class UnimplementedDistributionError(Exception):
 et = UnimplementedDistributionError
 
 if platform.system() == "Linux":
-    dist, ver, codename = platform.linux_distribution()
-    if dist == "Ubuntu":
-        from dotfiles.os_specific.ubuntu import *
-    else:
-        raise et
+    from dotfiles.os_specific.linux import *
+elif platform.system() == "Darwin":
+    from dotfiles.os_specific.mac import *
 else:
     raise et

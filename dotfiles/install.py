@@ -11,6 +11,7 @@ import time
 from dotfiles import wrap_process
 from dotfiles.highlight import highlight
 from dotfiles import wrap_process
+from dotfiles import os_specific
 
 assert (0644 ==
         stat.S_IRUSR |
@@ -26,22 +27,17 @@ os_dependencies = [
     "pip",
     "fail2ban",
     "build-essential",
-    "python-dev"
+    "python-dev",
+    "ntp-daemon",
+    "tmux"
 ]
 
 pip_dependencies = [
     "virtualenv",
-    "pytest"
+    "pytest",
+    "twisted",
+    "blessings",
 ]
-
-debian_mapping = {
-    "git": "git",
-    "vim": "vim",
-    "pip": "python-pip",
-    "fail2ban": "fail2ban",
-    "build-essential": "build-essential",
-    "python-dev": "python-dev",
-}
 
 ensure_nonexistant = [
     "~/.bash_logout",
@@ -134,6 +130,12 @@ def readfile(filename):
 
 def user_install():
     global logger
+
+    # install pip packages
+    logger.info("Installing pip packages...")
+    for dep in pip_dependencies:
+        wrap_process.call("pip", ["pip", "install", "--user", "-M", dep])
+
     logger = logging.getLogger("u")
     logger.info("Doing user install...")
 
@@ -186,13 +188,7 @@ def root_install():
 
     # install os packages
     logger.info("Installing OS packages...")
-    deps = [debian_mapping[package] for package in os_dependencies]
-    wrap_process.call("apt-get", ["apt-get", "install", "-y"] + deps)
-
-    # install pip packages
-    logger.info("Installing pip packages...")
-    for dep in pip_dependencies:
-        wrap_process.call("pip", ["pip", "install", dep])
+    os_specific.install_packages(os_dependencies)
 
     # install global environment defaults
     logger.info("Installing environment defaults...")
