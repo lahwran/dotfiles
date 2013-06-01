@@ -1,0 +1,256 @@
+#!/usr/bin/python
+# intended to be saved as ~/bin/@ or something similarly convenient
+# run @ --help for more information
+from __future__ import print_function
+
+import os
+import sys
+
+class _Unbuffered(object):
+    def __init__(self, stream):
+        self.stream = stream
+
+    def write(self, data):
+        self.stream.write(data)
+        self.stream.flush()
+
+    def __getattr__(self, attr):
+        return getattr(self.stream, attr)
+
+if sys.stdout.isatty():
+    sys.stdout = _Unbuffered(sys.stdout)
+
+if sys.stderr.isatty():
+    sys.stderr = _Unbuffered(sys.stderr)
+
+def _update_globals():
+    g = dict(globals())
+    globals().update(os.environ)
+    globals().update(g)
+
+    overlap = set(g) & set(os.environ)
+    if overlap:
+        print("WARNING: variable overlap: %r" % overlap)
+_update_globals()
+del _update_globals
+
+def succeed():
+    sys.exit(0)
+
+def fail():
+    sys.exit(1)
+
+def lines():
+    yield None
+    while True:
+        line = sys.stdin.readline()
+        if not line:
+            break
+        if line.endswith("\n"):
+            line = line[:-1]
+        yield line
+
+def inp():
+    return sys.stdin.read()
+
+def _hash(hasher, text):
+    instance = hasher()
+    instance.update(text)
+    return instance
+
+def md5(text):
+    import hashlib
+    return _hash(hashlib.md5, text).hexdigest()
+def sha256(text):
+    import hashlib
+    return _hash(hashlib.sha256, text).hexdigest()
+
+lines = lines()
+assert lines.next() is None
+
+def characters():
+    yield None
+    if sys.stdout.isatty():
+        bufsize = 1
+    else:
+        bufsize = 512
+
+    while True:
+        s = sys.stdin.read(bufsize)
+        if not s:
+            break
+        for char in s:
+            yield char
+characters = characters()
+assert characters.next() is None
+
+def _parse_args():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--all", action="store_true",
+            help="wrap expression in all()")
+    parser.add_argument("-n", "--any", action="store_true",
+            help="wrap expression in any()")
+    parser.add_argument("-l", "--lines", action="store_true",
+            help="make expression iterable per line")
+    parser.add_argument("-c", "--chars", action="store_true",
+            help="make expression iterable per character")
+    parser.add_argument("-b", "--bool", action="store_true",
+            help="wrap expression in bool() - important if result will be a bool!")
+    parser.add_argument("-p", "--print-each", action="store_true",
+            help="print each result from the iterable - good with -l pipelining")
+    parser.add_argument("-j", "--print-joined", action="store_true",
+            help="print each result from the iterable, no newlines - good for -c pipelining")
+    parser.add_argument("-f", "--filter", default=None,
+            help="add a filter expression to the genexp")
+    parser.add_argument("-F", "--postfilter", default=None,
+            help="same as -f but run on result of expression, not input")
+    parser.add_argument("-v", "--variables", nargs="*",
+            help='use as -v x="hi" y="$there" to add variables to the expression')
+    parser.add_argument("string", default=None, nargs="*",
+            help="the expression, automatically joined by space if multiple specified")
+    args = parser.parse_args()
+
+    string = " ".join(args.string) if args.string else None
+    if args.print_joined:
+        args.print_each = True
+
+    assert not (args.lines and args.chars), "only -c or -l please"
+    actions = len([x for x in [
+        args.all,
+        args.any,
+        args.bool,
+        args.print_each
+    ] if x])
+    assert actions <= 1, (
+            "only one of ---all, --any, --bool, or --print_each please")
+
+
+    if args.lines:
+        if string is None:
+            string = "line"
+        string = "(%s) for line in lines" % string
+    if args.chars:
+        if string is None:
+            string = "char"
+        string = "(%s) for char in characters" % string
+
+    if args.filter:
+        string += "%s if (%s)" % (string, args.filter)
+    if args.postfilter:
+        string = "_postfilter for _postfilter in (%s) if (%s)" % (string,
+                args.postfilter)
+
+    if args.all:
+        string = "all(%s)" % string
+    if args.any:
+        string = "any(%s)" % string
+    if args.bool:
+        string = "bool(%s)" % string
+
+    if not args.variables:
+        args.variables = []
+    for var in args.variables:
+        name, equals, value = var.partition("=")
+        assert equals, "please put an equals sign in variable defitions"
+        globals()[name] = value
+
+    return (string, args.print_each,
+            sys.stdout.write if args.print_joined else print)
+_string, _shouldprint, print = _parse_args()
+del _parse_args
+
+_optional_modules = [
+    "subprocess",
+    "platform",
+    "re",
+    "string",
+    "struct",
+    "unicodedata",
+    "datetime",
+    "pprint",
+    "random",
+    "math",
+    "decimal",
+    "fractions",
+    "itertools",
+    "functools",
+    "operator",
+    "json",
+    "pickle",
+    "glob",
+    "fnmatch",
+    "shutil",
+    "sqlite3",
+    "zlib",
+    "gzip",
+    "bz2",
+    "zipfile",
+    "tarfile",
+    "csv",
+    "hashlib",
+    "time",
+    "uu",
+    "requests",
+    "urllib2",
+    "urllib",
+    "uuid",
+    "urlparse",
+    "shlex",
+    "ast",
+    "tty",
+    "termios",
+    "grp",
+    "pwd",
+    "pty",
+    "fcntl",
+    "blessings",
+]
+for _mod in _optional_modules:
+    if _mod in _string:
+        exec "import %s" % _mod
+
+if "terminal" in _string:
+    import blessings
+    terminal = blessings.Terminal(force_styling=True)
+
+del _mod
+del _optional_modules
+
+try:
+    result = eval("(%s)" % _string)
+except BaseException as e:
+    import traceback
+    x = traceback.format_exc().split("\n")
+    y = "\n".join(x[4:])
+    sys.stderr.write(y)
+    sys.stderr.flush()
+    fail()
+
+
+if result is None:
+    result = True
+
+if not isinstance(result, basestring):
+    try:
+        iterator = iter(result)
+    except TypeError:
+        pass
+    else:
+        if _shouldprint:
+            for x in iterator:
+                print(x)
+        else:
+            list(iterator)
+        succeed()
+
+if not isinstance(result, bool) or _shouldprint:
+    print(result)
+
+if isinstance(result, bool):
+    if result:
+        succeed()
+    else:
+        fail()
+
+succeed()
