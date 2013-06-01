@@ -84,7 +84,7 @@ HISTSIZE=10000000000000
 HISTFILESIZE=10000000000000
 HISTIGNORE=""
 HISTCONTROL=""
-export HISTTIMEFORMAT=" "
+export HISTTIMEFORMAT="%y-%m-%d %T "
 function flushhistory() {
     history -a;
 }
