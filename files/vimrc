@@ -28,13 +28,17 @@ augroup END
 
 set history=50000 " increase history 'cause I like lots of it
 
-set hlsearch " I like to see my searches
+set hlsearch  " I like to see my searches
+set ignorecase  " ignore case when searching
+set smartcase  " except when a capital letter is in the search
+set ruler  " show the cursor position all the time
+set laststatus=2  " helps show the file name
+set incsearch
 
 "set foldmethod=indent   "fold based on indent
 set foldmethod=indent
-set foldnestmax=10      "deepest fold is 10 levels
+set foldnestmax=100      "deepest fold is 10 levels
 
-" 
 highlight Folded ctermbg=none ctermfg=DarkBlue cterm=none
 set foldcolumn=0 " no fold indicator column next to line numbers
 set foldtext=MyFoldText() " fancy fold text
@@ -46,6 +50,7 @@ function! MyFoldText()
     return text
 endfunction
 set fillchars="fold:"
+highlight Folded ctermbg=none
 
 if has("syntax")
   syntax enable
@@ -56,6 +61,8 @@ set nowrap
 " I like being able to scroll with the mouse, since it's so close-by
 " on my laptop keyboard anyway
 set mouse=a 
+nnoremap <F3> :set mouse=a<CR>
+nnoremap <F4> :set mouse=<CR>
 
 " f2 to toggle paste mode
 nnoremap <F2> :set invpaste paste?<CR>
@@ -68,7 +75,6 @@ highlight MatchParen cterm=NONE ctermbg=black ctermfg=darkblue
 
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.
-noh
 
 hi Search cterm=NONE ctermfg=grey ctermbg=darkblue
 hi Visual cterm=NONE ctermfg=black ctermbg=darkyellow
@@ -82,3 +88,21 @@ set timeout timeoutlen=1000 ttimeoutlen=100
 vnoremap < <gv
 vnoremap > >gv
 
+set wildmode=longest:full,full
+set wildmenu
+
+let g:wingrab_last_buffer = -1
+function! Wincp()
+    let g:wingrab_last_buffer = bufnr("%")
+endfunction
+
+nnoremap ,u :call Wincp()<CR>:hide<CR><C-=><ESC><ESC>
+nnoremap ,<S-U> :call Wincp()<CR><ESC><ESC>
+nnoremap ,h :aboveleft vnew<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
+nnoremap ,l :rightbelow vnew<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
+nnoremap ,k :aboveleft new<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
+nnoremap ,j :rightbelow new<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
+nnoremap ,z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD:<C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
+nnoremap ,r :e __nonexistantfile__ \| e <C-r>=bufname("%")<CR><CR>
+
+noh
