@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """
 Tool for deleting large downloadable files without losing information on what
 they were
@@ -14,6 +13,7 @@ import hashlib
 import time
 import platform
 import socket
+import argparse
 
 
 def iterfile(f, bufsize=None):
@@ -67,7 +67,19 @@ def summarize_uid(uid):
     }
 
 
-def summarize(filename):
+def summarize(filename, skip_summaries=True, no_open=False):
+    if skip_summaries and filename.endswith(".summary"):
+        try:
+            json.loads(open(filename).read(1024**3))
+        except ValueError:
+            pass
+        else:
+            return []
+
+    return _summarize(filename, skip_summaries, no_open)
+
+def _summarize(filename, skip_summaries, no_open):
+
     filename = os.path.expanduser(filename)
     filename = os.path.normpath(filename)
     filename = os.path.abspath(filename)
@@ -96,7 +108,8 @@ def summarize(filename):
         "basename": os.path.basename(filename),
         "dirname": os.path.dirname(filename)
     }
-    summary["hash"] = hashfile(filename, stat.st_size)
+    if not no_open:
+        summary["hash"] = hashfile(filename, stat.st_size)
     
     timeformat = "%B %d, %Y %I:%M:%S %p"
     summary["timestamp"] = datetime.datetime.now().strftime(timeformat)
@@ -109,18 +122,55 @@ def summarize(filename):
 
     print "Written to", summaryfile
     print "You may now delete original file:"
-    filename = filename.replace("'", """'"'"'""")
-    print "rm '%s'" % filename
+    filename_ = filename.replace("'", """'"'"'""")
+    print "rm '%s'" % filename_
 
-if __name__ == "__main__":
+    return [filename]
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--delete-when-done", action="store_true")
+parser.add_argument("--dont-summarize", action="store_true")
+parser.add_argument("--recurse", action="store_true")
+parser.add_argument("--dont-skip-summaries", action="store_true")
+parser.add_argument("files", nargs="*")
+
+def main(args):
+    global _summarize
+
     deletes = []
-    do_delete = False
-    for x in sys.argv[1:]:
-        if x == "--delete-when-done":
-            do_delete = True
+    do_delete = args.delete_when_done
+    skip_summaries = not args.dont_skip_summaries
+    if args.dont_summarize:
+        _summarize = lambda x, y, z: [x]
+    print args.files
+    for x in args.files:
+        if args.recurse:
+            results = recursive(x, skip_summaries)
         else:
-            deletes.append(x)
-            summarize(x)
+            results = summarize(x, skip_summaries)
+        deletes.extend(results)
+
     if do_delete:
+        import pprint
+        pprint.pprint(deletes)
+        assert raw_input("continue? y/error ") == "y"
         for x in deletes:
             os.unlink(x)
+
+def recursive(directory, skip_summaries=True):
+    import os
+    results = []
+
+    for root, dirs, files in os.walk(directory):
+        summarize(root, skip_summaries=False,
+                no_open=True)
+        for x in files:
+            results.extend(summarize(os.path.join(root, x),
+                skip_summaries=skip_summaries))
+
+    return results
+
+
+if __name__ == "__main__":
+    args = parser.parse_args()
+    main(args)
