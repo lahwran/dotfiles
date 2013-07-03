@@ -79,11 +79,26 @@ def summarize(filename, skip_summaries=True, no_open=False):
 
     return _summarize(filename, skip_summaries, no_open)
 
-def _summarize(filename, skip_summaries, no_open):
+def lockfiles(filename):
+    result = [os.path.join(os.path.dirname(filename), ".dontsummarize")]
+    if os.path.isdir(filename):
+        result.append(os.path.join(filename, ".dontsummarize"))
+    return result
 
+def _summarize(filename, skip_summaries, no_open):
     filename = os.path.expanduser(filename)
     filename = os.path.normpath(filename)
     filename = os.path.abspath(filename)
+
+    lockreasons = []
+    for lockfile in lockfiles(filename):
+        if os.path.exists(lockfile):
+            lockreasons.append(open(lockfile).read().strip())
+    if lockreasons:
+        for lockreason in lockreasons:
+            print ".dontsummarize:", lockreason
+            sys.exit(1)
+    assert not lockreasons
     summary = {}
 
     stat = os.stat(filename)
