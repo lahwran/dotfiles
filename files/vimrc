@@ -104,5 +104,11 @@ nnoremap ,k :aboveleft new<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-
 nnoremap ,j :rightbelow new<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
 nnoremap ,z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD:<C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
 nnoremap ,r :e __nonexistantfile__ \| e <C-r>=bufname("%")<CR><CR>
+nnoremap ,n :NERDTree<CR>
+
+nnoremap J j
+nnoremap K k
+nnoremap H h
+nnoremap L l
 
 noh
