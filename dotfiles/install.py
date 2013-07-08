@@ -180,6 +180,7 @@ def user_install():
 
     install_file("submodules/pathogen/autoload/pathogen.vim", "~/.vim/autoload/pathogen.vim")
     install_file("submodules/nerdtree/", "~/.vim/bundle/nerdtree/")
+    install_file("submodules/ctrlp/", "~/.vim/bundle/ctrlp/")
 
 
 def root_install():
