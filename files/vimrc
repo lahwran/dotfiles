@@ -108,10 +108,10 @@ nnoremap ,pa :vnew \| r !py.test<CR><ESC>:setlocal buftype=nofile bufhidden=wipe
 nnoremap ,r :e __nonexistantfile__ \| e <C-r>=bufname("%")<CR><CR>
 nnoremap ,n :NERDTree<CR>
 
-nnoremap J j
-nnoremap K k
-nnoremap H h
-nnoremap L l
+noremap J j
+noremap K k
+noremap H h
+noremap L l
 
 let g:ctrlp_custom_ignore = {
     \ 'dir': '\v[\/](\.git|\.hg|htmlcov|__pycache__)$',
