@@ -96,3 +96,7 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
     echo "done"
 fi
+
+alias mv="mv -i"
+alias cp="cp -i"
+alias file="file -k"

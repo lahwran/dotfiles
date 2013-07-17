@@ -37,6 +37,7 @@ pip_dependencies = [
     "pytest",
     "twisted",
     "blessings",
+    "watchdog",
 ]
 
 ensure_nonexistant = [
