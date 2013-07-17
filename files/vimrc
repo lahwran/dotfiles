@@ -114,10 +114,15 @@ noremap H h
 noremap L l
 
 let g:ctrlp_custom_ignore = {
-    \ 'dir': '\v[\/](\.git|\.hg|htmlcov|__pycache__)$',
-    \ 'file': '\v(\.so|\.pyc)$',
+    \ 'dir': '.*\/(\.git|\.hg|htmlcov|__pycache__)$',
+    \ 'file': '.*(\.so|\.pyc)$',
     \ }
-let g:ctrlp_open_new_file = 'v'
+let g:ctrlp_open_new_file='v'
 let g:ctrlp_lazy_update=50
+let g:ctrlp_follow_symlinks=1
+let g:ctrlp_prompt_mappings = {
+            \ 'AcceptSelection("v")': ['<cr>'],
+            \ 'AcceptSelection("e")': ['<c-v>']
+            \ }
 
 noh
