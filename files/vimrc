@@ -1,3 +1,39 @@
+set nocompatible
+
+" this if block from https://bitbucket.org/byronclark/settings
+if has("autocmd")
+    " remove any previous autocmd settings
+    autocmd!
+
+    autocmd BufWritePost ~/.vimrc so ~/.vimrc
+    autocmd BufWritePost ~/.vimrc_global so ~/.vimrc
+    autocmd BufWritePost ~/dotfiles/files/vimrc so ~/.vimrc
+    autocmd BufWritePost ~/.gvimrc so ~/.gvimrc
+
+    " text files don't have a proper filetype
+    autocmd BufReadPost *.txt setlocal textwidth=78
+    if exists("spell")
+        autocmd BufReadPost *.txt setlocal spell spelllang=en_us
+    endif
+
+    " gpg encrypted files
+    if exists("$KEY")
+        autocmd BufNewFile,BufReadPre *.gpg :set secure viminfo= noswapfile nobackup nowritebackup history=0 binary
+        autocmd BufReadPost *.gpg :%!gpg -d 2>/dev/null
+        autocmd BufWritePre *.gpg :%!gpg -e -r $KEY 2>/dev/null
+        autocmd BufWritePost *.gpg u
+    endif
+
+    " When editing a file, always jump to the last known cursor position.
+    " Don't do it when the position is invalid or when inside an event handler
+    " (happens when dropping a file on gvim).
+    autocmd BufReadPost *
+                \ if line("'\"") > 0 && line("'\"") <= line("$") |
+                \   exe "normal g`\"" |
+                \ endif
+
+endif
+
 filetype plugin on
 filetype indent on
 
@@ -39,7 +75,7 @@ set incsearch
 set foldmethod=indent
 set foldnestmax=100      "deepest fold is 10 levels
 
-highlight Folded ctermbg=none ctermfg=DarkBlue cterm=none
+highlight Folded ctermbg=none ctermfg=green cterm=none
 set foldcolumn=0 " no fold indicator column next to line numbers
 set foldtext=MyFoldText() " fancy fold text
 function! MyFoldText()
