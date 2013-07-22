@@ -149,10 +149,12 @@ noremap K k
 noremap H h
 noremap L l
 
-let g:ctrlp_custom_ignore = {
-    \ 'dir': '.*\/(\.git|\.hg|htmlcov|__pycache__)$',
-    \ 'file': '.*(\.so|\.pyc)$',
-    \ }
+"let g:ctrlp_custom_ignore = {
+"    \ 'dir': '.*\/(\.git|\.hg|htmlcov|__pycache__)$',
+"    \ 'file': '.*(\.so|\.pyc)$',
+"    \ 'link': 'THIS_WILL_NEVER_MATCH'
+"    \ }
+set wildignore=*.pyc,*.so,.git,.hg,htmlcov,__pycache__
 let g:ctrlp_open_new_file='v'
 let g:ctrlp_lazy_update=50
 let g:ctrlp_follow_symlinks=1
