@@ -9,19 +9,21 @@ import sys
 class _Unbuffered(object):
     def __init__(self, stream):
         self.stream = stream
+        self._unbuffered = True
 
     def write(self, data):
         self.stream.write(data)
-        self.stream.flush()
+        if self._unbuffered:
+            self.stream.flush()
 
     def __getattr__(self, attr):
         return getattr(self.stream, attr)
 
-if sys.stdout.isatty():
-    sys.stdout = _Unbuffered(sys.stdout)
+sys.stdout = _Unbuffered(sys.stdout)
+sys.stdout._unbuffered = sys.stdout.isatty()
 
-if sys.stderr.isatty():
-    sys.stderr = _Unbuffered(sys.stderr)
+sys.stderr = _Unbuffered(sys.stderr)
+sys.stderr._unbuffered = sys.stderr.isatty()
 
 def _update_globals():
     g = dict(globals())
@@ -97,6 +99,8 @@ def _parse_args():
             help="make expression iterable per character")
     parser.add_argument("-b", "--bool", action="store_true",
             help="wrap expression in bool() - important if result will be a bool!")
+    parser.add_argument("-u", "--unbuffered", action="store_true",
+            help="shut off output buffering")
     parser.add_argument("-p", "--print-each", action="store_true",
             help="print each result from the iterable - good with -l pipelining")
     parser.add_argument("-j", "--print-joined", action="store_true",
@@ -110,6 +114,10 @@ def _parse_args():
     parser.add_argument("string", default=None, nargs="*",
             help="the expression, automatically joined by space if multiple specified")
     args = parser.parse_args()
+
+    if args.unbuffered:
+        sys.stdout._unbuffered = True
+        sys.stderr._unbuffered = True
 
     string = " ".join(args.string) if args.string else None
     if args.print_joined:
