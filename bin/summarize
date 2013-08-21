@@ -146,6 +146,7 @@ def _summarize(filename, skip_summaries, no_open):
 parser = argparse.ArgumentParser()
 parser.add_argument("--delete-when-done", action="store_true")
 parser.add_argument("--dont-summarize", action="store_true")
+parser.add_argument("--dont-hash", action="store_true")
 parser.add_argument("--recurse", action="store_true")
 parser.add_argument("--dont-skip-summaries", action="store_true")
 parser.add_argument("files", nargs="*")
@@ -161,9 +162,9 @@ def main(args):
     print args.files
     for x in args.files:
         if args.recurse:
-            results = recursive(x, skip_summaries)
+            results = recursive(x, skip_summaries, args.dont_hash)
         else:
-            results = summarize(x, skip_summaries)
+            results = summarize(x, skip_summaries, args.dont_hash)
         deletes.extend(results)
 
     if do_delete:
@@ -173,7 +174,7 @@ def main(args):
         for x in deletes:
             os.unlink(x)
 
-def recursive(directory, skip_summaries=True):
+def recursive(directory, skip_summaries=True, dont_hash=False):
     import os
     results = []
 
@@ -182,7 +183,7 @@ def recursive(directory, skip_summaries=True):
                 no_open=True)
         for x in files:
             results.extend(summarize(os.path.join(root, x),
-                skip_summaries=skip_summaries))
+                skip_summaries=skip_summaries, no_open=dont_hash))
 
     return results
 
