@@ -53,7 +53,7 @@ function _promptcommand() {
 function add_prompt_command() {
     _PROMPT_COMMANDS=( "${_PROMPT_COMMANDS[@]}" "$1" );
 }
-PATH="$HOME/dotfiles/bin:$PATH"
+PATH="$(dirname "$(readlink "$BASH_SOURCE")")/../bin:$PATH"
 
 
 # set color prompt
@@ -84,10 +84,19 @@ function flushhistory() {
 }
 add_prompt_command flushhistory
 
+function updatewindowtitle() {
+    echo -ne "\033]0;$PWD - $USER@$HOSTNAME \007"
+}
+add_prompt_command updatewindowtitle
+
 function displaygit() {
     pushd ~/dotfiles >&/dev/null ; git status -s | _gitabs; popd >&/dev/null 
 }
 #add_prompt_command displaygit
+
+alias mv="mv -i"
+alias cp="cp -i"
+alias file="file -k"
 
 # enable programmable completion features
 # from ubuntu, may be redundant
@@ -96,7 +105,3 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
     echo "done"
 fi
-
-alias mv="mv -i"
-alias cp="cp -i"
-alias file="file -k"

@@ -166,4 +166,8 @@ let g:ctrlp_prompt_mappings = {
             \ 'AcceptSelection("e")': ['<c-v>']
             \ }
 
+set title
+set titlestring=%{expand(\"%:p:h\")}/%t%(\ %M%)%(\ %a%)\ -\ %{$USER}@%{hostname()}
+
+
 noh
