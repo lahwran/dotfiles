@@ -1,0 +1,87 @@
+import sys
+import tty
+import termios
+import contextlib
+import blessings
+import string
+
+class ExtendedTerm(blessings.Terminal):
+    def __init__(self, instream=None, kind=None, stream=None,
+            force_styling=False, unbuffered=True):
+        if instream is None:
+            instream = sys.__stdin__
+        self._instream = instream
+
+        if stream is None:
+            stream = sys.__stdout__
+        if unbuffered:
+            stream = Unbuffered(stream)
+        blessings.Terminal.__init__(self, kind, stream, force_styling)
+
+    @contextlib.contextmanager
+    def raw(self, fullscreen=True, clear=None):
+        if fullscreen:
+            self.stream.write(term.enter_fullscreen)
+        if clear is None:
+            clear = fullscreen
+        if clear:
+            self.stream.write(term.clear)
+
+        fd = self._instream.fileno()
+        old_settings = termios.tcgetattr(fd)
+        tty.setraw(self._instream)
+
+        
+        try:
+            yield self._instream, self.stream
+        except:
+            self._leave_raw(fd, old_settings, fullscreen)
+            raise
+        else:
+            self._leave_raw(fd, old_settings, fullscreen)
+
+    def _leave_raw(self, fd, old_settings, fullscreen):
+
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        if fullscreen:
+            self.stream.write(term.exit_fullscreen)
+
+class Unbuffered(object):
+    def __init__(self, stream):
+        self.stream = stream
+
+    def write(self, data):
+        self.stream.write(data)
+        self.stream.flush()
+
+    def __getattr__(self, attr):
+        return getattr(self.stream, attr)
+
+if __name__ == "__main__":
+    term = ExtendedTerm(stream=sys.stderr)
+    outs = Unbuffered(sys.stdout)
+
+    with term.raw(fullscreen=False) as (ins, err):
+        while True:
+            x = ins.read(1)
+            #if x == "\x7f":
+            #    err.write("\r\nWarning: cannot backspace with instant typing\r\n")
+            #    continue
+            if x in (string.letters + string.digits + string.punctuation + " "):
+                if not outs.isatty():
+                    err.write(x)
+            elif x == "\r":
+                err.write("\r\n")
+                x = "\n"
+            elif x == "\x04":
+                outs.close()
+                break
+            elif x == "\x7f":
+                x = "\b \b"
+                if not outs.isatty():
+                    err.write(x)
+            elif x == "\x03":
+                break
+            else:
+                err.write("\r\nNonprintable: %r\r\n" % x)
+            outs.write(x)
