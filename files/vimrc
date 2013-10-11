@@ -167,7 +167,7 @@ let g:ctrlp_prompt_mappings = {
             \ }
 
 set title
-set titlestring=%{expand(\"%:p:h\")}/%t%(\ %M%)%(\ %a%)\ -\ %{$USER}@%{hostname()}
+set titlestring=%{expand(\"%:p:h\")}/%t%(\ %M%)%(\ %a%)\ -\ %{$USER}@%{hostname()}\ -\ vim
 
 
 noh

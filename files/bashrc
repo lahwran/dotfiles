@@ -85,7 +85,7 @@ function flushhistory() {
 add_prompt_command flushhistory
 
 function updatewindowtitle() {
-    echo -ne "\033]0;$PWD - $USER@$HOSTNAME \007"
+    echo -ne "\033]0;$PWD - $USER@$HOSTNAME - bash\007"
 }
 add_prompt_command updatewindowtitle
 
