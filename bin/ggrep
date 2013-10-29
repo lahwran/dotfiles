@@ -1,0 +1,36 @@
+#!/usr/bin/python
+import subprocess
+import argparse
+import sys
+parser = argparse.ArgumentParser(prefix_chars="-")
+parser.add_argument("--args", nargs="+")
+parser.add_argument("-a")
+parser.add_argument("-b")
+parser.add_argument("-c")
+parser.add_argument("-f", action="append", default=[])
+args = parser.parse_args()
+
+print "Grep for %r" % args.args[0]
+if len(args.args[1:]):
+    print "in %r" % args.args[1:]
+cmd = ["git", "grep"]
+special = [ "-E"]
+if args.c:
+    special.extend(["-C", args.c])
+    print "with", args.c, "context"
+if args.a:
+    special.extend(["-A", args.a])
+    print "with", args.a, "postcontext"
+if args.b:
+    special.extend(["-B", args.b])
+    print "with", args.b, "precontext"
+cmd.extend(special)
+cmd.extend(args.args)
+print cmd
+sys.stdout.flush()
+sys.stderr.flush()
+#processes = []
+#commands = [cmd]
+#for filter in args.f:
+#    commands.append(["grep", "-C", "10",)
+subprocess.call(cmd)

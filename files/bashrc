@@ -98,6 +98,18 @@ alias mv="mv -i"
 alias cp="cp -i"
 alias file="file -k"
 
+case "$TERM" in
+    screen*)
+        export TERM=xterm
+        ;;
+esac
+
+if [ ! -z "$SSH_AUTH_SOCK" -a "$SSH_AUTH_SOCK" != "$HOME/.ssh/agent_sock" ] ; then
+    unlink "$HOME/.ssh/agent_sock" 2>/dev/null
+    ln -s "$SSH_AUTH_SOCK" "$HOME/.ssh/agent_sock"
+    export SSH_AUTH_SOCK="$HOME/.ssh/agent_sock"
+fi
+
 # enable programmable completion features
 # from ubuntu, may be redundant
 if [ -f /etc/bash_completion ] && ! shopt -oq posix; then

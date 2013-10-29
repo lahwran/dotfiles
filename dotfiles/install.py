@@ -45,6 +45,9 @@ ensure_nonexistant = [
     "~/.bash_logout",
 ]
 
+def gitconfig(*args):
+    return subprocess.check_output(["git", "config", "--global"] + list(args))
+
 def fullpath(*args):
     _p = os.path
     return _p.abspath(_p.normpath(_p.expanduser(_p.join(*args))))
@@ -185,6 +188,41 @@ def user_install():
     install_file("submodules/ctrlp/", "~/.vim/bundle/ctrlp/")
     install_file("submodules/fugitive/", "~/.vim/bundle/fugitive/")
 
+    install_file("files/tmux.conf", "~/.tmux.conf")
+
+
+    # git configuration
+    realname = None
+    email = None
+    try:
+        realname = gitconfig("user.name")
+    except subprocess.CalledProcessError:
+        pass
+    try:
+        email = gitconfig("user.email")
+    except subprocess.CalledProcessError:
+        pass
+    if not realname:
+        realname = raw_input("Need a realname for git: ")
+        gitconfig("user.name", realname)
+    if not email:
+        email = raw_input("Need an email for git: ")
+        gitconfig("user.email", email)
+
+    gitconfig("alias.shortlog", "log --graph --pretty=format:'%Cred%h%Creset %cn -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative")
+    gitconfig("alias.find", r"""!sh -c 'git ls-files --full-name "\\*$1\\*"' -""")
+    gitconfig("alias.ignored", "ls-files -o -i --exclude-standard")
+
+    gitconfig("merge.defaultToUpstream", "true")
+
+    gitconfig("color.branch", "auto")
+    gitconfig("color.diff", "auto")
+    gitconfig("color.interactive", "auto")
+    gitconfig("color.status", "auto")
+    gitconfig("color.grep", "auto")
+
+    gitconfig("core.editor", "vim")
+
 
 def root_install():
     global logger
@@ -224,6 +262,7 @@ def main(mode="init", *args):
     if mode == "superuser":
         root_install(*args)
     elif mode == "init":
+        # TODO: check for mac
         logger.info("running root portion")
         subprocess.call(["sudo", sys.executable, sys.argv[0], "superuser"] + list(args))
         logger.info("running user portion")
