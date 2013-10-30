@@ -190,6 +190,8 @@ def user_install():
 
     install_file("files/tmux.conf", "~/.tmux.conf")
 
+    install_file("files/gitignore", "~/.gitignore")
+
 
     # git configuration
     realname = None
@@ -222,6 +224,7 @@ def user_install():
     gitconfig("color.grep", "auto")
 
     gitconfig("core.editor", "vim")
+    gitconfig("core.excludesfile", os.path.expanduser("~/.gitignore"))
 
 
 def root_install():
