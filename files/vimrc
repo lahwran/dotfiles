@@ -145,7 +145,8 @@ nnoremap ,r :e __nonexistantfile__ \| e <C-r>=bufname("%")<CR><CR>
 nnoremap ,n :NERDTree<CR>
 nnoremap ,t :read !@ 'datetime.datetime.now().strftime("_B _d, _Y _I:_M:_S _p".replace("_", chr(37)))'<CR>
 vnoremap ,w :!@ 'datetime.datetime(2013, int(inp()), 1).strftime(chr(37) + "B")'<CR>
-nnoremap ,g :read !ggrep --args '
+nnoremap ,g' :read !ggrep --args '
+nnoremap ,gg' :vnew<CR><ESC>:setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile<CR><ESC><ESC>:read !ggrep --args '
 nnoremap ,m :join<CR>
 
 noremap J j
@@ -158,11 +159,12 @@ noremap L l
 "    \ 'file': '.*(\.so|\.pyc)$',
 "    \ 'link': 'THIS_WILL_NEVER_MATCH'
 "    \ }
-set wildignore=*.pyc,*.so,.git,.hg,htmlcov,__pycache__
+set wildignore+=*.pyc,*.so,.git,.hg,htmlcov,__pycache__
 let g:ctrlp_open_multiple_files='v'
 let g:ctrlp_open_new_file='v'
 let g:ctrlp_lazy_update=50
 let g:ctrlp_follow_symlinks=1
+let g:ctrlp_max_files = 0
 let g:ctrlp_prompt_mappings = {
             \ 'AcceptSelection("v")': ['<cr>'],
             \ 'AcceptSelection("e")': ['<c-v>']
