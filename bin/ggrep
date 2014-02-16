@@ -3,10 +3,14 @@ import subprocess
 import argparse
 import sys
 parser = argparse.ArgumentParser(prefix_chars="-")
-parser.add_argument("--args", nargs="+")
+parser.add_argument("--args", dest="ignored", action="store_true")
+parser.add_argument("args", nargs="+")
 parser.add_argument("-a")
 parser.add_argument("-b")
 parser.add_argument("-c")
+parser.add_argument("-A", dest="a")
+parser.add_argument("-B", dest="b")
+parser.add_argument("-C", dest="c")
 parser.add_argument("-f", action="append", default=[])
 args = parser.parse_args()
 
