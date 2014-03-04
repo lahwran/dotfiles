@@ -34,6 +34,12 @@ if has("autocmd")
 
 endif
 
+" this also from byron's
+map     j gj
+ounmap  j
+map     k gk
+ounmap  k
+
 filetype plugin on
 filetype indent on
 
@@ -143,7 +149,7 @@ nnoremap ,pf :vnew \| r !py.test <C-r>=bufname("%")<CR><CR><ESC>:setlocal buftyp
 nnoremap ,pa :vnew \| r !py.test<CR><ESC>:setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
 nnoremap ,r :e __nonexistantfile__ \| e <C-r>=bufname("%")<CR><CR>
 nnoremap ,n :NERDTree<CR>
-nnoremap ,t :read !@ 'datetime.datetime.now().strftime("_B _d, _Y _I:_M:_S _p".replace("_", chr(37)))'<CR>
+nnoremap ,t :read !@ 'datetime.datetime.now().strftime("_B _d, _Y _I:_M:_S _p".replace("_", chr(37)))'<CR><CR>
 vnoremap ,w :!@ 'datetime.datetime(2013, int(inp()), 1).strftime(chr(37) + "B")'<CR>
 nnoremap ,g' :read !ggrep --args '
 nnoremap ,gg' :vnew<CR><ESC>:setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile<CR><ESC><ESC>:read !ggrep --args '
@@ -159,7 +165,7 @@ noremap L l
 "    \ 'file': '.*(\.so|\.pyc)$',
 "    \ 'link': 'THIS_WILL_NEVER_MATCH'
 "    \ }
-set wildignore+=*.pyc,*.so,.git,.hg,htmlcov,__pycache__
+set wildignore+=*.pyc,*.so,.git,.hg,htmlcov,__pycache__,.*.sw*
 let g:ctrlp_open_multiple_files='v'
 let g:ctrlp_open_new_file='v'
 let g:ctrlp_lazy_update=50
@@ -170,8 +176,43 @@ let g:ctrlp_prompt_mappings = {
             \ 'AcceptSelection("e")': ['<c-v>']
             \ }
 
-set title
 set titlestring=%{expand(\"%:p:h\")}/%t%(\ %M%)%(\ %a%)\ -\ %{$USER}@%{hostname()}\ -\ vim
 
+"BEGIN from eevee's dotfiles: https://github.com/eevee/rc/blob/master/.vimrc
+if &term =~ "^screen"
+    " pretend this is xterm.  it probably is anyway, but if term is left as
+    " `screen`, vim doesn't understand ctrl-arrow.
+    if &term == "screen-256color"
+        set term=xterm-256color
+    else
+        set term=xterm
+    endif
+
+    " gotta set these *last*, since `set term` resets everything
+    set t_ts=k
+    set t_fs=\
+endif
+set title
+
+set undodir=~/.vim/undo         " persistent undo storage
+set undofile                    " persistent undo on
+
+set lazyredraw                  " don't update screen inside macros, etc
+set showcmd                     " display incomplete commands
+set shiftround                  " only indent to multiples of shiftwidth
+
+set fileformats=unix,dos        " unix linebreaks in new files please
+set listchars=tab:↹·,extends:⇉,precedes:⇇,nbsp:␠,trail:␠,nbsp:␣
+                                " appearance of invisible characters
+
+set ttymouse=xterm2             " force mouse support for screen
+set encoding=utf-8              " best default encoding
+setglobal fileencoding=utf-8    " ...
+set nobomb                      " do not write utf-8 BOM!
+set fileencodings=ucs-bom,utf-8,iso-8859-1
+                                " order to detect Unicodeyness
+
+set scrolloff=2                 " always have 2 lines of context on the screen
+"END from eevee's dotfiles: https://github.com/eevee/rc/blob/master/.vimrc
 
 noh
