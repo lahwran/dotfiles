@@ -235,6 +235,13 @@ def root_install():
     logger.info("Installing OS packages...")
     os_specific.install_packages(os_dependencies)
 
+    try:
+        subprocess.check_call(["whereis", "xinit"])
+    except (OSError, subprocess.CalledProcessError):
+        pass
+    else:
+        os_specific.install_packages(["x11vnc"])
+
     # install global environment defaults
     logger.info("Installing environment defaults...")
     install_text("/etc/environment", readfile("files/global_environ"))
