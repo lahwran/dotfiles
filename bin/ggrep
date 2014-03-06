@@ -8,6 +8,7 @@ parser.add_argument("args", nargs="+")
 parser.add_argument("-a")
 parser.add_argument("-b")
 parser.add_argument("-c")
+parser.add_argument("-i", action="store_true")
 parser.add_argument("-A", dest="a")
 parser.add_argument("-B", dest="b")
 parser.add_argument("-C", dest="c")
@@ -28,6 +29,8 @@ if args.a:
 if args.b:
     special.extend(["-B", args.b])
     print "with", args.b, "precontext"
+if args.i:
+    special.extend(["-i"])
 cmd.extend(special)
 cmd.extend(args.args)
 print cmd

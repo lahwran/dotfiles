@@ -155,6 +155,8 @@ nnoremap ,g' :read !ggrep --args '
 nnoremap ,gg' :vnew<CR><ESC>:setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile<CR><ESC><ESC>:read !ggrep --args '
 nnoremap ,m :join<CR>
 
+noremap Q q
+
 noremap J j
 noremap K k
 noremap H h
