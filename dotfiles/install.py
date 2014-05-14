@@ -226,6 +226,7 @@ def user_install():
     gitconfig("core.editor", "vim")
     gitconfig("core.excludesfile", os.path.expanduser("~/.gitignore"))
 
+    gitconfig("push.default", "current")
 
 def root_install():
     global logger
