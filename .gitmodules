@@ -13,3 +13,9 @@
 [submodule "submodules/fugitive"]
 	path = submodules/fugitive
 	url = git://github.com/tpope/vim-fugitive.git
+[submodule "submodules/vim-indent-guides"]
+	path = submodules/vim-indent-guides
+	url = git://github.com/nathanaelkane/vim-indent-guides.git
+[submodule "submodules/vim-javascript"]
+	path = submodules/vim-javascript
+	url = git://github.com/pangloss/vim-javascript.git

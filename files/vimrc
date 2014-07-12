@@ -217,4 +217,7 @@ set fileencodings=ucs-bom,utf-8,iso-8859-1
 set scrolloff=2                 " always have 2 lines of context on the screen
 "END from eevee's dotfiles: https://github.com/eevee/rc/blob/master/.vimrc
 
+
+set hidden
+
 noh

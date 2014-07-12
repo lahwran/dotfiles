@@ -1,6 +1,12 @@
 # append to the history file, don't overwrite it
 shopt -s histappend
 
+HISTSIZE=10000000000000
+HISTFILESIZE=10000000000000
+HISTIGNORE=""
+HISTCONTROL=""
+export HISTTIMEFORMAT="%y-%m-%d %T "
+
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 # from ubuntu, may be redundant
@@ -21,11 +27,13 @@ xterm*|rxvt*)
     ;;
 esac
 
+alias ls='ls -1'
+
 # enable color support of ls and also add handy aliases
 # from ubuntu, modified for other OSes, may be redundant
 if [ -x "$(which dircolors)" ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
+    alias ls='ls -1 --color=auto'
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
@@ -74,11 +82,6 @@ unset COLORFGBG
 
 
 # see also http://mywiki.wooledge.org/BashFAQ/088
-HISTSIZE=10000000000000
-HISTFILESIZE=10000000000000
-HISTIGNORE=""
-HISTCONTROL=""
-export HISTTIMEFORMAT="%y-%m-%d %T "
 function flushhistory() {
     history -a;
 }

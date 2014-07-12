@@ -68,7 +68,7 @@ def summarize_uid(uid):
     }
 
 
-def summarize(filename, skip_summaries=True, no_open=False):
+def summarize(filename, skip_summaries=True, no_open=False, overwrite=False):
     if skip_summaries and filename.endswith(".summary"):
         try:
             json.loads(open(filename).read(1024**3))
@@ -77,7 +77,7 @@ def summarize(filename, skip_summaries=True, no_open=False):
         else:
             return []
 
-    return _summarize(filename, skip_summaries, no_open)
+    return _summarize(filename, skip_summaries, no_open, overwrite)
 
 def lockfiles(filename):
     result = [os.path.join(os.path.dirname(filename), ".dontsummarize")]
@@ -85,7 +85,17 @@ def lockfiles(filename):
         result.append(os.path.join(filename, ".dontsummarize"))
     return result
 
-def _summarize(filename, skip_summaries, no_open):
+def safeopenwriter(filename, overwrite):
+    #if not overwrite:
+    #    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    #    if getattr(os, "O_BINARY", None) is not None:
+    #        flags |= os.O_BINARY
+    #    fd = os.open(filename, flags)
+    #    return os.fdopen(fd)
+    #else:
+    return open(filename, "wb")
+
+def _summarize(filename, skip_summaries, no_open, overwrite):
     filename = os.path.expanduser(filename)
     filename = os.path.normpath(filename)
     filename = os.path.abspath(filename)
@@ -132,8 +142,16 @@ def _summarize(filename, skip_summaries, no_open):
     summary["hostname"] = platform.node()
     summary["hostdns"] = socket.gethostname()
 
-    summaryfile = filename + ".summary"
-    with open(summaryfile, "wb") as writer:
+    def makename(index):
+        if index == 0:
+            return filename + ".summary"
+        return (filename + ".summary%d") % index
+    index = 0
+    summaryfile = makename(0)
+    while (not overwrite) and os.path.exists(summaryfile):
+        index += 1
+        summaryfile = makename(index)
+    with safeopenwriter(summaryfile, overwrite) as writer:
         writer.write(json.dumps(summary, indent=4, sort_keys=True))
 
     print "Written to", summaryfile
@@ -149,6 +167,7 @@ parser.add_argument("--dont-summarize", action="store_true")
 parser.add_argument("--dont-hash", action="store_true")
 parser.add_argument("--recurse", action="store_true")
 parser.add_argument("--dont-skip-summaries", action="store_true")
+parser.add_argument("--overwrite", action="store_true")
 parser.add_argument("files", nargs="*")
 
 def main(args):
@@ -162,9 +181,9 @@ def main(args):
     print args.files
     for x in args.files:
         if args.recurse:
-            results = recursive(x, skip_summaries, args.dont_hash)
+            results = recursive(x, skip_summaries, args.dont_hash, args.overwrite)
         else:
-            results = summarize(x, skip_summaries, args.dont_hash)
+            results = summarize(x, skip_summaries, args.dont_hash, args.overwrite)
         deletes.extend(results)
 
     if do_delete:
@@ -174,16 +193,16 @@ def main(args):
         for x in deletes:
             os.unlink(x)
 
-def recursive(directory, skip_summaries=True, dont_hash=False):
+def recursive(directory, skip_summaries=True, dont_hash=False, overwrite=False):
     import os
     results = []
 
     for root, dirs, files in os.walk(directory):
         summarize(root, skip_summaries=False,
-                no_open=True)
+                no_open=True, overwrite=overwrite)
         for x in files:
             results.extend(summarize(os.path.join(root, x),
-                skip_summaries=skip_summaries, no_open=dont_hash))
+                skip_summaries=skip_summaries, no_open=dont_hash, overwrite=overwrite))
 
     return results
 

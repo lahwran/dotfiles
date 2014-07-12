@@ -187,6 +187,8 @@ def user_install():
     install_file("submodules/nerdtree/", "~/.vim/bundle/nerdtree/")
     install_file("submodules/ctrlp/", "~/.vim/bundle/ctrlp/")
     install_file("submodules/fugitive/", "~/.vim/bundle/fugitive/")
+    install_file("submodules/vim-javascript/", "~/.vim/bundle/vim-javascript/")
+    install_file("submodules/vim-indent-guides/", "~/.vim/bundle/vim-indent-guides/")
 
     install_file("files/tmux.conf", "~/.tmux.conf")
 
