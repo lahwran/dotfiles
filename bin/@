@@ -213,6 +213,7 @@ _optional_modules = [
     "pty",
     "fcntl",
     "blessings",
+    "collections",
 ]
 for _mod in _optional_modules:
     if _mod in _string:
