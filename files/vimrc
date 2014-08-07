@@ -227,6 +227,30 @@ set scrolloff=2                 " always have 2 lines of context on the screen
 "END from eevee's dotfiles: https://github.com/eevee/rc/blob/master/.vimrc
 
 
+" highlight settings for gitgutter
+highlight clear SignColumn 
+highlight clear DiffAdd
+highlight clear DiffChange
+highlight clear DiffDelete
+highlight clear DiffText
+
+highlight DiffAdd term=bold ctermfg=black ctermbg=darkgreen
+highlight DiffText term=bold ctermfg=black ctermbg=darkgreen
+highlight DiffChange term=bold ctermfg=black ctermbg=darkyellow
+highlight DiffDelete term=bold ctermbg=red ctermfg=red
+
+highlight GitGutterAdd term=bold ctermbg=darkgreen ctermfg=black
+highlight GitGutterChange term=bold ctermbg=darkyellow ctermfg=black
+highlight GitGutterDelete term=bold ctermfg=red
+highlight GitGutterChangeDelete term=bold ctermbg=darkyellow ctermfg=black
+
+
+let g:gitgutter_escape_grep = 1
+let g:gitgutter_realtime = 1
+let g:gitgutter_eager = 1
+let g:gitgutter_diff_args = '--patience'
+
+
 set hidden
 
 noh
