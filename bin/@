@@ -23,6 +23,7 @@ mean to use the module:
 if you pass -p, prints x for x in <your expression> on lines:
 
   > $ @ '[1, 2, 3, 4]'
+    [1, 2, 3, 4]
   > $ @ -p '[1, 2, 3, 4]'
     1
     2
