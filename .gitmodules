@@ -19,3 +19,6 @@
 [submodule "submodules/vim-javascript"]
 	path = submodules/vim-javascript
 	url = git://github.com/pangloss/vim-javascript.git
+[submodule "submodules/vim-gitgutter"]
+	path = submodules/vim-gitgutter
+	url = git://github.com/airblade/vim-gitgutter.git
