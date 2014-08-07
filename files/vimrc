@@ -35,6 +35,7 @@ if has("autocmd")
 endif
 
 " this also from byron's
+" jumps between screen lines by default, rather than logical lines
 map     j gj
 ounmap  j
 map     k gk
@@ -70,20 +71,20 @@ augroup END
 
 set history=50000 " increase history 'cause I like lots of it
 
-set hlsearch  " I like to see my searches
-set ignorecase  " ignore case when searching
-set smartcase  " except when a capital letter is in the search
-set ruler  " show the cursor position all the time
+set hlsearch  " highlight searches - I like to see my searches
+set ignorecase  " ignore case when searching...
+set smartcase  " ...except when a capital letter is in the search
+set ruler  " show the cursor position on the bottom of the screen all the time
 set laststatus=2  " helps show the file name
-set incsearch
+set incsearch  " start searching before you hit enter
 
-"set foldmethod=indent   "fold based on indent
+"fold based on indent
 set foldmethod=indent
-set foldnestmax=100      "deepest fold is 10 levels
+set foldnestmax=100
 
 highlight Folded ctermbg=none ctermfg=green cterm=none
 set foldcolumn=0 " no fold indicator column next to line numbers
-set foldtext=MyFoldText() " fancy fold text
+set foldtext=MyFoldText() " fancy minimal fold text
 function! MyFoldText()
     let line = v:foldstart
     let indent = indent(line)
@@ -106,7 +107,7 @@ set mouse=a
 nnoremap <F3> :set mouse=a<CR>
 nnoremap <F4> :set mouse=<CR>
 
-" f2 to toggle paste mode
+" f2 to toggle paste mode - disables autoindent
 nnoremap <F2> :set invpaste paste?<CR>
 set pastetoggle=<F2>
 set showmode
@@ -115,46 +116,73 @@ set showmode
 " horribly prominent so I can actually tell what's what
 highlight MatchParen cterm=NONE ctermbg=black ctermfg=darkblue
 
-" for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
-" everything gets highlighted. this works around that.
 
-hi Search cterm=NONE ctermfg=grey ctermbg=darkblue
-hi Visual cterm=NONE ctermfg=black ctermbg=darkyellow
-
+" if vim was opened with no arguments, open nerdtree
 autocmd VimEnter * if argc() == 0 | source ~/.vimrc_newsession | endif
 
+" this goes with my terminal colors better (I use a simple version of
+" solarized - no weird app customization, just terminal colors)
 hi Search cterm=NONE ctermfg=grey ctermbg=darkblue
 hi Visual cterm=NONE ctermfg=black ctermbg=darkyellow
 
+" fix for vim oddness with multi-character actions
 set timeout timeoutlen=1000 ttimeoutlen=100
+
+" keep visual selection highlighted when indenting/deindenting
 vnoremap < <gv
 vnoremap > >gv
 
+" bash-like tab completion when typing paths in :e and friends
 set wildmode=longest:full,full
 set wildmenu
 
+" convenient win-grab functionality
+" ,u to hide the current buffer and record what buffer it was in a clipboard
+" ,U to copy the current buffer's id without hiding it
+" ,h or ,j or ,k or ,l to paste the recorded buffer relative to the current
+" window
+" note: this doesn't seem to work on scratch windows. I'm not really sure why.
 let g:wingrab_last_buffer = -1
 function! Wincp()
     let g:wingrab_last_buffer = bufnr("%")
 endfunction
-
 nnoremap ,u :call Wincp()<CR>:hide<CR><C-=><ESC><ESC>
 nnoremap ,<S-U> :call Wincp()<CR><ESC><ESC>
 nnoremap ,h :aboveleft vnew<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
 nnoremap ,l :rightbelow vnew<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
 nnoremap ,k :aboveleft new<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
 nnoremap ,j :rightbelow new<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
+
+" ,z to open git-tracked version of this file in scratch split
 nnoremap ,z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD:<C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
+
+" ,pf to run pytest in split on the current test file
+" ,pa to run pytest in a split in the current directory
 nnoremap ,pf :vnew \| r !py.test <C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
 nnoremap ,pa :vnew \| r !py.test<CR><ESC>:setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
+
+" ,r to reload current file, hopefully resetting vim's buffer settings
 nnoremap ,r :e __nonexistantfile__ \| e <C-r>=bufname("%")<CR><CR>
+
+" ,n to open nerdtree
 nnoremap ,n :NERDTree<CR>
+
+" ,t to insert current time on new line (depends on @ command)
 nnoremap ,t :read !@ 'datetime.datetime.now().strftime("_B _d, _Y _I:_M:_S _p".replace("_", chr(37)))'<CR><CR>
-vnoremap ,w :!@ 'datetime.datetime(2013, int(inp()), 1).strftime(chr(37) + "B")'<CR>
+
+" ,g'search here'<CR> to search current git repo and paste results into
+" current file
 nnoremap ,g' :read !ggrep --args '
+" ,gg'search here'<CR> to search current git repo and paste results into
+" new scratch buffer
 nnoremap ,gg' :vnew<CR><ESC>:setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile<CR><ESC><ESC>:read !ggrep --args '
+
+" ,m to join lines
 nnoremap ,m :join<CR>
 
+" I often typo :q as :Q, but want it to do the same thing; similarly with
+" HJKL. this hides some features - I don't use them, but if you do, this may
+" be detrimental.
 noremap Q q
 
 noremap J j
@@ -162,6 +190,9 @@ noremap K k
 noremap H h
 noremap L l
 
+
+" --- ctrlp config
+" this commented out code doesn't work, but it seems like it should...
 "let g:ctrlp_custom_ignore = {
 "    \ 'dir': '.*\/(\.git|\.hg|htmlcov|__pycache__)$',
 "    \ 'file': '.*(\.so|\.pyc)$',
@@ -241,7 +272,9 @@ let g:gitgutter_realtime = 1
 let g:gitgutter_eager = 1
 let g:gitgutter_diff_args = '--patience'
 
-
+" hide buffers instead of quitting them (needed for wingrab)
 set hidden
 
+" for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
+" everything gets highlighted. this works around that.
 noh

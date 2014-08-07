@@ -1,11 +1,17 @@
 # append to the history file, don't overwrite it
 shopt -s histappend
 
+# WARNING: IF BASH FAILS TO LOAD THIS, IT CAN OBLITERATE YOUR
+# HISTORY. I COPY MY BASH HISTORY ON REGULAR INTERVALS AND
+# BACK IT UP WITH CRASHPLAN. I'll probably make a thing to do
+# that automatically eventually, but WATCH OUT FOR FAILED BASH
+# STARTUPS.
 HISTSIZE=10000000000000
 HISTFILESIZE=10000000000000
 HISTIGNORE=""
 HISTCONTROL=""
 export HISTTIMEFORMAT="%y-%m-%d %T "
+# end history warning
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -27,6 +33,8 @@ xterm*|rxvt*)
     ;;
 esac
 
+# I find the multi-column ls output hard to scan for a particular file,
+# so this shuts it off by default.
 alias ls='ls -1'
 
 # enable color support of ls and also add handy aliases
@@ -65,6 +73,9 @@ PATH="$(dirname "$(readlink "$BASH_SOURCE")")/../bin:$PATH"
 
 
 # set color prompt
+# this function was intended to allow colors to be changed
+# based on host, so I could tell computers apart by prompt color.
+# I still might do that.
 function color {
     if [ "$1" == "1" ]; then
         z="32"
@@ -76,7 +87,7 @@ function color {
     echo -n '\[\033['"$z"'m\]'
 
 }
-PS1="`color 1`\u@\h`color`:`color 2`\w`color`\$ "
+PS1="$(color 1)\u@\h$(color):$(color 2)\w$(color)\$ "
 unset c
 unset COLORFGBG
 
@@ -97,16 +108,24 @@ function displaygit() {
 }
 #add_prompt_command displaygit
 
+# don't do dangerous moves or copies without asking!!
 alias mv="mv -i"
 alias cp="cp -i"
+
+# make file give all the results it knows about, not just the first one
 alias file="file -k"
 
+# explanation after the fact:
+# I believe this setting is to allow mouse input inside tmux. If I remember
+# correctly, vim is funny about that unless you set TERM=xterm. (I'm not
+# completely confident that is the origin of this setting, though.)
 case "$TERM" in
     screen*)
         export TERM=xterm
         ;;
 esac
 
+# For ssh agent forwarding through tmux. Doesn't work very well :(
 if [ ! -z "$SSH_AUTH_SOCK" -a "$SSH_AUTH_SOCK" != "$HOME/.ssh/agent_sock" ] ; then
     unlink "$HOME/.ssh/agent_sock" 2>/dev/null
     ln -s "$SSH_AUTH_SOCK" "$HOME/.ssh/agent_sock"
@@ -120,6 +139,9 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
     echo "done"
 fi
+
+# ~/.local/bin is where pip puts --user installed commands on mac. I think
+# it's the same on linux?
 if [ -d ~/.local/bin ] ; then
     export PATH="$HOME/.local/bin:$PATH"
 fi

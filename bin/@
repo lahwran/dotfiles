@@ -1,6 +1,63 @@
 #!/usr/bin/python
+# *not* /usr/bin/env python
 # intended to be saved as ~/bin/@ or something similarly convenient
-# run @ --help for more information
+# run @ --help for (a little) more information
+#
+# primarily a python eval command. auto-formats the result of your expression:
+# (> indicates the line contains user input)
+#
+#  > $ @ '1'
+#    1
+#  > $ @ '1 + 1'
+#    2
+#  > $ @ '"hello world"'
+#    hello world
+#
+# has auto-import; looks through your string for module names.
+# if it finds them, it imports them. shouldn't cause any issues if you don't
+# mean to use the module:
+#
+#  > $ @ 'time.time()'
+#    1397224233.76
+#
+# if you pass -p, prints x for x in <your expression> on lines:
+#
+#  > $ @ '[1, 2, 3, 4]'
+#  > $ @ -p '[1, 2, 3, 4]'
+#    1
+#    2
+#    3
+#    4
+#
+# if you pass -l, appends ' for line in lines' to your expression:
+#
+#  > $ @ -pl 'line[::-1]'
+#  > hello world
+#    dlrow olleh
+#  > wheee!
+#    !eeehw
+#  > this is fun!
+#    !nuf si siht
+#
+# see --help for further information.
+# examples from my bash history:
+#
+# examples:
+#
+#    @ '"|".join(lines)'
+#    @ -p 'range(10)'
+#    @ -pl 'line[::-1]
+#    @ '"%s %s" % (datetime.datetime.now(), line)' -plu
+#    @ 'math.sqrt(49012)'
+#    @ 'math.sqrt(150)'
+#    @ 'math.sqrt(925)'
+#    ... | @ 'line.decode("utf-8").encode("unicode_escape")' -pl | ...
+#    @ 'x % 5 for x in range(15)'
+#    @ 'dir()' -p
+#    @ 'random.choice("abcdef0123456789") for x in range(30)' -j
+#    @ 'sorted("\n%s %s (#%s): %s\n%s" % (x[8], x[6], x[0], x[1], x[13].strip("\n")) for x in csv.reader(sys.stdin))' -p
+
+
 from __future__ import print_function
 
 import os
@@ -250,7 +307,11 @@ if not isinstance(result, basestring):
             for x in iterator:
                 print(x)
         else:
-            list(iterator)
+            result2 = list(iterator)
+            if result2 == list(result): # check for repeatability
+                print(result)
+            elif any(x != None for x in result2):
+                print(result2)
         succeed()
 
 if not isinstance(result, bool) or _shouldprint:

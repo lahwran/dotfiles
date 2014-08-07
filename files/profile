@@ -1,6 +1,13 @@
+# I mostly ignore this file. All the interesting stuff is in bashrc.
+# also, this profile file is only installed as a default if no profile
+# already exists. see profile_include for stuff that is installed no matter what.
+
 # set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
 fi
 
+# extremely restrictive default permissions for files - other users
+# can't read them at all! this causes me problems sometimes, but
+# I prefer security by default.
 umask 077

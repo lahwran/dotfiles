@@ -1,4 +1,9 @@
+# mac adds this EVERYWHERE:
 .DS_Store
+
+# vim swap files
 .*.sw?
+
+# python compiled bytecode
 *.pyc
 __pycache__
