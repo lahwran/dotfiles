@@ -182,9 +182,9 @@ nnoremap ,m :join<CR>
 
 " I often typo :q as :Q, but want it to do the same thing; similarly with
 " HJKL. this hides some features - I don't use them, but if you do, this may
-" be detrimental.
+" be detrimental. also, I often typo :q as q:.
+nnoremap q: :
 noremap Q q
-
 noremap J j
 noremap K k
 noremap H h
