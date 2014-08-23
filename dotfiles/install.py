@@ -190,6 +190,7 @@ def user_install():
     install_file("submodules/vim-javascript/", "~/.vim/bundle/vim-javascript/")
     install_file("submodules/vim-indent-guides/", "~/.vim/bundle/vim-indent-guides/")
     install_file("submodules/vim-gitgutter/", "~/.vim/bundle/vim-gitgutter/")
+    install_file("submodules/ceylon-vim/", "~/.vim/bundle/ceylon-vim/")
 
     install_file("files/tmux.conf", "~/.tmux.conf")
 

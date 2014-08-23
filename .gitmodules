@@ -22,3 +22,6 @@
 [submodule "submodules/vim-gitgutter"]
 	path = submodules/vim-gitgutter
 	url = git://github.com/airblade/vim-gitgutter.git
+[submodule "submodules/ceylon-vim"]
+	path = submodules/ceylon-vim
+	url = git://github.com/lahwran/ceylon-vim.git
