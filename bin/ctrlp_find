@@ -1,0 +1,6 @@
+#!/bin/bash
+
+MYPATH="$1"
+
+find "$MYPATH" | grep -v "^$MYPATH"'$' | egrep -v "__pycache__|\.pyc$|\.so|htmlcov|\.git|\.class"
+# | egrep -v "^.*(path1|path2|...).*$"

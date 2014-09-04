@@ -208,6 +208,7 @@ let g:ctrlp_prompt_mappings = {
             \ 'AcceptSelection("v")': ['<cr>'],
             \ 'AcceptSelection("e")': ['<c-v>']
             \ }
+let g:ctrlp_user_command = 'ctrlp_find %s'
 
 set titlestring=%{expand(\"%:p:h\")}/%t%(\ %M%)%(\ %a%)\ -\ %{$USER}@%{hostname()}\ -\ vim
 
