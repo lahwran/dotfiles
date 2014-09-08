@@ -61,6 +61,8 @@ from __future__ import print_function
 
 import os
 import sys
+import codecs
+sys.stdin = codecs.getreader("utf-8")(sys.stdin)
 
 class _Unbuffered(object):
     def __init__(self, stream):
@@ -68,6 +70,8 @@ class _Unbuffered(object):
         self._unbuffered = True
 
     def write(self, data):
+        if type(data) == unicode:
+            data = data.encode("utf-8")
         self.stream.write(data)
         if self._unbuffered:
             self.stream.flush()
