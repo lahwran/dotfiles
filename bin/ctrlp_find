@@ -2,5 +2,12 @@
 
 MYPATH="$1"
 
-find "$MYPATH" | grep -v "^$MYPATH"'$' | egrep -v "__pycache__|\.pyc$|\.so|htmlcov|\.git|\.class"
+function derp {
+    if [ -e "$MYPATH/.ctrlp_ignore" ]; then
+        egrep -v "$(cat "$MYPATH/.ctrlp_ignore" | @ 'inp().strip().replace("\n", "")')"
+    else
+        cat
+    fi;
+}
+find "$MYPATH" | grep -v "^$MYPATH"'$' | egrep -v "__pycache__|\.pyc$|\.so|htmlcov|\.git|\.class|\.sw.$" | derp
 # | egrep -v "^.*(path1|path2|...).*$"
