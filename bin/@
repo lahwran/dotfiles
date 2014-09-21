@@ -177,7 +177,8 @@ def _parse_args():
             help="same as -f but run on result of expression, not input")
     parser.add_argument("-v", "--variables", nargs="*",
             help='use as -v x="hi" y="$there" to add variables to the expression')
-    parser.add_argument("string", default=None, nargs="*",
+    parser.add_argument("string", default=('line for line in lines',),
+            nargs="*",
             help="the expression, automatically joined by space if multiple specified")
     args = parser.parse_args()
 
@@ -280,6 +281,7 @@ _optional_modules = [
     "fcntl",
     "blessings",
     "collections",
+    "tokenize",
 ]
 for _mod in _optional_modules:
     if _mod in _string:
