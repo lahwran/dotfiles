@@ -62,8 +62,6 @@ from __future__ import print_function
 import os
 import sys
 import codecs
-sys.stdin = codecs.getreader("utf-8")(sys.stdin)
-
 class _Unbuffered(object):
     def __init__(self, stream):
         self.stream = stream
@@ -105,7 +103,7 @@ def fail():
 def lines():
     yield None
     while True:
-        line = sys.stdin.readline()
+        line = sys.stdin.readline().decode("utf-8")
         if not line:
             break
         if line.endswith("\n"):
@@ -113,7 +111,7 @@ def lines():
         yield line
 
 def inp():
-    return sys.stdin.read()
+    return sys.stdin.read().decode("utf-8")
 
 def _hash(hasher, text):
     instance = hasher()
@@ -130,9 +128,9 @@ def sha256(text):
 lines = lines()
 assert lines.next() is None
 
-def characters():
+def bytes():
     yield None
-    if sys.stdout.isatty():
+    if sys.stdout.isatty() and sys.stdout._unbuffered:
         bufsize = 1
     else:
         bufsize = 512
@@ -143,8 +141,8 @@ def characters():
             break
         for char in s:
             yield char
-characters = characters()
-assert characters.next() is None
+bytes = bytes()
+assert bytes.next() is None
 
 def _parse_args():
     import argparse
@@ -177,8 +175,7 @@ def _parse_args():
             help="same as -f but run on result of expression, not input")
     parser.add_argument("-v", "--variables", nargs="*",
             help='use as -v x="hi" y="$there" to add variables to the expression')
-    parser.add_argument("string", default=('line for line in lines',),
-            nargs="*",
+    parser.add_argument("string", default=None, nargs="*",
             help="the expression, automatically joined by space if multiple specified")
     args = parser.parse_args()
 
@@ -281,7 +278,6 @@ _optional_modules = [
     "fcntl",
     "blessings",
     "collections",
-    "tokenize",
 ]
 for _mod in _optional_modules:
     if _mod in _string:
