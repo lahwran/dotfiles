@@ -154,12 +154,12 @@ nnoremap ,k :aboveleft new<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-
 nnoremap ,j :rightbelow new<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
 
 " ,z to open git-tracked version of this file in scratch split
-nnoremap ,z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD:<C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
+nnoremap ,z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD:<C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
 
 " ,pf to run pytest in split on the current test file
 " ,pa to run pytest in a split in the current directory
-nnoremap ,pf :vnew \| r !py.test <C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
-nnoremap ,pa :vnew \| r !py.test<CR><ESC>:setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
+nnoremap ,pf :vnew \| r !py.test <C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
+nnoremap ,pa :vnew \| r !py.test<CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
 
 " ,r to reload current file, hopefully resetting vim's buffer settings
 nnoremap ,r :e __nonexistantfile__ \| e <C-r>=bufname("%")<CR><CR>
@@ -175,7 +175,7 @@ nnoremap ,t :read !@ 'datetime.datetime.now().strftime("_B _d, _Y _I:_M:_S _p".r
 nnoremap ,g' :read !ggrep --args '
 " ,gg'search here'<CR> to search current git repo and paste results into
 " new scratch buffer
-nnoremap ,gg' :vnew<CR><ESC>:setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile<CR><ESC><ESC>:read !ggrep --args '
+nnoremap ,gg' :vnew<CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile<CR><ESC><ESC>:read !ggrep --args '
 
 " ,m to join lines
 nnoremap ,m :join<CR>
@@ -272,9 +272,6 @@ let g:gitgutter_escape_grep = 1
 let g:gitgutter_realtime = 1
 let g:gitgutter_eager = 1
 let g:gitgutter_diff_args = '--patience'
-
-" hide buffers instead of quitting them (needed for wingrab)
-set hidden
 
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.
