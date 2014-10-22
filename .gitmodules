@@ -25,3 +25,6 @@
 [submodule "submodules/ceylon-vim"]
 	path = submodules/ceylon-vim
 	url = git://github.com/lahwran/ceylon-vim.git
+[submodule "submodules/dockutil"]
+	path = submodules/dockutil
+	url = https://github.com/kcrawford/dockutil.git

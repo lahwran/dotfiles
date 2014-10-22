@@ -27,7 +27,9 @@ def call(name, args, wd=None):
 
     master, slave = pty.openpty()
 
-    process = subprocess.Popen(args, bufsize=1, stdin=slave, stdout=slave, stderr=subprocess.STDOUT, close_fds=True, cwd=wd)
+    process = subprocess.Popen(args, bufsize=1,
+            stdin=slave, stdout=slave,
+            stderr=subprocess.STDOUT, close_fds=True, cwd=wd)
     os.close(slave)
     process.stdout = os.fdopen(master)
     try:

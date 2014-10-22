@@ -8,10 +8,8 @@ import os
 import stat
 import time
 
-from dotfiles import wrap_process
 from dotfiles.highlight import highlight
 from dotfiles import wrap_process
-from dotfiles import os_specific
 
 assert (0644 ==
         stat.S_IRUSR |
@@ -24,13 +22,11 @@ logger = logging.getLogger("-")
 os_dependencies = [
     "vim",
     "git",
-    "pip",
     "fail2ban",
-    "build-essential",
     "python-dev",
     "ntp-daemon",
     "tmux",
-    "tig"
+    "tig",
 ]
 
 pip_dependencies = [
@@ -136,10 +132,12 @@ def readfile(filename):
 def user_install():
     global logger
 
+    os_specific.install_packages_user(os_dependencies)
+
     # install pip packages
     logger.info("Installing pip packages...")
     for dep in pip_dependencies:
-        wrap_process.call("pip", ["pip", "install", "--user", "-M", dep])
+        wrap_process.call("pip", ["pip", "install", "--user", dep])
 
     logger = logging.getLogger("u")
     logger.info("Doing user install...")
@@ -165,7 +163,7 @@ def user_install():
     install_file("files/vimrc", "~/.vimrc_global")
     install_file("files/vimrc_newsession", "~/.vimrc_newsession")
 
-    install_text("~/.bashrc", "source ~/.bashrc_global")
+    install_text("~/.bashrc", "source ~/.bashrc_global", prev_existance=False)
     install_file("files/bashrc", "~/.bashrc_global")
     delete_text("~/.bashrc",
         "# enable programmable completion features (you don't need to enable",
@@ -176,7 +174,8 @@ def user_install():
         "fi"
     )
 
-    install_text("~/.profile", readfile("files/profile_include"))
+    install_text("~/.profile", readfile("files/profile_include"),
+            prev_existance=False)
     install_text("~/.profile", "source ~/.profile_global")
     install_file("files/profile", "~/.profile_global")
 
@@ -232,26 +231,35 @@ def user_install():
 
     gitconfig("push.default", "current")
 
+    os_specific.customize()
+
+
 def root_install():
     global logger
     logger = logging.getLogger("s")
-
+    
     # install os packages
     logger.info("Installing OS packages...")
-    os_specific.install_packages(os_dependencies)
 
     try:
+        # hack
         subprocess.check_call(["whereis", "xinit"])
     except (OSError, subprocess.CalledProcessError):
         pass
     else:
-        os_specific.install_packages(["x11vnc"])
+        os_dependencies.append("x11vnc")
 
-    # install global environment defaults
-    logger.info("Installing environment defaults...")
-    install_text("/etc/environment", readfile("files/global_environ"))
+    os_specific.install_packages_root(os_dependencies)
 
-    
+    logger.info("Installing pip...")
+    wrap_process.call("get-pip", [sys.executable, path("get-pip.py")])
+    wrap_process.call("pip", ["pip", "install", "--upgrade", "pip"])
+
+    if os.path.exists("/etc/environment"):
+        # install global environment defaults
+        logger.info("Installing environment defaults...")
+        install_text("/etc/environment", readfile("files/global_environ"))
+
 
 def init_logging(mode):
     rootlogger = logging.getLogger()
@@ -277,15 +285,20 @@ def main(mode="init", *args):
     if mode == "superuser":
         root_install(*args)
     elif mode == "init":
-        # TODO: check for mac
         logger.info("running root portion")
-        subprocess.call(["sudo", sys.executable, sys.argv[0], "superuser"] + list(args))
+        subprocess.check_call(["sudo", sys.executable, sys.argv[0], "superuser"] + list(args))
         logger.info("running user portion")
         user_install(*args)
+    elif mode == "bootstrap-root":
+        os_specific.install_packages_root(os_dependencies)
+    elif mode == "bootstrap-user":
+        os_specific.install_packages_user(os_dependencies)
     elif mode == "user":
         user_install(*args)
     else:
         logger.error("mode must be one of 'superuser', 'init', 'user': %s", mode)
+
+from dotfiles import os_specific
 
 if __name__ == "__main__":
     main(*sys.argv[1:])

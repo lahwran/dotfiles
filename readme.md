@@ -25,3 +25,13 @@ Or, just poke through and lift what you like. Have fun!
 
 The nonsense in this repository, and the rest of the repository as well,
 is available under the terms of the MIT license, available in license.md.
+
+to bootstrap an empty machine:
+
+    curl -fsSL https://github.com/lahwran/dotfiles/archive/master.tar.gz \
+    | tar -xzf - && dotfiles-master/bootstrap.py autodel
+
+or if you don't have curl:
+
+    wget -O - -o /dev/null https://github.com/lahwran/dotfiles/archive/master.tar.gz \
+    | tar -xzf - && cd dotfiles && dotfiles/bootstrap.py autodel

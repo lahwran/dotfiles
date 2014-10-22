@@ -69,7 +69,7 @@ augroup BgHighlight
     autocmd WinLeave * set nocul
 augroup END
 
-set history=50000 " increase history 'cause I like lots of it
+set history=10000 " increase history 'cause I like lots of it
 
 set hlsearch  " highlight searches - I like to see my searches
 set ignorecase  " ignore case when searching...
