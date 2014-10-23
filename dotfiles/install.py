@@ -7,6 +7,8 @@ import datetime
 import os
 import stat
 import time
+import shutil
+
 
 from dotfiles.highlight import highlight
 from dotfiles import wrap_process
@@ -73,10 +75,17 @@ def install_text(filename, text, permissions=None,
             contents += "\n" + text
         with open(filename, "w") as writer:
             # rewrite whole thing to prevent race conditions
+
+            # todo: why did I think this was a better or worse idea than
+            # appending?
             writer.write(contents)
 
     if permissions is not None:
         os.chmod(filename, permissions)
+
+
+def install_copy(master, target):
+    shutil.copy(path(master), fullpath(target))
 
 
 def install_dir(target, log=True):
