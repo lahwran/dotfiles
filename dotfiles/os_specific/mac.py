@@ -110,7 +110,7 @@ p_check = subprocess.check_call
 
 def customize():
     from dotfiles.install import (install_file,
-            install_dir, install_text, install_copy)
+            install_dir, install_text, install_copy, path)
 
     n_r = False
 
@@ -156,7 +156,11 @@ def customize():
         if path:
             p_call(["open", path])
 
-    changed_btt |= set_defaults(btt, "", "1")
+    n_r |= changed_btt
+
+    n_r |= install_defaults("com.ragingmenace.MenuMeters", "files/menumeters")
+    n_r |= set_defaults("com.googlecode.iterm2", "PrefsCustomFolder", path("files/iterm2/"))
+    n_r |= set_defaults("com.googlecode.iterm2", "LoadPrefsFromCustomFolder", "1")
 
     if n_r:
         logger.warn("Changed internal stuff, won't take effect until reboot!"
@@ -171,8 +175,16 @@ def find_file(name):
     return endswith[0]
 
 
+def install_defaults(app, filename):
+    from dotfiles.install import readfile
+    if p_call(["defaults", "read", app], **dnull) != 0:
+        p_check(["defaults", "write", app, readfile(filename)])
+        return True
+    return False
+
+
 def set_defaults(domain, key, value):
-    if p_output(["defaults", "read", domain, key], **dnull).strip() != value:
+    if p_output(["defaults", "read", domain, key]).strip() != value:
         p_check(["defaults", "write", domain, key, value])
         return True
     return False
