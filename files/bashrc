@@ -70,6 +70,7 @@ function add_prompt_command() {
     _PROMPT_COMMANDS=( "${_PROMPT_COMMANDS[@]}" "$1" );
 }
 PATH="$(dirname "$(readlink "$BASH_SOURCE")")/../bin:$PATH"
+PATH="$HOME/local/bin:$HOME/bin:$PATH"
 
 
 # set color prompt
@@ -145,3 +146,12 @@ fi
 if [ -d ~/.local/bin ] ; then
     export PATH="$HOME/.local/bin:$PATH"
 fi
+
+function timestamped () {
+    @ '"%s - %s" % (terminal.bold(str(datetime.datetime.now())), line)' -plu
+}
+function countlines() {
+    @ '"%s %s" % j[::-1] for j in sorted(collections.Counter(lines).items())' -p
+}
+
+export PYTHONIOENCODING="utf-8"

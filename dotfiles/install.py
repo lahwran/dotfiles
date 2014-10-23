@@ -92,9 +92,10 @@ def install_dir(target, log=True):
     target = fullpath(target)
     try:
         os.makedirs(target)
+        return True
     except OSError as e:
         if e.errno == 17:
-            pass
+            return False
         else:
             raise
 

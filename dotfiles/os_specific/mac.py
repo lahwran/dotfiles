@@ -4,6 +4,7 @@ import subprocess
 import re
 import time
 import pwd
+import glob
 
 from dotfiles import wrap_process
 from contextlib import contextmanager
@@ -38,6 +39,8 @@ cask_install = [
     "little-snitch",
     "menumeters",
     "bettertouchtool",
+    "skype",
+    "audacity",
 ]
 devnull = open("/dev/null", "w")
 dnull = {"stdout": devnull, "stderr": devnull}
@@ -90,7 +93,8 @@ def install_packages_user(packages):
 
     if os.path.exists("/usr/local/.can-cask"):
         for cask in cask_install:
-            wrap_process.call("brew-cask", ["brew", "cask", "install", cask])
+            wrap_process.call("brew-cask",
+                            ["brew", "cask", "install", cask])
 
 
 def install_packages_root(packages):
@@ -110,7 +114,8 @@ p_check = subprocess.check_call
 
 def customize():
     from dotfiles.install import (install_file,
-            install_dir, install_text, install_copy, path)
+            install_dir, install_text, install_copy, path, readfile,
+            fullpath)
 
     n_r = False
 
@@ -138,6 +143,12 @@ def customize():
     changed_btt |= set_defaults(btt, "windowRightMaximizePercent", "0.3")
     changed_btt |= set_defaults(btt, "windowSnappingEnabled", "1")
 
+    if install_dir("~/Library/Application Support/audacity"):
+        with open(fullpath("~/Library/Application Support/"
+                    + "audacity/audacity.cfg"), "w") as writer:
+            writer.write(readfile("files/audacity.cfg")
+                        .replace("HOMEDIRECTORY/", fullpath("~/")))
+
     # bettertouchtool preset
     if p_call(["defaults", "read", btt, "currentStore"], **dnull) != 0:
         install_dir("~/Library/Application Support/BetterTouchTool")
@@ -159,8 +170,39 @@ def customize():
     n_r |= changed_btt
 
     n_r |= install_defaults("com.ragingmenace.MenuMeters", "files/menumeters")
-    n_r |= set_defaults("com.googlecode.iterm2", "PrefsCustomFolder", path("files/iterm2/"))
-    n_r |= set_defaults("com.googlecode.iterm2", "LoadPrefsFromCustomFolder", "1")
+    n_r |= set_defaults("com.googlecode.iterm2", "PrefsCustomFolder",
+                                path("files/iterm2/"))
+    n_r |= set_defaults("com.googlecode.iterm2",
+                            "LoadPrefsFromCustomFolder", "1")
+
+    n_r |= set_defaults("-g", "InitialKeyRepeat", "25")
+    n_r |= set_defaults("-g", "KeyRepeat", "2")
+    n_r |= set_defaults("-g", "NSAutomaticSpellingCorrectionEnabled", "0")
+    n_r |= set_defaults("-g", "WebAutomaticSpellingCorrectionEnabled", "0")
+    n_r |= set_defaults("-g", "NSAutomaticDashSubstitutionEnabled", "0")
+    n_r |= set_defaults("-g", "NSAutomaticQuoteSubstitutionEnabled", "0")
+    n_r |= set_defaults("-g", "NSAutomaticQuoteSubstitutionEnabled", "0")
+    if n_r:
+        n_r |= set_defaults("-g", "NSUserDictionaryReplacementItems",
+                    readfile("files/mac_user_dictionary"))
+        n_r |= set_defaults("-g", "NSUserReplacementItems",
+                    readfile("files/mac_user_replacements"))
+        n_r |= set_defaults("-g", "NSUserReplacementItemsEnabled", "1")
+
+    coreutils = glob.glob("/usr/local/Cellar/coreutils/*/libexec/gnubin")
+    assert len(coreutils)
+    newest_coreutils = max(coreutils)
+
+    openssl = glob.glob("/usr/local/Cellar/openssl/*/bin")
+    assert len(openssl)
+    newest_openssl = max(openssl)
+
+    install_text("~/.bashrc", "source ~/.bashrc_mac")
+    install_text("~/.bashrc", "source ~/.bashrc_misc")
+    install_file("files/bashrc_mac", "~/.bashrc_mac")
+    with open(fullpath("~/.bashrc_misc"), "w") as writer:
+        writer.write('export PATH="%s:%s:$PATH"\n'
+            % (newest_coreutils, newest_openssl))
 
     if n_r:
         logger.warn("Changed internal stuff, won't take effect until reboot!"
@@ -184,7 +226,8 @@ def install_defaults(app, filename):
 
 
 def set_defaults(domain, key, value):
-    if p_output(["defaults", "read", domain, key]).strip() != value:
+    if p_output(["defaults", "read", domain, key],
+            stderr=devnull).strip() != value:
         p_check(["defaults", "write", domain, key, value])
         return True
     return False
