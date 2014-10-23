@@ -111,24 +111,54 @@ def _summarize(filename, skip_summaries, no_open, overwrite):
     assert not lockreasons
     summary = {}
 
-    stat = os.stat(filename)
-
-    summary["stat"] = {
-        "mode": stat.st_mode,
-        "mode_oct": oct(stat.st_mode),
-        "mode_bin": bin(stat.st_mode),
-        "inode": stat.st_ino,
-        "device": stat.st_dev,
-        "links": stat.st_nlink,
-        "owner_user": summarize_uid(stat.st_uid),
-        "owner_group": summarize_gid(stat.st_gid),
-        "size": stat.st_size,
-        "time": {
-            "access": stat.st_atime,
-            "modification": stat.st_mtime,
-            "creation": stat.st_ctime
+    try:
+        stat = None
+        stat = os.stat(filename)
+    except OSError:
+        pass
+    else:
+        summary["stat"] = {
+            "mode": stat.st_mode,
+            "mode_oct": oct(stat.st_mode),
+            "mode_bin": bin(stat.st_mode),
+            "inode": stat.st_ino,
+            "device": stat.st_dev,
+            "links": stat.st_nlink,
+            "owner_user": summarize_uid(stat.st_uid),
+            "owner_group": summarize_gid(stat.st_gid),
+            "size": stat.st_size,
+            "time": {
+                "access": stat.st_atime,
+                "modification": stat.st_mtime,
+                "creation": stat.st_ctime
+            }
         }
-    }
+    try:
+        lstat = os.lstat(filename)
+    except OSError:
+        pass
+    else:
+        if lstat != stat:
+            try:
+                summary["link"] = os.readlink(filename)
+            except OSError:
+                pass
+            summary["lstat"] = {
+                "mode": lstat.st_mode,
+                "mode_oct": oct(lstat.st_mode),
+                "mode_bin": bin(lstat.st_mode),
+                "inode": lstat.st_ino,
+                "device": lstat.st_dev,
+                "links": lstat.st_nlink,
+                "owner_user": summarize_uid(lstat.st_uid),
+                "owner_group": summarize_gid(lstat.st_gid),
+                "size": lstat.st_size,
+                "time": {
+                    "access": lstat.st_atime,
+                    "modification": lstat.st_mtime,
+                    "creation": lstat.st_ctime
+                }
+            }
 
     summary["filename"] = {
         "basename": os.path.basename(filename),
