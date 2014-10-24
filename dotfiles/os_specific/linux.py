@@ -24,6 +24,9 @@ def install_packages_user(packages):
 def customize():
     pass
 
+def customize_root():
+    pass
+
 def install_packages_root(packages):
     deps = []
     for package in packages:

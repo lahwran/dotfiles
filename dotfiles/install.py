@@ -267,6 +267,8 @@ def root_install():
         logger.info("Installing environment defaults...")
         install_text("/etc/environment", readfile("files/global_environ"))
 
+    os_specific.customize_root()
+
 
 def init_logging(mode):
     rootlogger = logging.getLogger()
