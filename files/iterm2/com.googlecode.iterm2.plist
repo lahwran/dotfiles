@@ -18987,20 +18987,6 @@
 	<true/>
 	<key>MaxVertically</key>
 	<false/>
-	<key>NSColorPanelMode</key>
-	<string>3</string>
-	<key>NSColorPickerSlidersDefaults</key>
-	<string>3</string>
-	<key>NSFontPanelAttributes</key>
-	<string>1, 0</string>
-	<key>NSNavLastRootDirectory</key>
-	<string>~/dotfiles/files/iterm2</string>
-	<key>NSNavPanelExpandedSizeForOpenMode</key>
-	<string>{1748, 970}</string>
-	<key>NSNavPanelExpandedSizeForSaveMode</key>
-	<string>{825, 926}</string>
-	<key>NSNavPanelExpandedStateForSaveMode</key>
-	<true/>
 	<key>NSQuotedKeystrokeBinding</key>
 	<string></string>
 	<key>NSRepeatCountBinding</key>
@@ -19024,33 +19010,10 @@
 	<array/>
 	<key>NSTableView Sort Ordering KeyBingingTable</key>
 	<array/>
-	<key>NSToolbar Configuration Terminal Toolbar</key>
-	<dict>
-		<key>TB Display Mode</key>
-		<integer>1</integer>
-		<key>TB Icon Size Mode</key>
-		<integer>1</integer>
-		<key>TB Is Shown</key>
-		<integer>0</integer>
-		<key>TB Size Mode</key>
-		<integer>1</integer>
-	</dict>
-	<key>NSWindow Frame NSColorPanel</key>
-	<string>762 418 214 309 0 0 2560 1418 </string>
-	<key>NSWindow Frame NSFontPanel</key>
-	<string>1202 105 445 270 0 0 1920 1200 </string>
 	<key>NSWindow Frame Preferences</key>
-	<string>721 556 924 485 0 0 2560 1418 </string>
-	<key>NSWindow Frame UKCrashReporter</key>
-	<string>230 834 592 584 0 0 2560 1418 </string>
+	<string>2362 99 924 485 1920 -49 2560 1418 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>631 200 1851 1114 0 0 2560 1418 </string>
-	<key>NSWindow Frame iTerm Window 1</key>
-	<string>-1920 248 1914 1192 -1920 240 1920 1200 </string>
-	<key>NSWindow Frame iTerm Window 2</key>
-	<string>148 720 850 698 0 0 2560 1418 </string>
-	<key>NSWindow Frame iTerm Window 3</key>
-	<string>506 37 990 1141 0 0 1920 1178 </string>
+	<string>0 28 1916 1150 0 0 1920 1178 </string>
 	<key>NeverWarnAboutShortLivedSessions_8E9BA4F3-A719-4AD8-9BF8-05E357DA205F</key>
 	<true/>
 	<key>NeverWarnAboutShortLivedSessions_B3BD956F-1A90-4C0E-A1BA-B81C544936BE</key>
@@ -21104,16 +21067,12 @@
 	<integer>8</integer>
 	<key>RightOption</key>
 	<integer>3</integer>
-	<key>SUAutomaticallyUpdate</key>
-	<true/>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
 	<string>http://iterm2.com/appcasts/testing.xml</string>
-	<key>SUHasLaunchedBefore</key>
-	<true/>
 	<key>SULastCheckTime</key>
-	<date>2014-10-22T21:30:52Z</date>
+	<date>2014-10-24T14:40:20Z</date>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>Secure Input</key>
@@ -21142,8 +21101,6 @@
 	<integer>10</integer>
 	<key>TripleClickSelectsFullWrappedLines</key>
 	<false/>
-	<key>UKCrashReporterLastCrashReportDate</key>
-	<real>1356679808</real>
 	<key>URLHandlersByGuid</key>
 	<dict/>
 	<key>Use background pattern indicator</key>
@@ -21169,6 +21126,6 @@
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>iTerm Version</key>
-	<string>1.0.0.20140629</string>
+	<string>2.0.0.20141022</string>
 </dict>
 </plist>
