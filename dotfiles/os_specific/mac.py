@@ -17,6 +17,9 @@ brew_mapping = {
     "tmux": ["tmux"],
     "tig": ["tig"],
 }
+brew_tap = [
+    "caskroom/fonts",
+]
 brew_install = [
     "caskroom/cask/brew-cask",
     "coreutils",
@@ -41,6 +44,8 @@ cask_install = [
     "bettertouchtool",
     "skype",
     "audacity",
+    "quassel-client",
+    "font-dejavu-sans"
 ]
 devnull = open("/dev/null", "w")
 dnull = {"stdout": devnull, "stderr": devnull}
@@ -80,6 +85,9 @@ def install_packages_user(packages):
                 ["/bin/sh", "-c", "echo | ruby /tmp/homebrew.rb"])
         open("/usr/local/.can-cask", "w").write(
                 "Automatically installed homebrew, should be safe to cask")
+
+    for tap in brew_tap:
+        wrap_process.call("homebrew", ["brew", "tap", tap])
 
     deps = []
     for package in packages:
@@ -142,12 +150,8 @@ def customize():
     changed_btt |= set_defaults(btt, "windowRightCornerMaximizePercent", "0.7")
     changed_btt |= set_defaults(btt, "windowRightMaximizePercent", "0.3")
     changed_btt |= set_defaults(btt, "windowSnappingEnabled", "1")
-
-    if install_dir("~/Library/Application Support/audacity"):
-        with open(fullpath("~/Library/Application Support/"
-                    + "audacity/audacity.cfg"), "w") as writer:
-            writer.write(readfile("files/audacity.cfg")
-                        .replace("HOMEDIRECTORY/", fullpath("~/")))
+    changed_btt |= set_defaults(btt, "launchOnStartup", "1")
+    changed_btt |= set_defaults(btt, "showicon", "0")
 
     # bettertouchtool preset
     if p_call(["defaults", "read", btt, "currentStore"], **dnull) != 0:
@@ -169,6 +173,12 @@ def customize():
 
     n_r |= changed_btt
 
+    if install_dir("~/Library/Application Support/audacity"):
+        with open(fullpath("~/Library/Application Support/"
+                    + "audacity/audacity.cfg"), "w") as writer:
+            writer.write(readfile("files/audacity.cfg")
+                        .replace("HOMEDIRECTORY/", fullpath("~/")))
+
     n_r |= install_defaults("com.ragingmenace.MenuMeters", "files/menumeters")
     n_r |= set_defaults("com.googlecode.iterm2", "PrefsCustomFolder",
                                 path("files/iterm2/"))
@@ -177,6 +187,7 @@ def customize():
 
     n_r |= set_defaults("-g", "InitialKeyRepeat", "25")
     n_r |= set_defaults("-g", "KeyRepeat", "2")
+    n_r |= set_defaults("-g", "com.apple.swipescrolldirection", "0")
     n_r |= set_defaults("-g", "NSAutomaticSpellingCorrectionEnabled", "0")
     n_r |= set_defaults("-g", "WebAutomaticSpellingCorrectionEnabled", "0")
     n_r |= set_defaults("-g", "NSAutomaticDashSubstitutionEnabled", "0")
