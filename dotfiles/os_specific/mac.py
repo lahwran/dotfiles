@@ -140,18 +140,18 @@ def customize():
         subprocess.call(["chsh", "-s", "/usr/local/bin/bash"])
 
     # set function keys as function keys!
-    n_r |= set_defaults("-g", "com.apple.keyboard.fnState", "1")
+    n_r |= set_defaults("-g", "com.apple.keyboard.fnState", True)
 
     # bettertouchtool maximize sizes
     btt = "com.hegenberg.BetterTouchTool"
-    changed_btt = set_defaults(btt, "windowLeftCornerMaximizePercent", "0.3")
-    changed_btt |= set_defaults(btt, "windowLeftMaximizePercent", "0.3")
+    changed_btt = set_defaults(btt, "windowLeftCornerMaximizePercent", 0.3)
+    changed_btt |= set_defaults(btt, "windowLeftMaximizePercent", 0.3)
 
-    changed_btt |= set_defaults(btt, "windowRightCornerMaximizePercent", "0.7")
-    changed_btt |= set_defaults(btt, "windowRightMaximizePercent", "0.3")
-    changed_btt |= set_defaults(btt, "windowSnappingEnabled", "1")
-    changed_btt |= set_defaults(btt, "launchOnStartup", "1")
-    changed_btt |= set_defaults(btt, "showicon", "0")
+    changed_btt |= set_defaults(btt, "windowRightCornerMaximizePercent", 0.7)
+    changed_btt |= set_defaults(btt, "windowRightMaximizePercent", 0.7)
+    changed_btt |= set_defaults(btt, "windowSnappingEnabled", True)
+    changed_btt |= set_defaults(btt, "launchOnStartup", True)
+    changed_btt |= set_defaults(btt, "showicon", False)
 
     # bettertouchtool preset
     if p_call(["defaults", "read", btt, "currentStore"], **dnull) != 0:
@@ -165,7 +165,7 @@ def customize():
                     presetName = "Dotfiles-Installed";
                 }
             )
-        """)
+        """, True)
         set_defaults(btt, "currentStore", "Dotfiles-Installed")
         path = find_file("BetterTouchTool.app")
         if path:
@@ -183,22 +183,33 @@ def customize():
     n_r |= set_defaults("com.googlecode.iterm2", "PrefsCustomFolder",
                                 path("files/iterm2/"))
     n_r |= set_defaults("com.googlecode.iterm2",
-                            "LoadPrefsFromCustomFolder", "1")
+                            "LoadPrefsFromCustomFolder", True)
 
-    n_r |= set_defaults("-g", "InitialKeyRepeat", "25")
-    n_r |= set_defaults("-g", "KeyRepeat", "2")
-    n_r |= set_defaults("-g", "com.apple.swipescrolldirection", "0")
-    n_r |= set_defaults("-g", "NSAutomaticSpellingCorrectionEnabled", "0")
-    n_r |= set_defaults("-g", "WebAutomaticSpellingCorrectionEnabled", "0")
-    n_r |= set_defaults("-g", "NSAutomaticDashSubstitutionEnabled", "0")
-    n_r |= set_defaults("-g", "NSAutomaticQuoteSubstitutionEnabled", "0")
-    n_r |= set_defaults("-g", "NSAutomaticQuoteSubstitutionEnabled", "0")
+    # time until initial key repeat
+    n_r |= set_defaults("-g", "InitialKeyRepeat", 35)
+
+    # time between key repeats
+    n_r |= set_defaults("-g", "KeyRepeat", 2)
+
+    # set natural scroll - not apple's "unnatural" scroll
+    n_r |= set_defaults("-g", "com.apple.swipescrolldirection", False)
+    
+    # disable yucky automatic spell stuff
+    n_r |= set_defaults("-g", "NSAutomaticSpellingCorrectionEnabled", False)
+    n_r |= set_defaults("-g", "WebAutomaticSpellingCorrectionEnabled", False)
+    n_r |= set_defaults("-g", "NSAutomaticDashSubstitutionEnabled", False)
+    n_r |= set_defaults("-g", "NSAutomaticQuoteSubstitutionEnabled", False)
+
     if n_r:
+        # set some fun replacements - <3 to unicodeheart in particular
         n_r |= set_defaults("-g", "NSUserDictionaryReplacementItems",
-                    readfile("files/mac_user_dictionary"))
+                    readfile("files/mac_user_dictionary"), True)
         n_r |= set_defaults("-g", "NSUserReplacementItems",
-                    readfile("files/mac_user_replacements"))
-        n_r |= set_defaults("-g", "NSUserReplacementItemsEnabled", "1")
+                    readfile("files/mac_user_replacements"), True)
+        n_r |= set_defaults("-g", "NSUserReplacementItemsEnabled", True)
+
+    # disable app nap! app nap is evil
+    n_r |= set_defaults("-g", "NSAppSleepDisabled", True)
 
     coreutils = glob.glob("/usr/local/Cellar/coreutils/*/libexec/gnubin")
     assert len(coreutils)
@@ -220,6 +231,28 @@ def customize():
                     + " sorry :(")
 
 
+def customize_root():
+    # don't go into true sleep from display sleep for at least three hours,
+    # even on battery
+    p_call(["pmset", "-b", "sleep", "180"]) # minutes
+    # don't go into sleep on power automatically ever
+    p_call(["pmset", "-c", "sleep", "0"])
+    p_call(["pmset", "-u", "sleep", "0"])
+
+    # go into standby mode fairly soon once in sleep, because
+    # standby mode allows tossing the filevault key
+    p_call(["pmset", "-a", "standby", "1"])
+    p_call(["pmset", "-a", "standbydelay", "300"]) # seconds
+    # there's a big flashy warning about this option in the manual page
+    # for pmset. 25 is a supported value.
+    # setting this assumes hibernatefile is set, which it seems to be by
+    # default.
+    p_call(["pmset", "-a", "hibernatemode", "25"])
+    # once the computer goes into hibernate mode, unload filevault. to resume
+    # from this requires _two_ passwords, filevault and login.
+    p_call(["pmset", "-a", "destroyfvkeyonstandby", "1"])
+
+
 def find_file(name):
     output = p_output(["mdfind", name]).split("\n")
     endswith = [x for x in output if x.endswith("/" + name)]
@@ -236,10 +269,32 @@ def install_defaults(app, filename):
     return False
 
 
-def set_defaults(domain, key, value):
-    if p_output(["defaults", "read", domain, key],
-            stderr=devnull).strip() != value:
-        p_check(["defaults", "write", domain, key, value])
+def set_defaults(domain, key, value, is_defaults_data=False):
+    if is_defaults_data:
+        v = []
+        f = lambda x: None
+        t = lambda x: x
+    elif type(value) == bool:
+        v = ["-bool"]
+        f = int
+        t = lambda x: "true" if x else "false"
+    elif type(value) in [long, int]:
+        v = ["-integer"]
+        f = int
+        t = str
+    elif type(value) == float:
+        v = ["-float"]
+        f = float
+        t = str
+    else:
+        v = ["-string"]
+        f = lambda x: x
+        t = lambda x: x
+
+
+    if f(p_output(["defaults", "read", domain, key],
+            stderr=devnull).strip()) != value:
+        p_check(["defaults", "write", domain, key] + v + [t(value)])
         return True
     return False
 
