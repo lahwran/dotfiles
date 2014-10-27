@@ -1,5 +1,4 @@
 
-alias ls='ls --color=auto'
 unset COLORFGBG
 export PATH="/usr/local/bin:$PATH"
 
