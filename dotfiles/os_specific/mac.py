@@ -232,7 +232,7 @@ def customize():
     newest_openssl = max(openssl)
 
     install_text("~/.bashrc", "source ~/.bashrc_mac")
-    install_text("~/.bashrc", "source ~/.bashrc_misc")
+    install_text("~/.bashrc", "source ~/.bashrc_misc", before=True)
     install_file("files/bashrc_mac", "~/.bashrc_mac")
     with open(fullpath("~/.bashrc_misc"), "w") as writer:
         writer.write('export PATH="%s:%s:$PATH"\n'
