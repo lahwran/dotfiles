@@ -45,7 +45,7 @@ cask_install = [
     "skype",
     "audacity",
     "quassel-client",
-    "font-dejavu-sans"
+    "font-dejavu-sans",
 ]
 devnull = open("/dev/null", "w")
 dnull = {"stdout": devnull, "stderr": devnull}
@@ -161,15 +161,15 @@ def customize():
         set_defaults(btt, "presets", """
             (
                 {
-                    fileName = bttdata_dotfiles;
+                    fileName = "bttdata_dotfiles";
                     presetName = "Dotfiles-Installed";
                 }
             )
         """, True)
         set_defaults(btt, "currentStore", "Dotfiles-Installed")
-        path = find_file("BetterTouchTool.app")
-        if path:
-            p_call(["open", path])
+        bttpath = find_file("BetterTouchTool.app")
+        if bttpath:
+            p_call(["open", bttpath])
 
     n_r |= changed_btt
 
@@ -189,7 +189,7 @@ def customize():
     n_r |= set_defaults("-g", "InitialKeyRepeat", 35)
 
     # time between key repeats
-    n_r |= set_defaults("-g", "KeyRepeat", 2)
+    n_r |= set_defaults("-g", "KeyRepeat", 1)
 
     # set natural scroll - not apple's "unnatural" scroll
     n_r |= set_defaults("-g", "com.apple.swipescrolldirection", False)
@@ -200,6 +200,18 @@ def customize():
     n_r |= set_defaults("-g", "NSAutomaticDashSubstitutionEnabled", False)
     n_r |= set_defaults("-g", "NSAutomaticQuoteSubstitutionEnabled", False)
 
+    # disable automatic app termination - I've never actually seen this happen, but
+    # the setting's existence is scary
+    n_r |= set_defaults("-g", "NSDisableAutomaticTermination", True)
+
+    # Disable window animations - they royally screw up window management apps, and are
+    # fairly slow on most apps to boot
+    n_r |= set_defaults("-g", "NSAutomaticWindowAnimationsEnabled", False, typed=True)
+
+    n_r |= set_defaults("com.apple.screencapture", "location",
+            fullpath("~/SpaceMonkey/Screenshots"), typed=True)
+    n_r |= set_defaults("com.apple.screencapture", "type", "png", typed=True)
+
     if n_r:
         # set some fun replacements - <3 to unicodeheart in particular
         n_r |= set_defaults("-g", "NSUserDictionaryReplacementItems",
@@ -208,8 +220,8 @@ def customize():
                     readfile("files/mac_user_replacements"), True)
         n_r |= set_defaults("-g", "NSUserReplacementItemsEnabled", True)
 
-    # disable app nap! app nap is evil
-    n_r |= set_defaults("-g", "NSAppSleepDisabled", True)
+    # Set whether app nap is enabled - not sure which I like
+    n_r |= set_defaults("-g", "NSAppSleepDisabled", False)
 
     coreutils = glob.glob("/usr/local/Cellar/coreutils/*/libexec/gnubin")
     assert len(coreutils)
@@ -243,6 +255,8 @@ def customize_root():
     # standby mode allows tossing the filevault key
     p_call(["pmset", "-a", "standby", "1"])
     p_call(["pmset", "-a", "standbydelay", "300"]) # seconds
+    p_call(["pmset", "-a", "autopoweroff", "1"])
+    p_call(["pmset", "-a", "autopoweroffdelay", "300"]) # seconds
     # there's a big flashy warning about this option in the manual page
     # for pmset. 25 is a supported value.
     # setting this assumes hibernatefile is set, which it seems to be by
@@ -269,17 +283,24 @@ def install_defaults(app, filename):
     return False
 
 
-def set_defaults(domain, key, value, is_defaults_data=False):
+def set_defaults(domain, key, value, is_defaults_data=False, typed=False):
     if is_defaults_data:
-        v = []
+        typed = False
         f = lambda x: None
+        t = lambda x: x
+    elif isinstance(value, basestring):
+        v = []
+        f = lambda x: x
         t = lambda x: x
     elif type(value) == bool:
         v = ["-bool"]
         f = int
-        t = lambda x: "true" if x else "false"
+        if typed:
+            t = lambda x: "true" if x else "false"
+        else:
+            t = lambda x: "1" if x else "0"
     elif type(value) in [long, int]:
-        v = ["-integer"]
+        v = ["-int"]
         f = int
         t = str
     elif type(value) == float:
@@ -287,13 +308,15 @@ def set_defaults(domain, key, value, is_defaults_data=False):
         f = float
         t = str
     else:
-        v = ["-string"]
-        f = lambda x: x
-        t = lambda x: x
+        assert False
 
+    if not typed:
+        v = []
 
-    if f(p_output(["defaults", "read", domain, key],
-            stderr=devnull).strip()) != value:
+    output = p_output(["defaults", "read", domain, key],
+            stderr=devnull).strip()
+
+    if output != '' and f(output) != value:
         p_check(["defaults", "write", domain, key] + v + [t(value)])
         return True
     return False
@@ -321,14 +344,15 @@ def disable_default_escape_action():
         else:
             productids.append(value)
     product_pairs = zip(vendorids, productids)
+    print "Keyboard product pairs:", product_pairs
 
     # this maps from 0 (escape) to -1 (no action), and disables any other
     # osx-internal modifier key mappings
     data = '''
         (
             {
-                HIDKeyboardModifierMappingDst="-1";
-                HIDKeyboardModifierMappingSrc=0;
+                HIDKeyboardModifierMappingDst = -1;
+                HIDKeyboardModifierMappingSrc = 0;
             }
         )
     '''
@@ -338,11 +362,11 @@ def disable_default_escape_action():
     name = "com.apple.keyboard.modifiermapping.%s-%s-0"
     for pair in product_pairs:
         prefname = name % pair
-        if p_call(["defaults", "read", "-g", prefname], **dnull) == 0:
-            # assume already set up and skip
-            continue
+        #if p_call(["defaults", "read", "-g", prefname], **dnull) == 0:
+        #    # assume already set up and skip
+        #    continue
         changed_anything = True
-        p_check(["defaults", "write", "-g", "prefname", data])
+        set_defaults("-g", prefname, data)
 
     return changed_anything
 
