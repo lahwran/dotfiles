@@ -1,3 +1,0 @@
-#!/bin/bash
-
-@ 'repr(sys.stdin.read()).replace("\\n", "\\n\n")'

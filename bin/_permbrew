@@ -1,5 +1,0 @@
-#!/bin/bash
-
-umask 022
-`which brew` "$@"
-exit $?
