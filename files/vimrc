@@ -272,6 +272,7 @@ let g:gitgutter_escape_grep = 1
 let g:gitgutter_realtime = 1
 let g:gitgutter_eager = 1
 let g:gitgutter_diff_args = '--patience'
+set updatetime=1000
 
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.
