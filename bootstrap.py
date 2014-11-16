@@ -27,7 +27,7 @@ if not os.path.exists(path(".git")):
 
     os.chdir(fullpath("~"))
     subprocess.check_call(["git", "clone",
-        "https://github.com/lahwran/dotfiles.git",
+        "https://github.com/hamnox/dotfiles.git",
         fullpath("~/dotfiles")])
     os.chdir(fullpath("~/dotfiles"))
     
