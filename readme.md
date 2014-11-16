@@ -28,10 +28,10 @@ is available under the terms of the MIT license, available in license.md.
 
 to bootstrap an empty machine:
 
-    curl -fsSL https://github.com/lahwran/dotfiles/archive/master.tar.gz \
+    curl -fsSL https://github.com/hamnox/dotfiles/archive/master.tar.gz \
     | tar -xzf - && dotfiles-master/bootstrap.py autodel
 
 or if you don't have curl:
 
-    wget -O - -o /dev/null https://github.com/lahwran/dotfiles/archive/master.tar.gz \
+    wget -O - -o /dev/null https://github.com/hamnox/dotfiles/archive/master.tar.gz \
     | tar -xzf - && cd dotfiles && dotfiles/bootstrap.py autodel

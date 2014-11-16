@@ -19549,7 +19549,7 @@
 			<key>Window Type</key>
 			<integer>0</integer>
 			<key>Working Directory</key>
-			<string>/Users/lahwran</string>
+			<string>/Users/hamnox</string>
 		</dict>
 		<dict>
 			<key>ASCII Anti Aliased</key>
@@ -20274,7 +20274,7 @@
 			<key>Window Type</key>
 			<integer>2</integer>
 			<key>Working Directory</key>
-			<string>/Users/lahwran</string>
+			<string>/Users/hamnox</string>
 		</dict>
 		<dict>
 			<key>ASCII Anti Aliased</key>
@@ -21011,7 +21011,7 @@
 			<key>Window Type</key>
 			<integer>0</integer>
 			<key>Working Directory</key>
-			<string>/Users/lahwran</string>
+			<string>/Users/hamnox</string>
 		</dict>
 		<dict>
 			<key>ASCII Anti Aliased</key>
@@ -21538,7 +21538,7 @@
 			<key>Window Type</key>
 			<integer>0</integer>
 			<key>Working Directory</key>
-			<string>/Users/lahwran</string>
+			<string>/Users/hamnox</string>
 		</dict>
 		<dict>
 			<key>ASCII Anti Aliased</key>
@@ -22065,7 +22065,7 @@
 			<key>Window Type</key>
 			<integer>0</integer>
 			<key>Working Directory</key>
-			<string>/Users/lahwran</string>
+			<string>/Users/hamnox</string>
 		</dict>
 	</array>
 	<key>NoSyncNeverRemindPrefsChangesCopy</key>
@@ -22118,7 +22118,7 @@
 		</dict>
 	</dict>
 	<key>PrefsCustomFolder</key>
-	<string>/Users/lahwran/dotfiles/files/iterm2</string>
+	<string>/Users/hamnox/dotfiles/files/iterm2</string>
 	<key>PromptOnQuit</key>
 	<true/>
 	<key>QuitWhenAllWindowsClosed</key>
