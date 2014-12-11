@@ -55,6 +55,13 @@ fi
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
+alias manual='command man'
+function man() {
+    echo "Please use the 'manual' command:"
+    echo
+    echo "    manual" $*
+    echo
+}
 
 
 
