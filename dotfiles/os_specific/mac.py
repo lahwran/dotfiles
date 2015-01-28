@@ -32,6 +32,10 @@ brew_install = [
     "openssl",
     "watch",
     "wget",
+    "mtr",
+    "socat",
+    "pypy",
+    "ceylon",
 ]
 cask_install = [
     "google-chrome",
@@ -51,7 +55,9 @@ cask_install = [
     "font-dejavu-sans",
     "evernote",
     "rescuetime",
-
+    "java",
+    "grandperspective",
+    "firefox",
 ]
 devnull = open("/dev/null", "w")
 dnull = {"stdout": devnull, "stderr": devnull}
