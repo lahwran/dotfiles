@@ -59,13 +59,18 @@ def summarize_gid(gid):
 
 
 def summarize_uid(uid):
-    user = pwd.getpwuid(uid)
-    return {
-        "name": user.pw_name,
-        "uid": user.pw_uid,
-        "group": summarize_gid(user.pw_gid),
-        "gecos": user.pw_gecos,
-    }
+    try:
+        user = pwd.getpwuid(uid)
+        return {
+            "name": user.pw_name,
+            "uid": user.pw_uid,
+            "group": summarize_gid(user.pw_gid),
+            "gecos": user.pw_gecos,
+        }
+    except KeyError:
+        return {
+            "uid": uid
+        }
 
 
 def summarize(filename, skip_summaries=True, no_open=False, overwrite=False):
@@ -77,7 +82,11 @@ def summarize(filename, skip_summaries=True, no_open=False, overwrite=False):
         else:
             return []
 
-    return _summarize(filename, skip_summaries, no_open, overwrite)
+    try:
+        return _summarize(filename, skip_summaries, no_open, overwrite)
+    except:
+        print "Error on", filename
+        raise
 
 def lockfiles(filename):
     result = [os.path.join(os.path.dirname(filename), ".dontsummarize")]
@@ -114,8 +123,8 @@ def _summarize(filename, skip_summaries, no_open, overwrite):
     try:
         stat = None
         stat = os.stat(filename)
-    except OSError:
-        pass
+    except OSError as e:
+        print "OSError on %r was %r" % (filename, e)
     else:
         summary["stat"] = {
             "mode": stat.st_mode,
@@ -197,7 +206,7 @@ parser.add_argument("--dont-summarize", action="store_true")
 parser.add_argument("--dont-hash", action="store_true")
 parser.add_argument("--recurse", action="store_true")
 parser.add_argument("--dont-skip-summaries", action="store_true")
-parser.add_argument("--overwrite", action="store_true")
+parser.add_argument("--overwrite", action="store_true", help="overwrite old summaries")
 parser.add_argument("files", nargs="*")
 
 def main(args):

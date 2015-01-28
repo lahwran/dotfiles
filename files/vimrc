@@ -274,6 +274,11 @@ let g:gitgutter_eager = 1
 let g:gitgutter_diff_args = '--patience'
 set updatetime=1000
 
+set colorcolumn=80
+highlight ColorColumn ctermbg=0
+
+let java_space_errors = 1
+
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.
 noh

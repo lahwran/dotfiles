@@ -27,6 +27,7 @@ os_dependencies = [
     "fail2ban",
     "python-dev",
     "ntp-daemon",
+    "tmux",
     "tig",
 ]
 
@@ -199,7 +200,10 @@ def user_install():
     install_file("submodules/vim-indent-guides/", "~/.vim/bundle/vim-indent-guides/")
     install_file("submodules/vim-gitgutter/", "~/.vim/bundle/vim-gitgutter/")
     install_file("submodules/ceylon-vim/", "~/.vim/bundle/ceylon-vim/")
-    
+    install_file("submodules/rust.vim/", "~/.vim/bundle/rust.vim/")
+
+    install_file("files/tmux.conf", "~/.tmux.conf")
+
     install_file("files/gitignore", "~/.gitignore")
 
 
@@ -233,7 +237,7 @@ def user_install():
     gitconfig("color.status", "auto")
     gitconfig("color.grep", "auto")
 
-    gitconfig("core.editor", "nano")
+    gitconfig("core.editor", "vim")
     gitconfig("core.excludesfile", os.path.expanduser("~/.gitignore"))
 
     gitconfig("push.default", "current")

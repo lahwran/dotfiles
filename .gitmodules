@@ -28,3 +28,6 @@
 [submodule "submodules/dockutil"]
 	path = submodules/dockutil
 	url = https://github.com/kcrawford/dockutil.git
+[submodule "submodules/rust.vim"]
+	path = submodules/rust.vim
+	url = https://github.com/wting/rust.vim.git
