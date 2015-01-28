@@ -35,6 +35,7 @@ brew_install = [
 ]
 cask_install = [
     "google-chrome",
+    "lastpass"
     "seil",
     "iterm2",
     "crashplan",
