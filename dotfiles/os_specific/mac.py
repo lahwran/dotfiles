@@ -38,13 +38,19 @@ cask_install = [
     "seil",
     "iterm2",
     "crashplan",
-    "little-snitch",
     "menumeters",
     "bettertouchtool",
     "skype",
-    "audacity",
-    "quassel-standalone",
-    "font-dejavu-sans"
+    "gimp",
+    "sublime-text",
+    "vox",
+    "github",
+    "timer",
+    "flux",
+    "font-dejavu-sans",
+    "evernote",
+    "rescuetime",
+
 ]
 devnull = open("/dev/null", "w")
 dnull = {"stdout": devnull, "stderr": devnull}
@@ -191,14 +197,6 @@ def customize():
     n_r |= set_defaults("com.apple.screencapture", "location",
             fullpath("~/SpaceMonkey/Screenshots"), typed=True)
     n_r |= set_defaults("com.apple.screencapture", "type", "png", typed=True)
-
-    if n_r:
-        # set some fun replacements - <3 to unicodeheart in particular
-        n_r |= set_defaults("-g", "NSUserDictionaryReplacementItems",
-                    readfile("files/mac_user_dictionary"), True)
-        n_r |= set_defaults("-g", "NSUserReplacementItems",
-                    readfile("files/mac_user_replacements"), True)
-        n_r |= set_defaults("-g", "NSUserReplacementItemsEnabled", True)
 
     # Set whether app nap is enabled - not sure which I like
     n_r |= set_defaults("-g", "NSAppSleepDisabled", False)
