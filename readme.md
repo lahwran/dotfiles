@@ -34,4 +34,4 @@ to bootstrap an empty machine:
 or if you don't have curl:
 
     wget -O - -o /dev/null https://github.com/lahwran/dotfiles/archive/master.tar.gz \
-    | tar -xzf - && cd dotfiles && dotfiles/bootstrap.py autodel
+    | tar -xzf - && dotfiles-master/bootstrap.py autodel

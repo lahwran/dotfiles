@@ -33,6 +33,6 @@ def install_packages_root(packages):
         if package not in debian_mapping:
             logger.warn("Skipping non-debian package: %s", package)
             continue
-        deps.extend(debian_mapping[dep])
+        deps.extend(debian_mapping[package])
     deps.extend(debian_install)
     wrap_process.call("apt-get", ["apt-get", "install", "-y"] + deps)
