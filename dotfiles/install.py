@@ -117,6 +117,23 @@ def install_file(master, target):
         else:
             raise
 
+
+def ensure_link(link_target, to_create):
+    logger.info("linking %s as %s", link_target, to_create)
+    to_create = fullpath(to_create)
+    link_target = fullpath(link_target)
+
+    install_dir(os.path.dirname(to_create), log=False)
+    try:
+        os.symlink(link_target, to_create)
+    except OSError as e:
+        if e.errno == 17:
+            assert fullpath(os.readlink(to_create)) == link_target, (
+                    "%s is installed to %s incorrectly: %s" % (link_target, to_create, fullpath(os.readlink(to_create))))
+        else:
+            raise
+
+
 def delete_text(filename, *text):
     logger.info("deleting text from %s", filename)
     filename = fullpath(filename)
@@ -166,14 +183,19 @@ def user_install():
             else:
                 raise
 
+    install_text("~/.nvimrc", "source ~/.vimrc_global",
+            before=True, prev_existance=False)
     install_text("~/.vimrc", "source ~/.vimrc_global",
             before=True, prev_existance=False)
     install_text("~/.vimrc", "set nocompatible", 0600,
             before=True)
+    install_dir("~/.vim")
+    ensure_link("~/.vim", "~/.nvim")
     install_file("files/vimrc", "~/.vimrc_global")
     install_file("files/vimrc_newsession", "~/.vimrc_newsession")
 
     install_text("~/.bashrc", "source ~/.bashrc_global", prev_existance=False)
+    install_text("~/.bashrc", 'PATH="%s:$PATH"\n' % (path("bin/"),))
     install_file("files/bashrc", "~/.bashrc_global")
     delete_text("~/.bashrc",
         "# enable programmable completion features (you don't need to enable",

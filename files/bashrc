@@ -76,7 +76,6 @@ function _promptcommand() {
 function add_prompt_command() {
     _PROMPT_COMMANDS=( "${_PROMPT_COMMANDS[@]}" "$1" );
 }
-PATH="$(dirname "$(readlink "$BASH_SOURCE")")/../bin:$PATH"
 PATH="$HOME/local/bin:$HOME/bin:$PATH"
 
 
@@ -145,6 +144,10 @@ fi
 if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     echo -n "loading completion... "
     . /etc/bash_completion
+    echo "done"
+elif [ -f $(brew --prefix)/etc/bash_completion ]; then
+    echo -n "loading completion... "
+    . $(brew --prefix)/etc/bash_completion
     echo "done"
 fi
 

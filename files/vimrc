@@ -279,6 +279,10 @@ highlight ColorColumn ctermbg=0
 
 let java_space_errors = 1
 
+nnoremap ,f 080l
+
+set backupskip=/tmp/*,/private/tmp/*
+
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.
 noh

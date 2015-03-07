@@ -13,12 +13,13 @@ logger = logging.getLogger("mac")
 
 brew_mapping = {
     "git": ["git"],
-    "vim": ["vim"],
+    "vim": ["neovim"],
     "tmux": ["tmux"],
     "tig": ["tig"],
 }
 brew_tap = [
     "caskroom/fonts",
+    "neovim/homebrew-neovim",
 ]
 brew_install = [
     "caskroom/cask/brew-cask",
@@ -53,6 +54,9 @@ cask_install = [
     "java",
     "grandperspective",
     "firefox",
+    "gimp",
+    "insomniax",
+    "xquartz",
 ]
 devnull = open("/dev/null", "w")
 dnull = {"stdout": devnull, "stderr": devnull}
@@ -103,6 +107,11 @@ def install_packages_user(packages):
             continue
         deps.extend(brew_mapping[package])
     deps.extend(brew_install)
+
+    if "neovim" in deps:
+        # this is to add --HEAD
+        deps.remove("neovim")
+        wrap_process.call("homebrew", ["brew", "install", "--HEAD", "neovim"])
 
     wrap_process.call("homebrew", ["brew", "install"] + deps)
 
