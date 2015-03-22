@@ -1,6 +1,7 @@
 import logging
 
 from dotfiles import wrap_process
+from dotfiles.install import path
 
 debian_mapping = {
     "ntp-daemon": ["ntp"],
@@ -22,7 +23,7 @@ def install_packages_user(packages):
     pass
 
 def customize():
-    pass
+    wrap_process.call("fix_ubuntu.sh", [path("bin/fix_ubuntu.sh")])
 
 def customize_root():
     pass
