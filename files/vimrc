@@ -109,17 +109,13 @@ nnoremap <F3> :set mouse=a<CR>
 nnoremap <F4> :set mouse=<CR>
 
 " f2 to toggle paste mode - disables autoindent
-nnoremap <F2> :set invpaste paste?<CR>
+noremap <F2> :set invpaste paste?<CR>
 set pastetoggle=<F2>
 set showmode
 
 " color the normally confusing paren-highlight to a color that isn't too
 " horribly prominent so I can actually tell what's what
 highlight MatchParen cterm=NONE ctermbg=black ctermfg=darkblue
-
-
-" if vim was opened with no arguments, open nerdtree
-autocmd VimEnter * if argc() == 0 | source ~/.vimrc_newsession | endif
 
 " this goes with my terminal colors better (I use a simple version of
 " solarized - no weird app customization, just terminal colors)
@@ -137,12 +133,15 @@ vnoremap > >gv
 set wildmode=longest:full,full
 set wildmenu
 
+
 function! PrepWindowAct()
     cnoremap <ESC> <C-\><C-n>:q<CR>:call CancelWindowCommandAction()<CR><ESC><ESC>
+    cnoremap <CR> <CR>:call CancelWindowCommandAction()<CR><ESC><ESC>
 endfunction
 
 function! CancelWindowCommandAction()
     cunmap <ESC>
+    cunmap <CR>
 endfunction
 
 function! MakeScratchWindow()
@@ -191,7 +190,7 @@ nnoremap ,t :call PrepWindowAct()<CR>:vnew<CR>:term<SPACE>
 nnoremap ,g' :read !ggrep --args '
 " ,gg'search here'<CR> to search current git repo and paste results into
 " new scratch buffer
-nnoremap ,gg' :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR><ESC><ESC>:read !ggrep --args '
+nnoremap ,gg' :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:read !ggrep --args '
 nnoremap ,gw :call MakeScratchWindow()<CR><ESC><ESC>
 
 nnoremap ,ban :vnew<CR>:term ./gradlew --daemon installDebug<SPACE>
