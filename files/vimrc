@@ -6,6 +6,7 @@ if has("autocmd")
     autocmd!
 
     autocmd BufWritePost ~/.vimrc so ~/.vimrc
+    autocmd BufWritePost ~/.nvimrc so ~/.nvimrc
     autocmd BufWritePost ~/.vimrc_global so ~/.vimrc
     autocmd BufWritePost ~/dotfiles/files/vimrc so ~/.vimrc
     autocmd BufWritePost ~/.gvimrc so ~/.gvimrc
@@ -149,6 +150,8 @@ function! MakeScratchWindow()
     setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile
 endfunction
 
+set sessionoptions=buffers,help,blank,winsize,tabpages,cursor
+
 " convenient win-grab functionality
 " ,u to hide the current buffer and record what buffer it was in a clipboard
 " ,U to copy the current buffer's id without hiding it
@@ -190,6 +193,10 @@ nnoremap ,g' :read !ggrep --args '
 " new scratch buffer
 nnoremap ,gg' :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR><ESC><ESC>:read !ggrep --args '
 nnoremap ,gw :call MakeScratchWindow()<CR><ESC><ESC>
+
+nnoremap ,ban :vnew<CR>:term ./gradlew --daemon installDebug<SPACE>
+
+tnoremap <ESC><ESC> <C-\><C-n>G?.<CR>:noh<CR>
 
 " ,m to join lines
 nnoremap ,m :join<CR>
