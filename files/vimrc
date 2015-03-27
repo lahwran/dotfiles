@@ -136,6 +136,19 @@ vnoremap > >gv
 set wildmode=longest:full,full
 set wildmenu
 
+function! PrepWindowAct()
+    cnoremap <ESC> <C-\><C-n>:q<CR>:call CancelWindowCommandAction()<CR><ESC><ESC>
+endfunction
+
+function! CancelWindowCommandAction()
+    cunmap <ESC>
+endfunction
+
+function! MakeScratchWindow()
+    vnew
+    setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile
+endfunction
+
 " convenient win-grab functionality
 " ,u to hide the current buffer and record what buffer it was in a clipboard
 " ,U to copy the current buffer's id without hiding it
@@ -155,6 +168,7 @@ nnoremap ,j :rightbelow new<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C
 
 " ,z to open git-tracked version of this file in scratch split
 nnoremap ,z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD:<C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
+nnoremap ,Z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD^1:<C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
 
 " ,pf to run pytest in split on the current test file
 " ,pa to run pytest in a split in the current directory
@@ -167,15 +181,15 @@ nnoremap ,r :e __nonexistantfile__ \| e <C-r>=bufname("%")<CR><CR>
 " ,n to open nerdtree
 nnoremap ,n :NERDTree<CR>
 
-" ,t to insert current time on new line (depends on @ command)
-nnoremap ,t :read !@ 'datetime.datetime.now().strftime("_B _d, _Y _I:_M:_S _p".replace("_", chr(37)))'<CR><CR>
+nnoremap ,t :call PrepWindowAct()<CR>:vnew<CR>:term<SPACE>
 
 " ,g'search here'<CR> to search current git repo and paste results into
 " current file
 nnoremap ,g' :read !ggrep --args '
 " ,gg'search here'<CR> to search current git repo and paste results into
 " new scratch buffer
-nnoremap ,gg' :vnew<CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile<CR><ESC><ESC>:read !ggrep --args '
+nnoremap ,gg' :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR><ESC><ESC>:read !ggrep --args '
+nnoremap ,gw :call MakeScratchWindow()<CR><ESC><ESC>
 
 " ,m to join lines
 nnoremap ,m :join<CR>
