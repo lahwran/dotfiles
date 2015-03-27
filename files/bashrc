@@ -1,68 +1,38 @@
-# append to the history file, don't overwrite it
-shopt -s histappend
 
-# WARNING: IF BASH FAILS TO LOAD THIS, IT CAN OBLITERATE YOUR
-# HISTORY. I COPY MY BASH HISTORY ON REGULAR INTERVALS AND
-# BACK IT UP WITH CRASHPLAN. I'll probably make a thing to do
-# that automatically eventually, but WATCH OUT FOR FAILED BASH
-# STARTUPS.
+# !!!!!!!!!!!!!!!!!!!!!!!
+#   WARNING: IF BASH FAILS TO LOAD THESE NEXT LINES, IT CAN OBLITERATE YOUR
+#   HISTORY.
+
+# I copy my bash history on regular intervals and back it up with
+# crashplan. I'll probably make a thing to do
+# that automatically eventually, but watch out for failed bash
+# startups.
+shopt -s histappend
 HISTSIZE=10000000000000
 HISTFILESIZE=10000000000000
 HISTIGNORE=""
 HISTCONTROL=""
 export HISTTIMEFORMAT="%y-%m-%d %T "
-# end history warning
+
+#   END history warning
+# .......................
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 # from ubuntu, may be redundant
 shopt -s checkwinsize
 
-# the pattern "**" used in a pathname expansion context will
-# match all files and zero or more directories and subdirectories.
-# from ubuntu, not enabled by default
-shopt -s globstar
-
-# If this is an xterm set the title to user@host:dir
-# from ubuntu, may be redundant
-case "$TERM" in
-xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-*)
-    ;;
-esac
-
-# I find the multi-column ls output hard to scan for a particular file,
-# so this shuts it off by default.
-alias ls='ls -1'
-
-# enable color support of ls and also add handy aliases
-# from ubuntu, modified for other OSes, may be redundant
-if [ -x "$(which dircolors)" ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls -1 --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
-
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
-fi
-
-# some more ls aliases
-# from ubuntu, may be redundant
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-alias manual='command man'
-function man() {
-    echo "Please use the 'manual' command:"
-    echo
-    echo "    manual" $*
-    echo
+pathappend() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        export PATH="${PATH:+"$PATH:"}$1"
+    fi
 }
 
+pathprepend() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        export PATH="$1${PATH:+":$PATH"}"
+    fi
+}
 
 
 # End ubuntu defaults
@@ -76,8 +46,9 @@ function _promptcommand() {
 function add_prompt_command() {
     _PROMPT_COMMANDS=( "${_PROMPT_COMMANDS[@]}" "$1" );
 }
-PATH="$HOME/local/bin:$HOME/bin:$PATH"
-
+pathprepend "$HOME/bin"
+pathprepend "$HOME/local/bin"
+pathprepend /usr/local/bin
 
 # set color prompt
 # this function was intended to allow colors to be changed
@@ -94,7 +65,6 @@ function color {
     echo -n '\[\033['"$z"'m\]'
 
 }
-PS1="$(color 1)\u@\h$(color):$(color 2)\w$(color)\$ "
 unset c
 unset COLORFGBG
 
@@ -115,13 +85,6 @@ function displaygit() {
 }
 #add_prompt_command displaygit
 
-# don't do dangerous moves or copies without asking!!
-alias mv="mv -i"
-alias cp="cp -i"
-
-# make file give all the results it knows about, not just the first one
-alias file="file -k"
-
 # explanation after the fact:
 # I believe this setting is to allow mouse input inside tmux. If I remember
 # correctly, vim is funny about that unless you set TERM=xterm. (I'm not
@@ -139,23 +102,71 @@ if [ ! -z "$SSH_AUTH_SOCK" -a "$SSH_AUTH_SOCK" != "$HOME/.ssh/agent_sock" ] ; th
     export SSH_AUTH_SOCK="$HOME/.ssh/agent_sock"
 fi
 
-# enable programmable completion features
-# from ubuntu, may be redundant
-if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
-    echo -n "loading completion... "
-    . /etc/bash_completion
-    echo "done"
-elif [ -f $(brew --prefix)/etc/bash_completion ]; then
-    echo -n "loading completion... "
-    . $(brew --prefix)/etc/bash_completion
-    echo "done"
+if [[ $- == *i* ]]; then
+
+    # enable color support of ls and also add handy aliases
+    # from ubuntu, modified for other OSes, may be redundant
+    if [ -x "$(which dircolors)" ]; then
+        test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+        alias ls='ls -1 --color=auto'
+        #alias dir='dir --color=auto'
+        #alias vdir='vdir --color=auto'
+
+        alias grep='grep --color=auto'
+        alias fgrep='fgrep --color=auto'
+        alias egrep='egrep --color=auto'
+    fi
+
+    # some more ls aliases
+    # from ubuntu, may be redundant
+    alias ll='ls -alF'
+    alias la='ls -A'
+    alias l='ls -CF'
+    alias manual='command man'
+    function man() {
+        echo "Please use the 'manual' command:"
+        echo
+        echo "    manual" $*
+        echo
+    }
+
+
+    # I find the multi-column ls output hard to scan for a particular file,
+    # so this shuts it off by default.
+    alias ls='ls -1'
+
+    # the pattern "**" used in a pathname expansion context will
+    # match all files and zero or more directories and subdirectories.
+    # from ubuntu, not enabled by default
+    shopt -s globstar >& /dev/null
+
+    PS1="$(color 1)\u@\h$(color):$(color 2)\w$(color)\$ "
+
+    # don't do dangerous moves or copies without asking!!
+    alias mv="mv -i"
+    alias cp="cp -i"
+
+    # make file give all the results it knows about, not just the first one
+    alias file="file -k"
+
+    # enable programmable completion features
+    # from ubuntu, may be redundant
+    if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
+        echo -n "loading completion... "
+        . /etc/bash_completion
+        echo "done"
+    elif [ -f $(brew --prefix)/etc/bash_completion ]; then
+        echo -n "loading completion... "
+        . $(brew --prefix)/etc/bash_completion
+        echo "done"
+    fi
+
+    export PYTHONIOENCODING="utf-8"
 fi
 
 # ~/.local/bin is where pip puts --user installed commands on mac. I think
 # it's the same on linux?
-if [ -d ~/.local/bin ] ; then
-    export PATH="$HOME/.local/bin:$PATH"
-fi
+pathprepend "$HOME/.local/bin"
 
 function timestamped () {
     @ '"%s - %s" % (terminal.bold(str(datetime.datetime.now())), line)' -plu
@@ -164,4 +175,3 @@ function countlines() {
     @ '"%s %s" % j[::-1] for j in sorted(collections.Counter(lines).items())' -p
 }
 
-export PYTHONIOENCODING="utf-8"

@@ -1,11 +1,14 @@
 
 unset COLORFGBG
-export PATH="/usr/local/bin:$PATH"
 
-export PATH="$PATH:$HOME/Library/Python/2.7/bin"
-export ANDROID_HOME="$HOME/adt/sdk/"
-export PATH="$PATH:$HOME/adt/sdk/platform-tools"
-export PATH="$PATH:$HOME/adt/sdk/tools/"
+pathappend $HOME/Library/Python/2.7/bin
+export ANDROID_HOME="$HOME/adt/sdk"
+export ANDROID_SDK="$ANDROID_HOME"
+export ANDROID_NDK="$HOME/adt/android-ndk-r10d"
+export ANDROID_TOOLCHAIN="$HOME/adt/toolchain-android-18-arm-ndk-llvm"
+pathappend "$ANDROID_SDK/platform-tools"
+pathappend "$ANDROID_SDK/tools"
+pathappend "$ANDROID_TOOLCHAIN/bin"
 
 export CFLAGS=-Qunused-arguments
 export CPPFLAGS=-Qunused-arguments
