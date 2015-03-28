@@ -136,7 +136,7 @@ set wildmenu
 
 function! PrepWindowAct()
     cnoremap <ESC> <C-\><C-n>:q<CR>:call CancelWindowCommandAction()<CR><ESC><ESC>
-    cnoremap <CR> <CR>:call CancelWindowCommandAction()<CR><ESC><ESC>
+    cnoremap <CR> <CR><C-\><C-n>:call CancelWindowCommandAction()<CR>
 endfunction
 
 function! CancelWindowCommandAction()
