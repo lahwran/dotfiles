@@ -10,6 +10,8 @@ pathappend "$ANDROID_SDK/platform-tools"
 pathappend "$ANDROID_SDK/tools"
 pathappend "$ANDROID_TOOLCHAIN/bin"
 
+pathprepend "$DOTFILES_DIR/bin"
+
 export CFLAGS=-Qunused-arguments
 export CPPFLAGS=-Qunused-arguments
 

@@ -50,6 +50,15 @@ pathprepend "$HOME/bin"
 pathprepend "$HOME/local/bin"
 pathprepend /usr/local/bin
 
+if [ "$NVIM_LISTEN_ADDRESS" != "" ]; then
+    export EDITOR="nvim-inner"
+    export GIT_EDITOR="nvim-inner"
+    function vimcd {
+        cd "$@"
+        vimcd_ "$@"
+    }
+fi
+
 # set color prompt
 # this function was intended to allow colors to be changed
 # based on host, so I could tell computers apart by prompt color.
@@ -81,7 +90,7 @@ function updatewindowtitle() {
 add_prompt_command updatewindowtitle
 
 function displaygit() {
-    pushd ~/dotfiles >&/dev/null ; git status -s | _gitabs; popd >&/dev/null 
+    pushd "$DOTFILES_DIR" >&/dev/null ; git status -s | _gitabs; popd >&/dev/null 
 }
 #add_prompt_command displaygit
 
@@ -103,6 +112,10 @@ if [ ! -z "$SSH_AUTH_SOCK" -a "$SSH_AUTH_SOCK" != "$HOME/.ssh/agent_sock" ] ; th
 fi
 
 if [[ $- == *i* ]]; then
+
+    # I find the multi-column ls output hard to scan for a particular file,
+    # so this shuts it off by default.
+    alias ls='ls -1'
 
     # enable color support of ls and also add handy aliases
     # from ubuntu, modified for other OSes, may be redundant
@@ -129,11 +142,6 @@ if [[ $- == *i* ]]; then
         echo "    manual" $*
         echo
     }
-
-
-    # I find the multi-column ls output hard to scan for a particular file,
-    # so this shuts it off by default.
-    alias ls='ls -1'
 
     # the pattern "**" used in a pathname expansion context will
     # match all files and zero or more directories and subdirectories.

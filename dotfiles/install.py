@@ -8,6 +8,7 @@ import os
 import stat
 import time
 import shutil
+import re
 
 
 from dotfiles.highlight import highlight
@@ -42,6 +43,19 @@ pip_dependencies = [
 ensure_nonexistant = [
     "~/.bash_logout",
 ]
+
+_find_unsafe = re.compile(r'[^\w@%+=:,./-]').search
+
+def quote(s):
+    """Return a shell-escaped version of the string *s*."""
+    if not s:
+        return "''"
+    if _find_unsafe(s) is None:
+        return s
+
+    # use single quotes, and put single quotes into double quotes
+    # the string $'b is then quoted as '$'"'"'b'
+    return "'" + s.replace("'", "'\"'\"'") + "'"
 
 def gitconfig(*args):
     return subprocess.check_output(["git", "config", "--global"] + list(args))
@@ -194,7 +208,9 @@ def user_install():
     install_file("files/vimrc", "~/.vimrc_global")
     install_file("files/vimrc_newsession", "~/.vimrc_newsession")
 
-    install_text("~/.bashrc", "source ~/.bashrc_global", prev_existance=False)
+    install_text("~/.bashrc", "DOTFILES_DIR=%s" % (quote(path(".")),),
+            prev_existance=False, before=True)
+    install_text("~/.bashrc", "source ~/.bashrc_global")
     install_text("~/.bashrc", 'PATH="%s:$PATH"\n' % (path("bin/"),))
     install_file("files/bashrc", "~/.bashrc_global")
     delete_text("~/.bashrc",

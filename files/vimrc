@@ -117,6 +117,8 @@ set showmode
 " horribly prominent so I can actually tell what's what
 highlight MatchParen cterm=NONE ctermbg=black ctermfg=darkblue
 
+highlight StatusLine ctermfg=blue
+
 " this goes with my terminal colors better (I use a simple version of
 " solarized - no weird app customization, just terminal colors)
 hi Search cterm=NONE ctermfg=grey ctermbg=darkblue
@@ -132,6 +134,9 @@ vnoremap > >gv
 " bash-like tab completion when typing paths in :e and friends
 set wildmode=longest:full,full
 set wildmenu
+
+" I want unlimited :(
+let g:terminal_scrollback_buffer_size=100000
 
 
 function! PrepWindowAct()
@@ -195,7 +200,7 @@ nnoremap ,gw :call MakeScratchWindow()<CR><ESC><ESC>
 
 nnoremap ,ban :vnew<CR>:term ./gradlew --daemon installDebug<SPACE>
 
-tnoremap <ESC><ESC> <C-\><C-n>G?.<CR>:noh<CR>
+tnoremap <ESC><ESC> <C-\><C-n>G:call search(".", "b")<CR>$
 
 " ,m to join lines
 nnoremap ,m :join<CR>

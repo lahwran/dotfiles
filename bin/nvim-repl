@@ -1,0 +1,13 @@
+#!/usr/bin/env python -i
+import os
+
+import neovim
+
+
+addr = os.environ.get("NVIM_LISTEN_ADDRESS", None)
+if not addr:
+    addr = raw_input("Neovim addr: ")
+
+
+nvim = neovim.attach("socket", path=addr)
+vim = nvim
