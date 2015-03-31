@@ -54,8 +54,8 @@ if [ "$NVIM_LISTEN_ADDRESS" != "" ]; then
     export EDITOR="nvim-inner"
     export GIT_EDITOR="nvim-inner"
     function vimcd {
-        cd "$@"
         vimcd_ "$@"
+        cd "$@"
     }
 fi
 
