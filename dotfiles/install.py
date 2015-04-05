@@ -8,6 +8,10 @@ import os
 import stat
 import time
 import shutil
+import socket
+import math
+import random
+import hashlib
 import re
 
 
@@ -170,6 +174,37 @@ def readfile(filename):
     return result
 
 
+def host_colors(hostname):
+    hash = int(hashlib.sha256(hostname).hexdigest(), 16) + 3
+
+    r = random.Random(hash)
+    rc = r.choice
+
+    # interesting colors are:
+    # 31: red
+    # 32: green
+    # 33: yellow
+    # 34: blue
+    # 35: purple
+    # 36: aqua
+    # 37: white
+    # 38: nothing
+    # have to prefer one by 2x, so prefer green rather than white
+    colors = [str(x) for x in range(32, 37)]
+    colors_with_none = [str(x) for x in range(32, 39)]
+    bold = "1;"
+
+    d = {}
+    d["user"] = rc("33 34 35 37".split())
+    d["host"] = bold + rc("32 33 34 35 37 38".split())
+    d["at_host"] = bold + rc(colors)
+    d["at_path"] = rc(["38", "38", "38", "37", "37", "36", "34", "33"])
+    d["path"] = rc(["32", "33", "34", "36"])
+    d["symbol"] = "38"
+
+    return "\n".join("PROMPTCOLOR_%s='%s'" % (key, value) for key, value in sorted(d.items()))
+
+
 def user_install():
     global logger
 
@@ -210,6 +245,8 @@ def user_install():
 
     install_text("~/.bashrc", "DOTFILES_DIR=%s" % (quote(path(".")),),
             prev_existance=False, before=True)
+    hostname = socket.gethostname().partition(".")[0]
+    install_text("~/.bashrc", host_colors(hostname), before=True)
     install_text("~/.bashrc", "source ~/.bashrc_global")
     install_text("~/.bashrc", 'PATH="%s:$PATH"\n' % (path("bin/"),))
     install_file("files/bashrc", "~/.bashrc_global")

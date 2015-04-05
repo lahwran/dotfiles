@@ -64,14 +64,27 @@ fi
 # based on host, so I could tell computers apart by prompt color.
 # I still might do that.
 function color {
-    if [ "$1" == "1" ]; then
-        z="32"
-    elif [ "$1" == "2" ]; then
-        z="34"
+    # PROMPTCOLOR_user="${PROMTCOLOR_user:-32}"
+    # PROMPTCOLOR_at_host="${PROMTCOLOR_at_host:-32}"
+    # PROMPTCOLOR_host="${PROMTCOLOR_host:-32}"
+    # PROMPTCOLOR_at_path="${PROMTCOLOR_at_path:-32}"
+    # PROMPTCOLOR_symbol="${PROMTCOLOR_symbol:-32}"
+    if [ "$1" == "user" ]; then
+        z="$PROMPTCOLOR_user"
+    elif [ "$1" == "at_host" ]; then
+        z="$PROMPTCOLOR_at_host"
+    elif [ "$1" == "host" ]; then
+        z="$PROMPTCOLOR_host"
+    elif [ "$1" == "at_path" ]; then
+        z="$PROMPTCOLOR_at_path"
+    elif [ "$1" == "path" ]; then
+        z="$PROMPTCOLOR_path"
+    elif [ "$1" == "symbol" ]; then
+        z="$PROMPTCOLOR_symbol"
     else
         z=""
     fi
-    echo -n '\[\033['"$z"'m\]'
+    echo -n '\[\033[m\033['"$z"'m\]'
 
 }
 unset c
@@ -148,7 +161,7 @@ if [[ $- == *i* ]]; then
     # from ubuntu, not enabled by default
     shopt -s globstar >& /dev/null
 
-    PS1="$(color 1)\u@\h$(color):$(color 2)\w$(color)\$ "
+    PS1="$(color user)\u$(color at_host)@$(color host)\h$(color at_path):$(color path)\w$(color symbol)\$ $(color)"
 
     # don't do dangerous moves or copies without asking!!
     alias mv="mv -i"
@@ -175,6 +188,7 @@ fi
 # ~/.local/bin is where pip puts --user installed commands on mac. I think
 # it's the same on linux?
 pathprepend "$HOME/.local/bin"
+pathprepend "$DOTFILES_DIR/bin"
 
 function timestamped () {
     @ '"%s - %s" % (terminal.bold(str(datetime.datetime.now())), line)' -plu
