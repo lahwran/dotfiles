@@ -19,7 +19,7 @@ def fullpath(*args):
 
 addr = os.environ.get("NVIM_LISTEN_ADDRESS", None)
 if not addr:
-    os.execvp('nvim', args)
+    os.execvp('nvim', ['nvim'] + args)
 
 nvim = attach("socket", path=addr)
 
