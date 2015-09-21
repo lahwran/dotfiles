@@ -31,3 +31,12 @@
 [submodule "submodules/rust.vim"]
 	path = submodules/rust.vim
 	url = https://github.com/wting/rust.vim.git
+[submodule "submodules/racer"]
+	path = submodules/racer
+	url = https://github.com/phildawes/racer
+[submodule "submodules/syntastic"]
+	path = submodules/syntastic
+	url = https://github.com/scrooloose/syntastic.git
+[submodule "submodules/youcompleteme"]
+	path = submodules/youcompleteme
+	url = https://github.com/Valloric/YouCompleteMe
