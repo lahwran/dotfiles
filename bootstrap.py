@@ -34,4 +34,4 @@ if not os.path.exists(path(".git")):
     if "autodel" in sys.argv:
         shutil.rmtree(projectroot)
 
-subprocess.call(["python", fullpath("./bin/dotfiles-install")])
+subprocess.call(["python", fullpath("./bin/dotfiles-install"), "init"])

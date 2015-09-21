@@ -15,11 +15,11 @@ and I'll add an explanation.
 
 Usage on linux (will install system packages):
 
-    bin/dotfiles-install
+    bin/dotfiles-install init
 
 Usage on mac (assuming sufficient set-up):
 
-    bin/dotfiles-install user
+    bin/dotfiles-install init
 
 Or, just poke through and lift what you like. Have fun!
 

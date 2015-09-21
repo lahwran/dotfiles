@@ -1,6 +1,7 @@
 #!/bin/bash
 
 MYPATH="$1"
+export PATH="$(dirname $0):$PATH"
 
 function derp {
     if [ -e "$MYPATH/.ctrlp_ignore" ]; then

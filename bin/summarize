@@ -75,12 +75,7 @@ def summarize_uid(uid):
 
 def summarize(filename, skip_summaries=True, no_open=False, overwrite=False):
     if skip_summaries and filename.endswith(".summary"):
-        try:
-            json.loads(open(filename).read(1024**3))
-        except ValueError:
-            pass
-        else:
-            return []
+        return []
 
     try:
         return _summarize(filename, skip_summaries, no_open, overwrite)
@@ -143,6 +138,7 @@ def _summarize(filename, skip_summaries, no_open, overwrite):
             }
         }
     try:
+        lstat = None
         lstat = os.lstat(filename)
     except OSError:
         pass
@@ -173,7 +169,7 @@ def _summarize(filename, skip_summaries, no_open, overwrite):
         "basename": os.path.basename(filename),
         "dirname": os.path.dirname(filename)
     }
-    if not no_open:
+    if not no_open and stat is not None:
         summary["hash"] = hashfile(filename, stat.st_size)
     
     timeformat = "%B %d, %Y %I:%M:%S %p"
@@ -235,6 +231,8 @@ def main(args):
 def recursive(directory, skip_summaries=True, dont_hash=False, overwrite=False):
     import os
     results = []
+    if os.path.exists(directory) and not os.path.isdir(directory):
+        return summarize(directory, skip_summaries=skip_summaries, no_open=dont_hash, overwrite=overwrite)
 
     for root, dirs, files in os.walk(directory):
         summarize(root, skip_summaries=False,

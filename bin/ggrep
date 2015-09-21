@@ -2,6 +2,7 @@
 import subprocess
 import argparse
 import sys
+import pipes
 parser = argparse.ArgumentParser(prefix_chars="-")
 parser.add_argument("--args", dest="ignored", action="store_true")
 parser.add_argument("args", nargs="+")
@@ -13,31 +14,48 @@ parser.add_argument("-A", dest="a")
 parser.add_argument("-B", dest="b")
 parser.add_argument("-C", dest="c")
 parser.add_argument("-f", action="append", default=[])
+parser.add_argument("-r", action="store_true")
 args = parser.parse_args()
 
-print "Grep for %r" % args.args[0]
+print "####", "Grep for %r" % args.args[0]
 if len(args.args[1:]):
-    print "in %r" % args.args[1:]
+    print "####", "in %r" % args.args[1:]
 cmd = ["git", "grep"]
 special = [ "-E"]
 if args.c:
     special.extend(["-C", args.c])
-    print "with", args.c, "context"
+    print "####", "with", args.c, "context"
 if args.a:
     special.extend(["-A", args.a])
-    print "with", args.a, "postcontext"
+    print "####", "with", args.a, "postcontext"
 if args.b:
     special.extend(["-B", args.b])
-    print "with", args.b, "precontext"
+    print "####", "with", args.b, "precontext"
 if args.i:
     special.extend(["-i"])
 cmd.extend(special)
 cmd.extend(args.args)
-print cmd
+print "####", " ".join([pipes.quote(x) for x in cmd])
 sys.stdout.flush()
 sys.stderr.flush()
 #processes = []
 #commands = [cmd]
 #for filter in args.f:
 #    commands.append(["grep", "-C", "10",)
-subprocess.call(cmd)
+
+process = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+output = process.communicate()
+if not args.r:
+    # not in raw mode, fancify it
+    lastpath = None
+    for line in output[0].split("\n"):
+        if not line.strip():
+            continue
+        path, colon, match = line.partition(":")
+        if path != lastpath:
+            lastpath = path
+            print
+            print path + colon
+        print match
+
+sys.exit(process.returncode or 1)

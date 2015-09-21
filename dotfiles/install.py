@@ -208,8 +208,6 @@ def host_colors(hostname):
 def user_install():
     global logger
 
-    os_specific.install_packages_user(os_dependencies)
-
     # install pip packages
     logger.info("Installing pip packages...")
     for dep in pip_dependencies:
@@ -276,6 +274,9 @@ def user_install():
     install_file("submodules/vim-gitgutter/", "~/.vim/bundle/vim-gitgutter/")
     install_file("submodules/ceylon-vim/", "~/.vim/bundle/ceylon-vim/")
     install_file("submodules/rust.vim/", "~/.vim/bundle/rust.vim/")
+    install_file("submodules/syntastic/", "~/.vim/bundle/syntastic/")
+    install_file("submodules/racer/", "~/.vim/bundle/racer/")
+    install_file("submodules/YouCompleteMe/", "~/.vim/bundle/YouCompleteMe/")
 
     install_file("files/tmux.conf", "~/.tmux.conf")
 
@@ -367,7 +368,7 @@ def init_logging(mode):
         rootlogger.addHandler(handler)
     logger.info("Logging initialized")
 
-def main(mode="init", *args):
+def main(mode="user", *args):
     init_logging(mode)
 
     if mode == "superuser":
@@ -376,6 +377,7 @@ def main(mode="init", *args):
         logger.info("running root portion")
         subprocess.check_call(["sudo", sys.executable, sys.argv[0], "superuser"] + list(args))
         logger.info("running user portion")
+        os_specific.install_packages_user(os_dependencies)
         user_install(*args)
     elif mode == "bootstrap-root":
         os_specific.install_packages_root(os_dependencies)

@@ -37,6 +37,6 @@
 [submodule "submodules/syntastic"]
 	path = submodules/syntastic
 	url = https://github.com/scrooloose/syntastic.git
-[submodule "submodules/youcompleteme"]
-	path = submodules/youcompleteme
+[submodule "submodules/YouCompleteMe"]
+	path = submodules/YouCompleteMe
 	url = https://github.com/Valloric/YouCompleteMe

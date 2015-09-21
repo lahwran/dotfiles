@@ -22,6 +22,8 @@ export HISTTIMEFORMAT="%y-%m-%d %T "
 # from ubuntu, may be redundant
 shopt -s checkwinsize
 
+# End ubuntu defaults
+
 pathappend() {
     if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
         export PATH="${PATH:+"$PATH:"}$1"
@@ -34,8 +36,18 @@ pathprepend() {
     fi
 }
 
+varappend() {
+    if [ -d "$2" ] && [[ ":${!1}:" != *":$2:"* ]]; then
+        export $1="${!1:+"${!1}:"}$2"
+    fi
+}
 
-# End ubuntu defaults
+varprepend() {
+    if [ -d "$2" ] && [[ ":$PATH:" != *":$2:"* ]]; then
+        export $1="$2${!1:+":${!1}"}"
+    fi
+}
+
 
 PROMPT_COMMAND=_promptcommand
 function _promptcommand() {

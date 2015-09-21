@@ -187,6 +187,7 @@ nnoremap ,r :e __nonexistantfile__ \| e <C-r>=bufname("%")<CR><CR>
 
 " ,n to open nerdtree
 nnoremap ,n :NERDTree<CR>
+nnoremap ,<CR> :NERDTree ~/SpaceMonkey/Desktop<CR>
 
 nnoremap ,t :call PrepWindowAct()<CR>:vnew<CR>:term<SPACE>
 
@@ -264,7 +265,7 @@ set fileformats=unix,dos        " unix linebreaks in new files please
 set listchars=tab:↹·,extends:⇉,precedes:⇇,nbsp:␠,trail:␠,nbsp:␣
                                 " appearance of invisible characters
 
-set ttymouse=xterm2             " force mouse support for screen
+" set ttymouse=xterm2             " force mouse support for screen
 set encoding=utf-8              " best default encoding
 setglobal fileencoding=utf-8    " ...
 set nobomb                      " do not write utf-8 BOM!
@@ -307,6 +308,33 @@ let java_space_errors = 1
 nnoremap ,f 080l
 
 set backupskip=/tmp/*,/private/tmp/*
+
+set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
+set statusline+=%#warningmsg#
+set statusline+=%*
+
+let g:ycm_semantic_triggers =  {
+  \   'c' : ['->', '.'],
+  \   'objc' : ['->', '.'],
+  \   'ocaml' : ['.', '#'],
+  \   'cpp,objcpp' : ['->', '.', '::'],
+  \   'perl' : ['->'],
+  \   'php' : ['->', '::'],
+  \   'cs,java,javascript,d,python,perl6,scala,vb,elixir,go' : ['.'],
+  \   'vim' : ['re![_a-zA-Z]+[_\w]*\.'],
+  \   'ruby' : ['.', '::'],
+  \   'lua' : ['.', ':'],
+  \   'erlang' : [':'],
+  \   'rust' : ['.', '::', '(', '='],
+  \ }
+let g:ycm_min_num_of_chars_for_completion = 0
+let g:ycm_seed_identifiers_with_syntax = 1
+let g:ycm_add_preview_to_completeopt = 0
+let g:ycm_key_list_select_completion = ['<TAB>', '<Down>', '<Enter>']
+
+
+
+let racer_open_cmd="vnew"
 
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.
