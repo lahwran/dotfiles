@@ -6,9 +6,6 @@ import sys
 from neovim import attach
 
 args = sys.argv[1:]
-if not args:
-    print "Usage: {} <filename> ...".format(sys.argv[0])
-    sys.exit(1)
 
 
 def fullpath(*args):
@@ -18,7 +15,7 @@ def fullpath(*args):
 
 
 addr = os.environ.get("NVIM_LISTEN_ADDRESS", None)
-if not addr:
+if not addr or not args:
     os.execvp('nvim', ['nvim'] + args)
 
 nvim = attach("socket", path=addr)
