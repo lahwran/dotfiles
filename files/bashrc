@@ -209,3 +209,10 @@ function countlines() {
     @ '"%s %s" % j[::-1] for j in sorted(collections.Counter(lines).items())' -p
 }
 
+function superwatch() {
+    while sleep 2; do
+        b="$($@ 2>&1 | cut -c1-"$(stty size </dev/tty | cut -d" " -f2)" )"
+        clear
+        echo "$b" | head -n $(( $(tput lines) - 1))
+    done
+}

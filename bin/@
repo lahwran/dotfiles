@@ -2,7 +2,8 @@
 # python 2 only, adjust path (or port, I'd love you) as needed
 # *not* /usr/bin/env python
 # run @ --help for (a little) more information
-"""
+# MIT licensed.
+"""\
 primarily a python eval command. auto-formats the result of your expression:
 (> indicates the line contains user input)
 
@@ -54,6 +55,10 @@ examples from my bash history (try them, they don't bite):
     @ 'random.SystemRandom().choice("abcdef0123456789") for x in range(30)' -j
     @ 'pprint.pprint(json.loads(inp()))'
     @ 'urllib2.urlopen("google.com").read()'
+
+another great one:
+
+    @ 'variables'
 """
 
 
@@ -99,22 +104,36 @@ _update_globals()
 del _update_globals
 
 def succeed():
+    "Function that exits with a success return code (0)."
     sys.exit(0)
 
 def fail():
+    "Function that exits with a failure return code (1)."
     sys.exit(1)
 
-def lines():
-    yield None
-    while True:
+class lines(object):
+    def __init__(self):
+        self.__doc__ = "Iterable of lines coming in from standard in."
+
+    def __iter__(self):
+        return self
+
+    def __repr__(self):
+        return "<lines - iterable of lines coming from standard in>"
+
+    def __str__(self):
+        return "iterable"
+
+    def next(self):
         line = sys.stdin.readline().decode("utf-8")
         if not line:
-            break
+            raise StopIteration
         if line.endswith("\n"):
             line = line[:-1]
-        yield line
+        return line
 
 def inp():
+    "Returns entire standard in as one string."
     return sys.stdin.read().decode("utf-8")
 
 def _hash(hasher, text):
@@ -123,35 +142,85 @@ def _hash(hasher, text):
     return instance
 
 def md5(text):
+    "md5(text) - compute hex md5 of input string."
     import hashlib
     return _hash(hashlib.md5, text).hexdigest()
+
 def sha256(text):
+    "sha256(text) - compute hex sha256 of input string."
     import hashlib
     return _hash(hashlib.sha256, text).hexdigest()
 
+
+def pairs(iterable):
+    "pairs(iterable) -> (s0, s1), (s1,s2), (s2, s3), etc"
+    from itertools import tee, izip
+    a, b = tee(iterable)
+    next(b, None)
+    return izip(a, b)
+
+
+def chunks(l, n):
+    "Yield successive n-sized chunks from l."
+    for i in xrange(0, len(l), n):
+        yield l[i:i+n]
+
+
+def delays(delta, iterable=None):
+    "delays(secs, i=itertools.repeat(None)) - Wraps iterator with delays."
+    if iterable is None:
+        import itertools
+        iterable = itertools.repeat(None)
+    if not callable(delta):
+        if getattr(delta, "total_seconds") is not None:
+            delta = delta.total_seconds()
+        delta = lambda: delta
+    for x in iterable:
+        time.sleep(delta())
+        yield x
+
+
 lines = lines()
-assert lines.next() is None
 
-def bytes():
-    yield None
-    if sys.stdout.isatty() and sys.stdout._unbuffered:
-        bufsize = 1
-    else:
-        bufsize = 512
+class bytes(object):
+    def __init__(self):
+        self.__doc__ = "Standard in, byte by byte, as an iterator"
+        self.iterator = self._go()
+        assert self.iterator.next() is None
 
-    while True:
-        s = sys.stdin.read(bufsize)
-        if not s:
-            break
-        for char in s:
-            yield char
+    def __iter__(self):
+        return self.iterator
+
+    def next(self):
+        return self.iterator.next()
+
+    def __repr__(self):
+        return "<bytes - standard in, byte by byte, as an iterator>"
+
+    def __str__(self):
+        return "iterable"
+
+    def _go(self):
+        yield None
+        if sys.stdout.isatty() and sys.stdout._unbuffered:
+            bufsize = 1
+        else:
+            bufsize = 512
+
+        while True:
+            s = sys.stdin.read(bufsize)
+            if not s:
+                break
+            for char in s:
+                yield char
 bytes = bytes()
-assert bytes.next() is None
 
 def _split_statements(string):
 
     # _statements, _last_statement
     #s = "1; yield 1; 1 for in 1; \"hello; there\"; yay"
+    if string is None:
+        return [], None
 
     operations = [[]]
     for type, tokenstring, start, end, line in tokenize.generate_tokens(iter(string.split("\n")).next):
@@ -207,6 +276,10 @@ def _parse_args():
     if args.unbuffered:
         sys.stdout._unbuffered = True
         sys.stderr._unbuffered = True
+    if not args.string and not args.lines \
+            and not args.chars and args.filter is None and args.postfilter is None:
+        parser.print_help()
+        sys.exit(1)
 
     string = " ".join(args.string) if args.string else None
     statements, string = _split_statements(string)
@@ -258,6 +331,21 @@ def _parse_args():
 _statements, _string, _shouldprint, print = _parse_args()
 del _parse_args
 
+_available = []
+
+
+class _Importable(object):
+    def __init__(self, name, kind):
+        self.name = name
+        self.kind = kind
+
+    def __repr__(self):
+        return "<importable %s: %s>" % (self.kind, self.name)
+
+    def __str__(self):
+        return "importable %s" % (self.kind)
+
+
 _optional_modules = [
     "subprocess",
     "platform",
@@ -307,24 +395,319 @@ _optional_modules = [
     "twisted",
     "tokenize",
     "token",
+    "numpy",
+    "scipy",
+    "tensorflow",
+    "os",
+    "sys",
+    "codecs",
+    "ast",
+    "token",
+    "tokenize",
 ]
+
+def _wanted(_mod, kind=None):
+    if kind is not None:
+        _available.append(_Importable(_mod, kind))
+    return any(_mod in _s for _s in _statements + [_string])
+
 for _mod in _optional_modules:
-    if any(_mod in _s for _s in _statements + [_string]):
+    if _wanted(_mod, "module"):
         exec "import %s" % _mod
 
-if "terminal" in _string:
+if _wanted("terminal", "pre-initialized blessings instance"):
     import blessings
     terminal = blessings.Terminal(force_styling=True)
 
-del _mod
-del _optional_modules
+if _wanted("tf", "tensorflow module short-name"):
+    import tensorflow as tf
+
+if _wanted("session", "pre-initialized tensorflow session"):
+    import tensorflow
+    session = tensorflow.InteractiveSession()
+
+if _wanted("np", "numpy module short-name"):
+    import numpy as np
+
+_available_itertools = []
+_itertools_values = [
+    "count",
+    "cycle",
+    "repeat",
+    "chain",
+    "compress",
+    "dropwhile",
+    "groupby",
+    "ifilter",
+    "ifilterfalse",
+    "islice",
+    "imap",
+    "starmap",
+    "tee",
+    "takewhile",
+    "izip",
+    "izip_longest",
+    "product",
+    "permutations",
+    "combinations",
+    "combinations_with_replacement",
+]
+for _itertool_func in _itertools_values:
+    _available_itertools.append(_Importable(_itertool_func, "itertools function"))
+    if _wanted(_itertool_func):
+        exec "from itertools import %s" % _itertool_func
+    del _itertool_func
+
+_blacklist = [
+    "_format_var",
+    "_available",
+    "_LazyString",
+    "_avail",
+    "__doc__",
+    "__file__",
+    "_available_itertools",
+    "_Importable",
+    "_itertools_values",
+    "_wanted",
+    "_mod",
+    "_optional_modules",
+    "_blacklist",
+    "_string",
+    "_statements",
+    "_shouldprint",
+    "_hash",
+    "__package__",
+    "__name__",
+    "_Unbuffered",
+    "__builtins__",
+    "_statement",
+    "variables",
+    "_variables",
+    "_result",
+    "_split_statements",
+    "_hasdoc",
+    "_old_globals",
+]
+
+
+for _avail in _available:
+    if _avail.name not in globals():
+        globals()[_avail.name] = _avail
+
+
+
+class _LazyString(object):
+    """Class for strings created by a function call.
+
+    The proxy implementation attempts to be as complete as possible, so that
+    the lazy objects should mostly work as expected, for example for sorting.
+
+    This is most of the implementation of the `speaklater` package on pypi,
+    copy and pasted. this class is BSD licensed, the rest of this file is MIT.
+    """
+    __slots__ = ('_func', '_args', "_kwargs", "_cache")
+
+    def __init__(self, func, *args, **kwargs):
+        self._func = func
+        self._args = args
+        self._kwargs = kwargs
+        self._cache = None
+
+    @property
+    def value(self):
+        if self._cache is not None:
+            return self._cache
+        self._cache = self._func(*self._args, **self._kwargs)
+        return self._cache
+
+    def __contains__(self, key):
+        return key in self.value
+
+    def __nonzero__(self):
+        return bool(self.value)
+
+    def __dir__(self):
+        return dir(unicode)
+
+    def __iter__(self):
+        return iter(self.value)
+
+    def __len__(self):
+        return len(self.value)
+
+    def __str__(self):
+        return str(self.value)
+
+    def __unicode__(self):
+        return unicode(self.value)
+
+    def __add__(self, other):
+        return self.value + other
+
+    def __radd__(self, other):
+        return other + self.value
+
+    def __mod__(self, other):
+        return self.value % other
+
+    def __rmod__(self, other):
+        return other % self.value
+
+    def __mul__(self, other):
+        return self.value * other
+
+    def __rmul__(self, other):
+        return other * self.value
+
+    def __lt__(self, other):
+        return self.value < other
+
+    def __le__(self, other):
+        return self.value <= other
+
+    def __eq__(self, other):
+        return self.value == other
+
+    def __ne__(self, other):
+        return self.value != other
+
+    def __gt__(self, other):
+        return self.value > other
+
+    def __ge__(self, other):
+        return self.value >= other
+
+    def __getattr__(self, name):
+        if name == '__members__':
+            return self.__dir__()
+        return getattr(self.value, name)
+
+    def __getstate__(self):
+        return self._func, self._args, self._kwargs
+
+    def __setstate__(self, tup):
+        self._func, self._args, self._kwargs = tup
+
+    def __getitem__(self, key):
+        return self.value[key]
+
+    def __copy__(self):
+        return self
+
+    def __repr__(self):
+        try:
+            return 'l' + repr(self.value)
+        except Exception:
+            return '<%s broken>' % self.__class__.__name__
+
+def _hasdoc(value):
+    doc = getattr(value, "__doc__", None)
+    return doc != getattr(type(value), "__doc__", None) and doc
+
+def _format_var(name, value):
+    def truncate_to_line(v):
+        s = v.split("\n")
+        if len(s) > 1 or len(s[0]) >= 80:
+            v = s[0][:77] + "..."
+        return v
+
+    f = "- `{name}`: {value}"
+
+    
+    if type(value) == _LazyString:
+        value = "<Lazy String>"
+    elif _hasdoc(value):
+        simpledesc = None
+        if type(value) == type(_format_var):
+            simpledesc = "function"
+        elif type(value) == type(print):
+            simpledesc = "builtin"
+        elif type(value) == type:
+            simpledesc = "class"
+        elif type(value) == type(token):
+            simpledesc = "module"
+        else:
+            simpledesc = str(value)
+
+        value = ("%s - %s" % (simpledesc, value.__doc__)).strip()
+        value = truncate_to_line(value)
+
+    elif type(value) == str or type(value) == unicode:
+        value = repr(truncate_to_line(value))
+    else:
+        value = str(value)
+
+    return f.format(name=name, value=value)
+
+
+def _variables(g, oldglobals):
+    def f(d, blist):
+        return "\n".join(
+            _format_var(name, value)
+            for name, value in sorted(d.items(), key=lambda x: x[0])
+            if name not in blist)
+    blist = set(_blacklist)
+    shell_vars = f(os.environ, blist)
+    blist |= set(os.environ.keys())
+
+    modules = f(dict((x.name, x) for x in _available), blist)
+    blist |= set([x.name for x in _available])
+
+    iterfuncs = f(dict((x.name, x) for x in _available_itertools), blist)
+    blist |= set([x.name for x in _available_itertools])
+
+    oldremaining = f(oldglobals, blist)
+    blist |= set(oldglobals.keys())
+
+    uservars = f(g, blist)
+
+    tail = ""
+    if uservars:
+        tail = ("\n"
+            "Your variables\n"
+            "==============\n"
+            "\n"
+            "{}\n"
+        ).format(uservars)
+
+    return (
+        "Available names:\n"
+        "================\n"
+        "\n"
+        "Variables from shell environment\n"
+        "--------------------------------\n"
+        "\n"
+        "{shell_vars}\n"
+        "\n"
+        "Imported and auto-importing modules\n"
+        "-----------------------------------\n"
+        "\n"
+        "'importable' modules will automatically import on use.\n"
+        "\n"
+        "{modules}\n"
+        "\n"
+        "extra: these functions will be auto-imported from itertools:\n"
+        "\n"
+        "{iterfuncs}\n"
+        "\n"
+        "Utilities and globals specific to @\n"
+        "-----------------------------------\n"
+        "\n"
+        "{remaining}\n"
+        "{tail}"
+    ).format(shell_vars=shell_vars, modules=modules, iterfuncs=iterfuncs,
+            remaining=oldremaining, tail=tail)
+
+_old_globals = dict(globals())
+variables = _LazyString(lambda: _variables(globals(), _old_globals))
+
 
 try:
     for _statement in _statements:
         exec _statement
     if not _string.strip():
         succeed()
-    result = eval("(%s)" % _string)
+    _result = eval("(%s)" % _string)
 except KeyboardInterrupt:
     sys.stderr.write("@ killed (ctrl+d to close cleanly)")
     fail()
@@ -337,12 +720,12 @@ except BaseException as e:
     fail()
 
 
-if result is None:
-    result = True
+if _result is None:
+    _result = True
 
-if not isinstance(result, basestring):
+if not isinstance(_result, basestring) or isinstance(_result, _LazyString):
     try:
-        iterator = iter(result)
+        iterator = iter(_result)
     except TypeError:
         pass
     else:
@@ -351,17 +734,26 @@ if not isinstance(result, basestring):
                 print(x)
         else:
             result2 = list(iterator)
-            if result2 == list(result): # check for repeatability
-                print(result)
+            try:
+                # lol hax
+                is_repeatable_iterable = "numpy" in str(type(_result)) or result2 == list(iter(_result))
+            except ValueError:
+                # assume yes, because annoying
+                is_repeatable_iterable = True
+            if is_repeatable_iterable: # check for repeatability
+                print(_result)
             elif any(x != None for x in result2):
                 print(result2)
         succeed()
 
-if not isinstance(result, bool) or _shouldprint:
-    print(result)
+if not isinstance(_result, bool) or _shouldprint:
+    if _hasdoc(_result) and repr(_result) == str(_result):
+        print(_result.__doc__)
+    else:
+        print(_result)
 
-if isinstance(result, bool):
-    if result:
+if isinstance(_result, bool):
+    if _result:
         succeed()
     else:
         fail()
