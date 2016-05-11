@@ -202,7 +202,9 @@ nnoremap ,gw :call MakeScratchWindow()<CR><ESC><ESC>
 
 nnoremap ,ban :vnew<CR>:term ./gradlew --daemon installDebug<SPACE>
 
-tnoremap <ESC><ESC> <C-\><C-n>G:call search(".", "b")<CR>$
+if exists(':tnoremap')
+    tnoremap <ESC><ESC> <C-\><C-n>G:call search(".", "b")<CR>$
+endif
 
 " ,m to join lines
 nnoremap ,m :join<CR>
@@ -267,6 +269,7 @@ set listchars=tab:↹·,extends:⇉,precedes:⇇,nbsp:␠,trail:␠,nbsp:␣
                                 " appearance of invisible characters
 
 " set ttymouse=xterm2             " force mouse support for screen
+setglobal fileencoding=utf-8    " ...
 set nobomb                      " do not write utf-8 BOM!
 set fileencodings=ucs-bom,utf-8,iso-8859-1
                                 " order to detect Unicodeyness
