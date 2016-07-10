@@ -42,14 +42,8 @@ cask_install = [
     "google-chrome",
     "seil",
     "iterm2",
-    "spacemonkey",
-    "crashplan",
     "little-snitch",
-    "menumeters",
-    "bettertouchtool",
-    "skype",
     "audacity",
-    "quassel-client",
     "font-dejavu-sans",
     "java",
     "grandperspective",
@@ -148,78 +142,12 @@ def customize():
 
     n_r = False
 
-    seil = "/Applications/Seil.app/Contents/Library/bin/seil"
-    if os.path.exists(seil):
-        # enable capslock-as-escape
-        wrap_process.call("seil", [seil, "set", "keycode_capslock", "53"])
-        wrap_process.call("seil", [seil, "set", "enable_capslock", "1"])
-
-    n_r |= disable_default_escape_action()
-
     # set shell to homebrew-installed bash
     if pwd.getpwuid(os.getuid()).pw_shell != "/usr/local/bin/bash":
         subprocess.call(["chsh", "-s", "/usr/local/bin/bash"])
 
     # set function keys as function keys!
     n_r |= set_defaults("-g", "com.apple.keyboard.fnState", True)
-
-    # bettertouchtool maximize sizes
-    btt = "com.hegenberg.BetterTouchTool"
-    changed_btt = set_defaults(btt, "windowLeftCornerMaximizePercent", 0.3)
-    changed_btt |= set_defaults(btt, "windowLeftMaximizePercent", 0.3)
-
-    changed_btt |= set_defaults(btt, "windowRightCornerMaximizePercent", 0.7)
-    changed_btt |= set_defaults(btt, "windowRightMaximizePercent", 0.7)
-    changed_btt |= set_defaults(btt, "windowSnappingEnabled", True)
-    changed_btt |= set_defaults(btt, "launchOnStartup", True)
-    changed_btt |= set_defaults(btt, "showicon", False)
-
-    # bettertouchtool preset
-    if p_call(["defaults", "read", btt, "currentStore"], **dnull) != 0:
-        install_dir("~/Library/Application Support/BetterTouchTool")
-        install_copy("files/bettertouchtool_preset",
-            "~/Library/Application Support/BetterTouchTool/bttdata_dotfiles")
-        set_defaults(btt, "presets", """
-            (
-                {
-                    fileName = "bttdata_dotfiles";
-                    presetName = "Dotfiles-Installed";
-                }
-            )
-        """, True)
-        set_defaults(btt, "currentStore", "Dotfiles-Installed")
-        bttpath = find_file("BetterTouchTool.app")
-        if bttpath:
-            p_call(["open", bttpath])
-
-    n_r |= changed_btt
-
-    if install_dir("~/Library/Application Support/audacity"):
-        with open(fullpath("~/Library/Application Support/"
-                    + "audacity/audacity.cfg"), "w") as writer:
-            writer.write(readfile("files/audacity.cfg")
-                        .replace("HOMEDIRECTORY/", fullpath("~/")))
-
-    n_r |= install_defaults("com.ragingmenace.MenuMeters", "files/menumeters")
-    n_r |= set_defaults("com.googlecode.iterm2", "PrefsCustomFolder",
-                                path("files/iterm2/"))
-    n_r |= set_defaults("com.googlecode.iterm2",
-                            "LoadPrefsFromCustomFolder", True)
-
-    # time until initial key repeat
-    n_r |= set_defaults("-g", "InitialKeyRepeat", 25)
-
-    # time between key repeats
-    n_r |= set_defaults("-g", "KeyRepeat", 2)
-
-    # set natural scroll - not apple's "unnatural" scroll
-    n_r |= set_defaults("-g", "com.apple.swipescrolldirection", False)
-    
-    # disable yucky automatic spell stuff
-    n_r |= set_defaults("-g", "NSAutomaticSpellingCorrectionEnabled", False)
-    n_r |= set_defaults("-g", "WebAutomaticSpellingCorrectionEnabled", False)
-    n_r |= set_defaults("-g", "NSAutomaticDashSubstitutionEnabled", False)
-    n_r |= set_defaults("-g", "NSAutomaticQuoteSubstitutionEnabled", False)
 
     # disable automatic app termination - I've never actually seen this happen, but
     # the setting's existence is scary
@@ -233,19 +161,8 @@ def customize():
     n_r |= set_defaults("com.apple.dock", "workspaces-edge-delay", 4.0, typed=True)
 
     n_r |= set_defaults("com.apple.screencapture", "location",
-            fullpath("~/SpaceMonkey/Screenshots"), typed=True)
+            fullpath("~/Screenshots"), typed=True)
     n_r |= set_defaults("com.apple.screencapture", "type", "png", typed=True)
-
-    if n_r:
-        # set some fun replacements - <3 to unicodeheart in particular
-        n_r |= set_defaults("-g", "NSUserDictionaryReplacementItems",
-                    readfile("files/mac_user_dictionary"), True)
-        n_r |= set_defaults("-g", "NSUserReplacementItems",
-                    readfile("files/mac_user_replacements"), True)
-        n_r |= set_defaults("-g", "NSUserReplacementItemsEnabled", True)
-
-    # Set whether app nap is enabled - not sure which I like
-    n_r |= set_defaults("-g", "NSAppSleepDisabled", False)
 
     coreutils = glob.glob("/usr/local/Cellar/coreutils/*/libexec/gnubin")
     assert len(coreutils)
@@ -262,11 +179,6 @@ def customize():
         writer.write('export PATH="%s:%s:$PATH"\n'
             % (newest_coreutils, newest_openssl))
 
-    if n_r:
-        logger.warn("Changed internal stuff, won't take effect until reboot!"
-                    + " sorry :(")
-
-
 def customize_root():
     # don't go into true sleep from display sleep for at least three hours,
     # even on battery
@@ -278,21 +190,21 @@ def customize_root():
     # DISABLED (was causing issues with session loss):
     # go into standby mode fairly soon once in sleep, because
     # standby mode allows tossing the filevault key
-    p_call(["pmset", "-a", "standby", "0"])
-    # p_call(["pmset", "-a", "standbydelay", "300"]) # seconds
-    p_call(["pmset", "-a", "autopoweroff", "0"])
-    # p_call(["pmset", "-a", "autopoweroff", "5"])
+    #p_call(["pmset", "-a", "standby", "0"])
+    #old: p_call(["pmset", "-a", "standbydelay", "300"]) # seconds
+    #p_call(["pmset", "-a", "autopoweroff", "0"])
+    #old: p_call(["pmset", "-a", "autopoweroff", "5"])
 
     # there's a big flashy warning about this option in the manual page
     # for pmset. 25 is a supported value, that empties ram.
     # setting this assumes hibernatefile is set, which it seems to be by
     # default.
     # DISABLED - was causing issues with session loss.
-    p_call(["pmset", "-a", "hibernatemode", "0"]) #"25"])
+    #p_call(["pmset", "-a", "hibernatemode", "0"]) #"25"])
     # once the computer goes into hibernate mode, unload filevault. to resume
     # from this requires _two_ passwords, filevault and login.
     # DISABLED - was causing issues with session loss.
-    p_call(["pmset", "-a", "destroyfvkeyonstandby", "0"])
+    #p_call(["pmset", "-a", "destroyfvkeyonstandby", "0"])
 
 
 def find_file(name):
@@ -301,14 +213,6 @@ def find_file(name):
     if not endswith:
         return None
     return endswith[0]
-
-
-def install_defaults(app, filename):
-    from dotfiles.install import readfile
-    if p_call(["defaults", "read", app], **dnull) != 0:
-        p_check(["defaults", "write", app, readfile(filename)])
-        return True
-    return False
 
 
 def set_defaults(domain, key, value, is_defaults_data=False, typed=False):
@@ -345,11 +249,12 @@ def set_defaults(domain, key, value, is_defaults_data=False, typed=False):
             stderr=devnull).strip()
 
     if output != '' and f(output) != value:
+        print "output: %r (<- %r) != %r (-> %r)" % (f(output), output, value, t(value))
         p_check(["defaults", "write", domain, key] + v + [t(value)])
         return True
     return False
 
-
+"""
 def disable_default_escape_action():
     # first, detect available keyboard vendorid/productid pairs
     # note: this is fragile.
@@ -397,6 +302,7 @@ def disable_default_escape_action():
         set_defaults("-g", prefname, data)
 
     return changed_anything
+    """
 
 
 # this function from twisted.python.procutils, licensed MIT:

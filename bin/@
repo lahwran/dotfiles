@@ -64,6 +64,7 @@ another great one:
 
 from __future__ import print_function
 
+import itertools
 import os
 import sys
 import codecs
@@ -91,17 +92,6 @@ sys.stdout._unbuffered = sys.stdout.isatty()
 
 sys.stderr = _Unbuffered(sys.stderr)
 sys.stderr._unbuffered = sys.stderr.isatty()
-
-def _update_globals():
-    g = dict(globals())
-    globals().update(os.environ)
-    globals().update(g)
-
-    overlap = set(g) & set(os.environ)
-    if overlap:
-        print("WARNING: variable overlap: %r" % overlap)
-_update_globals()
-del _update_globals
 
 def succeed():
     "Function that exits with a success return code (0)."
@@ -160,10 +150,14 @@ def pairs(iterable):
     return izip(a, b)
 
 
-def chunks(l, n):
-    "Yield successive n-sized chunks from l."
-    for i in xrange(0, len(l), n):
-        yield l[i:i+n]
+_chunks_guard = object()
+def chunks(generator, size, pad=_chunks_guard):
+    """
+    chunks(generator, size, pad=<no pad>) - Yield size chunks from generator.
+    fills the last one with pad if provided.
+    """
+    q = itertools.izip_longest(*[iter(generator)]*size, fillvalue=pad)
+    return ([a for a in b if a is not _chunks_guard] for b in q)
 
 
 def delays(delta, iterable=None):
@@ -172,9 +166,11 @@ def delays(delta, iterable=None):
         import itertools
         iterable = itertools.repeat(None)
     if not callable(delta):
-        if getattr(delta, "total_seconds") is not None:
+        if getattr(delta, "total_seconds", None) is not None:
             delta = delta.total_seconds()
-        delta = lambda: delta
+        origdelta = delta
+        delta = lambda: origdelta
+    import time
     for x in iterable:
         time.sleep(delta())
         yield x
@@ -271,6 +267,8 @@ def _parse_args():
             help='use as -v x="hi" y="$there" to add variables to the expression')
     parser.add_argument("string", default=None, nargs="*",
             help="the expression, automatically joined by space if multiple specified")
+    parser.add_argument("-d", "--debug", action="store_true",
+            help='print debug info for type detection')
     args = parser.parse_args()
 
     if args.unbuffered:
@@ -326,9 +324,9 @@ def _parse_args():
         assert equals, "please put an equals sign in variable defitions"
         globals()[name] = value
 
-    return (statements, string, args.print_each,
+    return (statements, string, args.print_each, args.debug,
             sys.stdout.write if args.print_joined else print)
-_statements, _string, _shouldprint, print = _parse_args()
+_statements, _string, _shouldprint, _debug, print = _parse_args()
 del _parse_args
 
 _available = []
@@ -357,6 +355,7 @@ _optional_modules = [
     "pprint",
     "random",
     "math",
+    "difflib",
     "decimal",
     "fractions",
     "itertools",
@@ -383,6 +382,7 @@ _optional_modules = [
     "uuid",
     "urlparse",
     "shlex",
+    "inspect",
     "tty",
     "termios",
     "grp",
@@ -626,6 +626,10 @@ def _format_var(name, value):
             simpledesc = "class"
         elif type(value) == type(token):
             simpledesc = "module"
+        elif type(value) == type(str.join):
+            simpledesc = "method"
+        elif type(value) == type("".join):
+            simpledesc = "bound method"
         else:
             simpledesc = str(value)
 
@@ -638,6 +642,21 @@ def _format_var(name, value):
         value = str(value)
 
     return f.format(name=name, value=value)
+
+
+def show(x):
+    def f(d, blist):
+        return "\n".join(
+            _format_var(name, value)
+            for name, value in sorted(d.items(), key=lambda x: x[0]))
+
+    m = dict((q, getattr(x, q)) for q in dir(x) if not q.startswith("__"))
+    if _hasdoc(x):
+        print(x.__doc__)
+
+    print("Attributes")
+    print("==============\n")
+    print(f(m, {}))
 
 
 def _variables(g, oldglobals):
@@ -698,16 +717,33 @@ def _variables(g, oldglobals):
     ).format(shell_vars=shell_vars, modules=modules, iterfuncs=iterfuncs,
             remaining=oldremaining, tail=tail)
 
+
+def _update_globals(glob, outer_dir):
+    g = dict(glob)
+
+    overlap = set(g) & set(os.environ)
+    overlap2 = set(outer_dir + dir(__builtins__)) & set(os.environ)
+    if overlap and _debug:
+        print("WARNING: variable overlap: %r" % overlap)
+    elif overlap2 and _debug:
+        print("WARNING: builtin overlap: %r" % overlap2)
+
+
+    glob.update(os.environ)
+    glob.update(g)
+variables = _LazyString(lambda: _variables(_derp, _old_globals))
+_derp = dict(globals())
+_update_globals(_derp, dir())
+del _update_globals
 _old_globals = dict(globals())
-variables = _LazyString(lambda: _variables(globals(), _old_globals))
 
 
 try:
     for _statement in _statements:
-        exec _statement
+        exec _statement in _derp
     if not _string.strip():
         succeed()
-    _result = eval("(%s)" % _string)
+    _result = eval("(%s)" % _string, _derp)
 except KeyboardInterrupt:
     sys.stderr.write("@ killed (ctrl+d to close cleanly)")
     fail()
@@ -726,36 +762,65 @@ if _result is None:
 if not isinstance(_result, basestring) or isinstance(_result, _LazyString):
     try:
         iterator = iter(_result)
-    except TypeError:
-        pass
+    except TypeError as e:
+        if getattr(_result, "__iter__", None) is not None:
+            raise
     else:
         if _shouldprint:
             for x in iterator:
-                print(x)
+                if _debug:
+                    print("printed iterator:", x)
+                else:
+                    print(x)
         else:
             result2 = list(iterator)
             try:
                 # lol hax
-                is_repeatable_iterable = "numpy" in str(type(_result)) or result2 == list(iter(_result))
+                is_repeatable_iterable = (
+                    "numpy" in str(type(_result))
+                    or (
+                        iterator is not _result
+                        and result2 == list(iter(_result))
+                    )
+                )
             except ValueError:
                 # assume yes, because annoying
                 is_repeatable_iterable = True
             if is_repeatable_iterable: # check for repeatability
-                print(_result)
+                if _debug:
+                    print("repeatable iterable:", _result, result2)
+                else:
+                    print(_result)
             elif any(x != None for x in result2):
-                print(result2)
+                if _debug:
+                    print("listed iterable with at least one non-none:", result2)
+                else:
+                    print(result2)
+            elif _debug:
+                print("nothing to print")
         succeed()
 
 if not isinstance(_result, bool) or _shouldprint:
     if _hasdoc(_result) and repr(_result) == str(_result):
-        print(_result.__doc__)
+        if _debug:
+            print("printed docstring:", _result.__doc__)
+        else:
+            print(_result.__doc__)
     else:
-        print(_result)
+        if _debug:
+            print("primary print:", _result)
+        else:
+            print(_result)
 
 if isinstance(_result, bool):
+    if _debug:
+        print("bool result, returning exit code:", 0 if _result else 1, _result)
+
     if _result:
         succeed()
     else:
         fail()
-
-succeed()
+else:
+    if _debug:
+        print("non-bool result, returning exit code 0 (true)")
+    succeed()

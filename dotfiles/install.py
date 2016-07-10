@@ -46,6 +46,7 @@ pip_dependencies = [
 
 ensure_nonexistant = [
     "~/.bash_logout",
+    "~/.vim/bundle/racer/"
 ]
 
 _find_unsafe = re.compile(r'[^\w@%+=:,./-]').search
@@ -275,8 +276,8 @@ def user_install():
     install_file("submodules/ceylon-vim/", "~/.vim/bundle/ceylon-vim/")
     install_file("submodules/rust.vim/", "~/.vim/bundle/rust.vim/")
     install_file("submodules/syntastic/", "~/.vim/bundle/syntastic/")
-    install_file("submodules/racer/", "~/.vim/bundle/racer/")
     install_file("submodules/YouCompleteMe/", "~/.vim/bundle/YouCompleteMe/")
+    install_file("submodules/gundo/", "~/.vim/bundle/gundo/")
 
     install_file("files/tmux.conf", "~/.tmux.conf")
 

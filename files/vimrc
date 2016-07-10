@@ -237,7 +237,7 @@ let g:ctrlp_prompt_mappings = {
             \ 'AcceptSelection("v")': ['<cr>'],
             \ 'AcceptSelection("e")': ['<c-v>']
             \ }
-let g:ctrlp_user_command = 'ctrlp_find %s'
+let g:ctrlp_user_command = '/Users/lahwran/dotfiles/bin/ctrlp_find %s'
 
 set titlestring=%{expand(\"%:p:h\")}/%t%(\ %a%)\ -\ %{$USER}@%{hostname()}\ -\ vim
 
@@ -372,6 +372,7 @@ augroup checktime
         autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * checktime
     endif
 augroup END
+nnoremap <F5> :GundoToggle<CR>
 
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.

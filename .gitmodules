@@ -40,3 +40,6 @@
 [submodule "submodules/YouCompleteMe"]
 	path = submodules/YouCompleteMe
 	url = https://github.com/Valloric/YouCompleteMe
+[submodule "submodules/gundo"]
+	path = submodules/gundo
+	url = http://github.com/sjl/gundo.vim.git
