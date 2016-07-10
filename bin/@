@@ -64,13 +64,16 @@ another great one:
 
 from __future__ import print_function
 
+import re
 import itertools
+import time
 import os
 import sys
 import codecs
 import ast
 import token
 import tokenize
+import contextlib
 
 class _Unbuffered(object):
     def __init__(self, stream):
@@ -168,11 +171,11 @@ def delays(delta, iterable=None):
     if not callable(delta):
         if getattr(delta, "total_seconds", None) is not None:
             delta = delta.total_seconds()
-        origdelta = delta
-        delta = lambda: origdelta
-    import time
+        deltafunc = lambda: delta
+    else:
+        deltafunc = delta
     for x in iterable:
-        time.sleep(delta())
+        time.sleep(float(deltafunc()))
         yield x
 
 
@@ -373,6 +376,7 @@ _optional_modules = [
     "zipfile",
     "tarfile",
     "csv",
+    "contextlib",
     "hashlib",
     "time",
     "uu",
@@ -397,7 +401,6 @@ _optional_modules = [
     "token",
     "numpy",
     "scipy",
-    "tensorflow",
     "os",
     "sys",
     "codecs",
@@ -409,22 +412,57 @@ _optional_modules = [
 def _wanted(_mod, kind=None):
     if kind is not None:
         _available.append(_Importable(_mod, kind))
-    return any(_mod in _s for _s in _statements + [_string])
+    # to find all mentions of a module name
+    # (?:.*(?<!\w)(MODULE_NAME)(?!\w))+(?:.(?!(?<!\w)(MODULE_NAME)(?!\w)))*
+    # not sure if I need the hack at the end to make sure there are no
+    # repetitions of the module name...
+
+    mod_re = "(?<!\w)(MODULE_NAME)(?!\w)".replace("MODULE_NAME", _mod)
+    return any(re.search(mod_re, _s) for _s in _statements + [_string])
+
+@contextlib.contextmanager
+def _mute_fd(fdnum):
+    "Context manager that mutes file descriptor 2"
+    if not _debug:
+        #print("muting fd 2 (this was written to sys.stderr)", file=sys.stderr)
+        #os.write(2, "muting fd 2 (this was written to fd 2)\n")
+        p = os.dup(fdnum)
+        q = os.open("/dev/null", os.O_WRONLY)
+        os.dup2(q, fdnum)
+        sys.stderr = os.fdopen(p, "w")
+        #print("just muted fd 2 (this was written to sys.stderr)", file=sys.stderr)
+        #os.write(2, "just muted fd 2 (this was written to fd 2)\n")
+
+    yield
+
+    if not _debug:
+        #print("about to unmute fd 2 (this was written to sys.stderr)", file=sys.stderr)
+        #os.write(2, "about to unmute fd 2 (this was written to fd 2)\n")
+        os.dup2(p, fdnum)
+        os.close(q)
+        sys.stderr = os.fdopen(fdnum, "w")
+        #print("unmuting fd 2 (this was written to fd sys.stderr)", file=sys.stderr)
+        #os.write(2, "unmuting fd 2 (this was written to fd 2)\n")
 
 for _mod in _optional_modules:
     if _wanted(_mod, "module"):
         exec "import %s" % _mod
 
+
 if _wanted("terminal", "pre-initialized blessings instance"):
     import blessings
     terminal = blessings.Terminal(force_styling=True)
 
-if _wanted("tf", "tensorflow module short-name"):
-    import tensorflow as tf
-
-if _wanted("session", "pre-initialized tensorflow session"):
-    import tensorflow
-    session = tensorflow.InteractiveSession()
+a = _wanted("session", "pre-initialized tensorflow session")
+b = _wanted("tf", "tensorflow module short-name")
+c = _wanted("tensorflow", "tensorflow")
+if a or b:
+    with _mute_fd(2):
+        import tensorflow as tf
+        import tensorflow
+        session = tf.InteractiveSession()
+del a
+del b
 
 if _wanted("np", "numpy module short-name"):
     import numpy as np
@@ -744,6 +782,13 @@ try:
     if not _string.strip():
         succeed()
     _result = eval("(%s)" % _string, _derp)
+
+    if "tensorflow" in sys.modules:
+        import tensorflow
+        if isinstance(_result, tensorflow.python.framework.ops.Tensor):
+            if "session" not in globals():
+                session = tensorflow.InteractiveSession()
+            _result = session.run(_result)
 except KeyboardInterrupt:
     sys.stderr.write("@ killed (ctrl+d to close cleanly)")
     fail()
