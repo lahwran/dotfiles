@@ -393,11 +393,11 @@ def main(mode="user", *args):
         user_install(*args)
     else:
         logger.error("mode must be one of 'superuser', 'init', 'user': %s", mode)
+    subprocess.call([path(".autocommit.sh")], cwd=projectroot)
     with open(fullpath("~/.last_dotfiles_run"), "w") as writer:
         git = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=projectroot)
         writer.write(git)
     subprocess.call([path("bin/check_run")], cwd=projectroot)
-    subprocess.call([path(".autocommit.sh")], cwd=projectroot)
 
 from dotfiles import os_specific
 
