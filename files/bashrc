@@ -1,3 +1,5 @@
+if ! [ -v BASHRC_GLOBAL_WAS_RUN ] ; then
+BASHRC_GLOBAL_WAS_RUN=yes
 
 # !!!!!!!!!!!!!!!!!!!!!!!
 #   WARNING: IF BASH FAILS TO LOAD THESE NEXT LINES, IT CAN OBLITERATE YOUR
@@ -221,3 +223,4 @@ function superwatch() {
         echo "$b" | head -n $(( $(tput lines) - 1))
     done
 }
+fi
