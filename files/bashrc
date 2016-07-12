@@ -116,9 +116,13 @@ add_prompt_command updatewindowtitle
 
 function display_status() {
     touch ~/.prompt_warning
-    echo -n "$(< ~/.prompt_warning)"
+    w="$(< ~/.prompt_warning)"
+    if [ "$w" != "" ]; then
+        echo "$w"
+    fi
+    unset w
 }
-add_prompt_command displaygit
+add_prompt_command display_status
 
 # explanation after the fact:
 # I believe this setting is to allow mouse input inside tmux. If I remember
