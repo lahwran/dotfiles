@@ -1,4 +1,8 @@
 #!/bin/bash
-cd "$(dirname "$0")"/..
+cd "$(dirname "$(dirname "$0")" )"
 
-if 
+if [ "$(git rev-parse HEAD)" != "$(cat ~/.last_dotfiles_run)" ]; then
+    echo -e "\033[31mPlease run dotfiles-install.\033[m" > ~/.prompt_warning
+else
+    echo -n > ~/.prompt_warning
+fi

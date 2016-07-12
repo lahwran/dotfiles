@@ -114,10 +114,11 @@ function updatewindowtitle() {
 }
 add_prompt_command updatewindowtitle
 
-function displaygit() {
-    pushd "$DOTFILES_DIR" >&/dev/null ; git status -s | _gitabs; popd >&/dev/null 
+function display_status() {
+    touch ~/.prompt_warning
+    echo -n "$(< ~/.prompt_warning)"
 }
-#add_prompt_command displaygit
+add_prompt_command displaygit
 
 # explanation after the fact:
 # I believe this setting is to allow mouse input inside tmux. If I remember
