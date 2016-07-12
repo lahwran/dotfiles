@@ -393,6 +393,9 @@ def main(mode="user", *args):
         user_install(*args)
     else:
         logger.error("mode must be one of 'superuser', 'init', 'user': %s", mode)
+    with open(fullpath("~/.last_dotfiles_run"), "w") as writer:
+        git = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=projectroot)
+        writer.write(git)
 
 from dotfiles import os_specific
 
