@@ -29,6 +29,7 @@ logger = logging.getLogger("-")
 os_dependencies = [
     "vim",
     "git",
+    "zsh",
     "fail2ban",
     "python-dev",
     "ntp-daemon",
@@ -231,14 +232,18 @@ def user_install():
             else:
                 raise
 
+    install_dir("~/.vim")
+    ensure_link("~/.vim", "~/.nvim")
+    ensure_link("~/.vim", "~/config/nvim/")
+
     install_text("~/.nvimrc", "source ~/.vimrc_global",
+            before=True, prev_existance=False)
+    install_text("~/config/nvim/init.vim", "source ~/.vimrc_global",
             before=True, prev_existance=False)
     install_text("~/.vimrc", "source ~/.vimrc_global",
             before=True, prev_existance=False)
     install_text("~/.vimrc", "set nocompatible", 0600,
             before=True)
-    install_dir("~/.vim")
-    ensure_link("~/.vim", "~/.nvim")
     install_file("files/vimrc", "~/.vimrc_global")
     install_file("files/vimrc_newsession", "~/.vimrc_newsession")
 

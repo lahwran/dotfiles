@@ -335,9 +335,18 @@ let g:ycm_add_preview_to_completeopt = 0
 let g:ycm_key_list_select_completion = ['<TAB>', '<Down>', '<Enter>']
 
 
-set backupdir=~/.nvim/backup//
-set directory=~/.nvim/swap//
-set undodir=~/.nvim/undo//
+if !isdirectory($HOME."/.vim/backup/")
+    call mkdir($HOME."/.vim/backup/", "p")
+endif
+if !isdirectory($HOME."/.vim/swap/")
+    call mkdir($HOME."/.vim/swap/", "p")
+endif
+if !isdirectory($HOME."/.vim/undo/")
+    call mkdir($HOME."/.vim/undo/", "p")
+endif
+set backupdir=~/.vim/backup//
+set directory=~/.vim/swap//
+set undodir=~/.vim/undo//
 
 
 let racer_open_cmd="vnew"
