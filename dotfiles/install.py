@@ -234,11 +234,11 @@ def user_install():
 
     install_dir("~/.vim")
     ensure_link("~/.vim", "~/.nvim")
-    ensure_link("~/.vim", "~/config/nvim/")
+    ensure_link("~/.vim", "~/.config/nvim/")
 
     install_text("~/.nvimrc", "source ~/.vimrc_global",
             before=True, prev_existance=False)
-    install_text("~/config/nvim/init.vim", "source ~/.vimrc_global",
+    install_text("~/.config/nvim/init.vim", "source ~/.vimrc_global",
             before=True, prev_existance=False)
     install_text("~/.vimrc", "source ~/.vimrc_global",
             before=True, prev_existance=False)
