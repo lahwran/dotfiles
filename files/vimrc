@@ -260,7 +260,6 @@ set title
 set undodir=~/.vim/undo         " persistent undo storage
 set undofile                    " persistent undo on
 
-set lazyredraw                  " don't update screen inside macros, etc
 set showcmd                     " display incomplete commands
 set shiftround                  " only indent to multiples of shiftwidth
 
@@ -382,6 +381,7 @@ augroup checktime
     endif
 augroup END
 nnoremap <F5> :GundoToggle<CR>
+set nolazyredraw                  " don't update screen inside macros, etc
 
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.
