@@ -272,6 +272,9 @@ def _parse_args():
             help="the expression, automatically joined by space if multiple specified")
     parser.add_argument("-d", "--debug", action="store_true",
             help='print debug info for type detection')
+    parser.add_argument("-i", "--interactive", action="store", default=False,
+            const="builtin",
+            help='launch inn
     args = parser.parse_args()
 
     if args.unbuffered:
