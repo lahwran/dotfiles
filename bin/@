@@ -272,9 +272,19 @@ def _parse_args():
             help="the expression, automatically joined by space if multiple specified")
     parser.add_argument("-d", "--debug", action="store_true",
             help='print debug info for type detection')
-    parser.add_argument("-i", "--interactive", action="store", default=False,
-            const="builtin",
-            help='launch inn
+    def shell(name):
+        if name == "builtin":
+            return interact
+        elif name == "ipython":
+            from IPython import embed
+            def e():
+                embed
+        elif name == "ptpython":
+            from ptpython.repl import embed
+            
+    parser.add_argument("-i", "--interactive", action="store", default=None,
+            const=interact, type=shell
+            help='launch interactive mode')
     args = parser.parse_args()
 
     if args.unbuffered:
@@ -335,6 +345,7 @@ def _parse_args():
 _statements, _string, _shouldprint, _debug, print = _parse_args()
 del _parse_args
 
+_available_names = set()
 _available = []
 
 
@@ -412,17 +423,6 @@ _optional_modules = [
     "tokenize",
 ]
 
-def _wanted(_mod, kind=None):
-    if kind is not None:
-        _available.append(_Importable(_mod, kind))
-    # to find all mentions of a module name
-    # (?:.*(?<!\w)(MODULE_NAME)(?!\w))+(?:.(?!(?<!\w)(MODULE_NAME)(?!\w)))*
-    # not sure if I need the hack at the end to make sure there are no
-    # repetitions of the module name...
-
-    mod_re = "(?<!\w)(MODULE_NAME)(?!\w)".replace("MODULE_NAME", _mod)
-    return any(re.search(mod_re, _s) for _s in _statements + [_string])
-
 @contextlib.contextmanager
 def _mute_fd(fdnum):
     "Context manager that mutes file descriptor 2"
@@ -447,57 +447,78 @@ def _mute_fd(fdnum):
         #print("unmuting fd 2 (this was written to fd sys.stderr)", file=sys.stderr)
         #os.write(2, "unmuting fd 2 (this was written to fd 2)\n")
 
-for _mod in _optional_modules:
-    if _wanted(_mod, "module"):
-        exec "import %s" % _mod
+def _add_modules(globbles):
+
+    def _wanted(_mod, kind=None):
+        if kind is not None and _mod not in _available_names:
+            _available_names.add(_mod)
+            _available.append(_Importable(_mod, kind))
+        # to find all mentions of a module name
+        # (?:.*(?<!\w)(MODULE_NAME)(?!\w))+(?:.(?!(?<!\w)(MODULE_NAME)(?!\w)))*
+        # not sure if I need the hack at the end to make sure there are no
+        # repetitions of the module name...
+
+        mod_re = "(?<!\w)(MODULE_NAME)(?!\w)".replace("MODULE_NAME", _mod)
+        return any(re.search(mod_re, _s) for _s in _statements + [_string])
+
+    for _mod in _optional_modules:
+        if _wanted(_mod, "module"):
+            exec "import %s" % _mod in globbles
 
 
-if _wanted("terminal", "pre-initialized blessings instance"):
-    import blessings
-    terminal = blessings.Terminal(force_styling=True)
+    if _wanted("terminal", "pre-initialized blessings instance"):
+        import blessings
+        terminal = blessings.Terminal(force_styling=True)
+        globbles["blessings"] = blessings
+        globbles["terminal"] = terminal
 
-a = _wanted("session", "pre-initialized tensorflow session")
-b = _wanted("tf", "tensorflow module short-name")
-c = _wanted("tensorflow", "tensorflow")
-if a or b:
-    with _mute_fd(2):
-        import tensorflow as tf
-        import tensorflow
-        session = tf.InteractiveSession()
-del a
-del b
+    a = _wanted("session", "pre-initialized tensorflow session")
+    b = _wanted("tf", "tensorflow module short-name")
+    c = _wanted("tensorflow", "tensorflow")
+    if a or b:
+        with _mute_fd(2):
+            import tensorflow as tf
+            import tensorflow
+            session = tf.InteractiveSession()
+    del a
+    del b
 
-if _wanted("np", "numpy module short-name"):
-    import numpy as np
+    if _wanted("np", "numpy module short-name"):
+        import numpy as np
 
-_available_itertools = []
-_itertools_values = [
-    "count",
-    "cycle",
-    "repeat",
-    "chain",
-    "compress",
-    "dropwhile",
-    "groupby",
-    "ifilter",
-    "ifilterfalse",
-    "islice",
-    "imap",
-    "starmap",
-    "tee",
-    "takewhile",
-    "izip",
-    "izip_longest",
-    "product",
-    "permutations",
-    "combinations",
-    "combinations_with_replacement",
-]
-for _itertool_func in _itertools_values:
-    _available_itertools.append(_Importable(_itertool_func, "itertools function"))
-    if _wanted(_itertool_func):
-        exec "from itertools import %s" % _itertool_func
-    del _itertool_func
+    _available_itertools = []
+    _itertools_values = [
+        "count",
+        "cycle",
+        "repeat",
+        "chain",
+        "compress",
+        "dropwhile",
+        "groupby",
+        "ifilter",
+        "ifilterfalse",
+        "islice",
+        "imap",
+        "starmap",
+        "tee",
+        "takewhile",
+        "izip",
+        "izip_longest",
+        "product",
+        "permutations",
+        "combinations",
+        "combinations_with_replacement",
+    ]
+    for _itertool_func in _itertools_values:
+        _available_itertools.append(_Importable(_itertool_func, "itertools function"))
+        if _wanted(_itertool_func):
+            exec "from itertools import %s" % _itertool_func
+        del _itertool_func
+
+    for _avail in _available:
+        if _avail.name not in globbles:
+            globbles[_avail.name] = _avail
+
 
 _blacklist = [
     "_format_var",
@@ -529,13 +550,6 @@ _blacklist = [
     "_hasdoc",
     "_old_globals",
 ]
-
-
-for _avail in _available:
-    if _avail.name not in globals():
-        globals()[_avail.name] = _avail
-
-
 
 class _LazyString(object):
     """Class for strings created by a function call.
