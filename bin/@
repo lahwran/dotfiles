@@ -526,7 +526,7 @@ def _add_modules(globbles, strings):
 
 _blacklist = [
     "_format_var",
-    "_update_globals",
+    "_add_environment_vars",
     "_available",
     "_LazyString",
     "_avail",
@@ -781,10 +781,10 @@ def _variables(g, oldglobals):
             remaining=oldremaining, tail=tail)
 
 
-def _update_globals(glob, outer_dir):
-    g = dict(glob)
+def _add_environment_vars(glob, outer_dir):
+    original_globals = dict(glob)
 
-    overlap = set(g) & set(os.environ)
+    overlap = set(original_globals) & set(os.environ)
     overlap2 = set(outer_dir + dir(__builtins__)) & set(os.environ)
     if overlap and _debug:
         print("WARNING: variable overlap: %r" % overlap)
@@ -793,7 +793,7 @@ def _update_globals(glob, outer_dir):
 
 
     glob.update(os.environ)
-    glob.update(g)
+    glob.update(original_globals)
 
 
 
@@ -805,21 +805,21 @@ if __name__ == "__main__":
 
     _add_modules(globals(), _statements + [_string])
 
-    variables = _LazyString(lambda: _variables(_derp, _old_globals))
+    variables = _LazyString(lambda: _variables(run_globals, old_globals))
 
-    _derp = dict(globals())
-    _update_globals(_derp, dir())
+    run_globals = dict(globals())
+    _add_environment_vars(_command_globals, dir())
     _old_globals = dict(globals())
 
 
-def run_statements()
+def run(statements, expression, run_globals):
 try:
-    for _statement in _statements:
-        exec _statement in _derp
-    if not _string.strip():
+    for statement in statements:
+        exec statement in _derp
+    if not expression.strip():
         _result = None
     else:
-        _result = eval("(%s)" % _string, _derp)
+        _result = eval("(%s)" % expression, _derp)
 
     if "tensorflow" in sys.modules:
         import tensorflow
