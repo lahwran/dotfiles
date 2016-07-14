@@ -1,0 +1,12 @@
+#!/bin/bash
+s="main"
+if [ "$1" != "" ]; then
+    s="$1"
+fi
+t=""
+if [ "$2" != "" ]; then
+    t="$2"
+    exec tmux new-session -A -s "$s" -t "$t"
+else
+    exec tmux new-session -A -s "$s"
+fi
