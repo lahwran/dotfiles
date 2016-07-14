@@ -229,6 +229,7 @@ def _split_statements(string):
             continue
         operations[-1].append((type, tokenstring))
     strings = [tokenize.untokenize(o) for o in operations]
+
     return strings
 
 
