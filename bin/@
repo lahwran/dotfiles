@@ -447,7 +447,7 @@ def _mute_fd(fdnum):
         #print("unmuting fd 2 (this was written to fd sys.stderr)", file=sys.stderr)
         #os.write(2, "unmuting fd 2 (this was written to fd 2)\n")
 
-def _add_modules(globbles):
+def _add_modules(globbles, strings):
 
     def _wanted(_mod, kind=None):
         if kind is not None and _mod not in _available_names:
@@ -459,7 +459,7 @@ def _add_modules(globbles):
         # repetitions of the module name...
 
         mod_re = "(?<!\w)(MODULE_NAME)(?!\w)".replace("MODULE_NAME", _mod)
-        return any(re.search(mod_re, _s) for _s in _statements + [_string])
+        return any(re.search(mod_re, _s) for _s in strings)
 
     for _mod in _optional_modules:
         if _wanted(_mod, "module"):
@@ -472,19 +472,24 @@ def _add_modules(globbles):
         globbles["blessings"] = blessings
         globbles["terminal"] = terminal
 
+    # force non-short-circuit evaluation
     a = _wanted("session", "pre-initialized tensorflow session")
-    b = _wanted("tf", "tensorflow module short-name")
-    c = _wanted("tensorflow", "tensorflow")
-    if a or b:
+    a = _wanted("sess", "pre-initialized tensorflow session") or a
+    a = _wanted("s", "pre-initialized tensorflow session") or a
+    a = _wanted("tf", "tensorflow module short-name") or a
+    a = _wanted("tensorflow", "tensorflow") or a
+    if a:
         with _mute_fd(2):
-            import tensorflow as tf
             import tensorflow
             session = tf.InteractiveSession()
-    del a
-    del b
+            globbles["session"] = session
+            globbles["sess"] = session
+            globbles["tensorflow"] = tensorflow
+            globbles["tf"] = tensorflow
 
     if _wanted("np", "numpy module short-name"):
         import numpy as np
+        globbles["np"] = np
 
     _available_itertools = []
     _itertools_values = [
@@ -512,13 +517,14 @@ def _add_modules(globbles):
     for _itertool_func in _itertools_values:
         _available_itertools.append(_Importable(_itertool_func, "itertools function"))
         if _wanted(_itertool_func):
-            exec "from itertools import %s" % _itertool_func
+            exec "from itertools import %s" % _itertool_func in globbles
         del _itertool_func
 
     for _avail in _available:
         if _avail.name not in globbles:
             globbles[_avail.name] = _avail
 
+_add_modules(globals(), _statements + [_string])
 
 _blacklist = [
     "_format_var",
@@ -540,6 +546,7 @@ _blacklist = [
     "_hash",
     "__package__",
     "__name__",
+    "_add_modules",
     "_Unbuffered",
     "__builtins__",
     "_statement",
