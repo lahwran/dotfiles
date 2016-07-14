@@ -233,7 +233,7 @@ def _split_statements(string):
             continue
         operations[-1].append((type, tokenstring))
     strings = [tokenize.untokenize(o) for o in operations]
-    return strings[:-1], strings[-1]
+    return strings
     
     """
     # eval(compile(ast.Module([ast.parse("print ast.parse(\"hello\"); 1 + 1").body[0]]), "string", "exec"))
@@ -269,8 +269,6 @@ def _parse_args():
             help="print each result from the iterable - good with -l pipelining")
     parser.add_argument("-j", "--print-joined", action="store_true",
             help="print each result from the iterable, no newlines - good for -c pipelining")
-    parser.add_argument("-f", "--filter", default=None,
-            help="add a filter expression to the genexp")
     parser.add_argument("-F", "--postfilter", default=None,
             help="same as -f but run on result of expression, not input")
     parser.add_argument("-v", "--variables", nargs="*",
@@ -327,8 +325,6 @@ def _parse_args():
             string = "char"
         string = "(%s) for char in characters" % string
 
-    if args.filter:
-        string += "%s if (%s)" % (string, args.filter)
     if args.postfilter:
         string = "_postfilter for _postfilter in (%s) if (%s)" % (string,
                 args.postfilter)
