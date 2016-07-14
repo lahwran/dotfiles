@@ -90,11 +90,13 @@ class _Unbuffered(object):
     def __getattr__(self, attr):
         return getattr(self.stream, attr)
 
-sys.stdout = _Unbuffered(sys.stdout)
-sys.stdout._unbuffered = sys.stdout.isatty()
 
-sys.stderr = _Unbuffered(sys.stderr)
-sys.stderr._unbuffered = sys.stderr.isatty()
+def _debuffer():
+    sys.stdout = _Unbuffered(sys.stdout)
+    sys.stdout._unbuffered = sys.stdout.isatty()
+
+    sys.stderr = _Unbuffered(sys.stderr)
+    sys.stderr._unbuffered = sys.stderr.isatty()
 
 def succeed():
     "Function that exits with a success return code (0)."
@@ -342,8 +344,6 @@ def _parse_args():
 
     return (statements, string, args.print_each, args.debug,
             sys.stdout.write if args.print_joined else print)
-_statements, _string, _shouldprint, _debug, print = _parse_args()
-del _parse_args
 
 _available_names = set()
 _available = []
@@ -524,10 +524,9 @@ def _add_modules(globbles, strings):
         if _avail.name not in globbles:
             globbles[_avail.name] = _avail
 
-_add_modules(globals(), _statements + [_string])
-
 _blacklist = [
     "_format_var",
+    "_update_globals",
     "_available",
     "_LazyString",
     "_avail",
@@ -540,6 +539,8 @@ _blacklist = [
     "_mod",
     "_optional_modules",
     "_blacklist",
+    "_main",
+    "_debuffer",
     "_string",
     "_statements",
     "_shouldprint",
@@ -793,19 +794,32 @@ def _update_globals(glob, outer_dir):
 
     glob.update(os.environ)
     glob.update(g)
-variables = _LazyString(lambda: _variables(_derp, _old_globals))
-_derp = dict(globals())
-_update_globals(_derp, dir())
-del _update_globals
-_old_globals = dict(globals())
 
 
+
+if __name__ == "__main__":
+    _debuffer()
+
+    _statements, _string, _shouldprint, _debug, print = _parse_args()
+    del _parse_args
+
+    _add_modules(globals(), _statements + [_string])
+
+    variables = _LazyString(lambda: _variables(_derp, _old_globals))
+
+    _derp = dict(globals())
+    _update_globals(_derp, dir())
+    _old_globals = dict(globals())
+
+
+def run_statements()
 try:
     for _statement in _statements:
         exec _statement in _derp
     if not _string.strip():
-        succeed()
-    _result = eval("(%s)" % _string, _derp)
+        _result = None
+    else:
+        _result = eval("(%s)" % _string, _derp)
 
     if "tensorflow" in sys.modules:
         import tensorflow
@@ -825,71 +839,71 @@ except BaseException as e:
     fail()
 
 
-if _result is None:
-    _result = True
+    if _result is None:
+        _result = True
 
-if not isinstance(_result, basestring) or isinstance(_result, _LazyString):
-    try:
-        iterator = iter(_result)
-    except TypeError as e:
-        if getattr(_result, "__iter__", None) is not None:
-            raise
-    else:
-        if _shouldprint:
-            for x in iterator:
-                if _debug:
-                    print("printed iterator:", x)
-                else:
-                    print(x)
+    if not isinstance(_result, basestring) or isinstance(_result, _LazyString):
+        try:
+            iterator = iter(_result)
+        except TypeError as e:
+            if getattr(_result, "__iter__", None) is not None:
+                raise
         else:
-            result2 = list(iterator)
-            try:
-                # lol hax
-                is_repeatable_iterable = (
-                    "numpy" in str(type(_result))
-                    or (
-                        iterator is not _result
-                        and result2 == list(iter(_result))
+            if _shouldprint:
+                for x in iterator:
+                    if _debug:
+                        print("printed iterator:", x)
+                    else:
+                        print(x)
+            else:
+                result2 = list(iterator)
+                try:
+                    # lol hax
+                    is_repeatable_iterable = (
+                        "numpy" in str(type(_result))
+                        or (
+                            iterator is not _result
+                            and result2 == list(iter(_result))
+                        )
                     )
-                )
-            except ValueError:
-                # assume yes, because annoying
-                is_repeatable_iterable = True
-            if is_repeatable_iterable: # check for repeatability
-                if _debug:
-                    print("repeatable iterable:", _result, result2)
-                else:
-                    print(_result)
-            elif any(x != None for x in result2):
-                if _debug:
-                    print("listed iterable with at least one non-none:", result2)
-                else:
-                    print(result2)
-            elif _debug:
-                print("nothing to print")
-        succeed()
+                except ValueError:
+                    # assume yes, because annoying
+                    is_repeatable_iterable = True
+                if is_repeatable_iterable: # check for repeatability
+                    if _debug:
+                        print("repeatable iterable:", _result, result2)
+                    else:
+                        print(_result)
+                elif any(x != None for x in result2):
+                    if _debug:
+                        print("listed iterable with at least one non-none:", result2)
+                    else:
+                        print(result2)
+                elif _debug:
+                    print("nothing to print")
+            succeed()
 
-if not isinstance(_result, bool) or _shouldprint:
-    if _hasdoc(_result) and repr(_result) == str(_result):
-        if _debug:
-            print("printed docstring:", _result.__doc__)
+    if not isinstance(_result, bool) or _shouldprint:
+        if _hasdoc(_result) and repr(_result) == str(_result):
+            if _debug:
+                print("printed docstring:", _result.__doc__)
+            else:
+                print(_result.__doc__)
         else:
-            print(_result.__doc__)
+            if _debug:
+                print("primary print:", _result)
+            else:
+                print(_result)
+
+    if isinstance(_result, bool):
+        if _debug:
+            print("bool result, returning exit code:", 0 if _result else 1, _result)
+
+        if _result:
+            succeed()
+        else:
+            fail()
     else:
         if _debug:
-            print("primary print:", _result)
-        else:
-            print(_result)
-
-if isinstance(_result, bool):
-    if _debug:
-        print("bool result, returning exit code:", 0 if _result else 1, _result)
-
-    if _result:
+            print("non-bool result, returning exit code 0 (true)")
         succeed()
-    else:
-        fail()
-else:
-    if _debug:
-        print("non-bool result, returning exit code 0 (true)")
-    succeed()
