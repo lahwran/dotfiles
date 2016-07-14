@@ -539,6 +539,7 @@ _blacklist = [
     "_mod",
     "_optional_modules",
     "_blacklist",
+    "_run",
     "_main",
     "_debuffer",
     "_string",
@@ -716,10 +717,12 @@ def show(x):
     m = dict((q, getattr(x, q)) for q in dir(x) if not q.startswith("__"))
     if _hasdoc(x):
         print(x.__doc__)
+        print()
 
-    print("Attributes")
-    print("==============\n")
-    print(f(m, {}))
+    if m:
+        print("Attributes")
+        print("==============\n")
+        print(f(m, {}))
 
 
 def _variables(g, oldglobals):
@@ -796,47 +799,31 @@ def _add_environment_vars(glob, outer_dir):
     glob.update(original_globals)
 
 
-
-if __name__ == "__main__":
-    _debuffer()
-
-    _statements, _string, _shouldprint, _debug, print = _parse_args()
-    del _parse_args
-
-    _add_modules(globals(), _statements + [_string])
-
-    variables = _LazyString(lambda: _variables(run_globals, old_globals))
-
-    run_globals = dict(globals())
-    _add_environment_vars(_command_globals, dir())
-    _old_globals = dict(globals())
-
-
 def run(statements, expression, run_globals):
-try:
-    for statement in statements:
-        exec statement in _derp
-    if not expression.strip():
-        _result = None
-    else:
-        _result = eval("(%s)" % expression, _derp)
+    try:
+        for statement in statements:
+            exec statement in _derp
+        if not expression.strip():
+            _result = None
+        else:
+            _result = eval("(%s)" % expression, _derp)
 
-    if "tensorflow" in sys.modules:
-        import tensorflow
-        if isinstance(_result, tensorflow.python.framework.ops.Tensor):
-            if "session" not in globals():
-                session = tensorflow.InteractiveSession()
-            _result = session.run(_result)
-except KeyboardInterrupt:
-    sys.stderr.write("@ killed (ctrl+d to close cleanly)")
-    fail()
-except BaseException as e:
-    import traceback
-    x = traceback.format_exc().split("\n")
-    y = "\n".join(x[4:])
-    sys.stderr.write(y)
-    sys.stderr.flush()
-    fail()
+        if "tensorflow" in sys.modules:
+            import tensorflow
+            if isinstance(_result, tensorflow.python.framework.ops.Tensor):
+                if "session" not in globals():
+                    session = tensorflow.InteractiveSession()
+                _result = session.run(_result)
+    except KeyboardInterrupt:
+        sys.stderr.write("@ killed (ctrl+d to close cleanly)")
+        fixme: return fail
+    except BaseException as e:
+        import traceback
+        x = traceback.format_exc().split("\n")
+        y = "\n".join(x[4:])
+        sys.stderr.write(y)
+        sys.stderr.flush()
+        fixme: return fail
 
 
     if _result is None:
@@ -881,7 +868,7 @@ except BaseException as e:
                         print(result2)
                 elif _debug:
                     print("nothing to print")
-            succeed()
+            fixme: return succeed
 
     if not isinstance(_result, bool) or _shouldprint:
         if _hasdoc(_result) and repr(_result) == str(_result):
@@ -900,10 +887,27 @@ except BaseException as e:
             print("bool result, returning exit code:", 0 if _result else 1, _result)
 
         if _result:
-            succeed()
+            fixme: return succeed
         else:
-            fail()
+            fixme: return fail
     else:
         if _debug:
             print("non-bool result, returning exit code 0 (true)")
-        succeed()
+        fixme: return succeed
+
+
+if __name__ == "__main__":
+    _debuffer()
+
+    _statements, _string, _shouldprint, _debug, print = _parse_args()
+    del _parse_args
+
+    _add_modules(globals(), _statements + [_string])
+
+    variables = _LazyString(lambda: _variables(run_globals, old_globals))
+
+    run_globals = dict(globals())
+    _add_environment_vars(_command_globals, dir())
+    old_globals = dict(globals())
+
+
