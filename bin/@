@@ -216,12 +216,8 @@ class bytes(object):
                 yield char
 bytes = bytes()
 
-def _split_statements(string):
 
-    """
-    # _statements, _last_statement
-    #s = "1; yield 1; 1 for in 1; \"hello; there\"; yay"
-    """
+def _split_statements(string):
 
     if string is None:
         return [], None
@@ -234,15 +230,7 @@ def _split_statements(string):
         operations[-1].append((type, tokenstring))
     strings = [tokenize.untokenize(o) for o in operations]
     return strings
-    
-    """
-    # eval(compile(ast.Module([ast.parse("print ast.parse(\"hello\"); 1 + 1").body[0]]), "string", "exec"))
-    # eval(compile(ast.Expression(ast.parse("exec ast.parse(); 1 + 1").body[1].value), "string", "eval"))
-    # _parsed_module = ast.parse(_string)
-    # _codes = [
-    #     ast.Module([x]) if type(x) != 
-    # ]
-    """
+
 
 def _parse_args():
     import argparse
