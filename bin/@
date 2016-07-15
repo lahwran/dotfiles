@@ -264,7 +264,7 @@ def shell(name):
     elif name == "ptpython":
         from ptpython.repl import embed, PythonRepl
         def wrap_embed(globs):
-            orig = vars(PythonRepl)["_execute"]
+            orig = PythonRepl._execute.im_func
             def _execute(self, cli, string):
                 return orig(self, cli, passthrough(globs, string))
             PythonRepl._execute = _execute
@@ -276,7 +276,7 @@ def shell(name):
         from bpython import embed
         from bpython import repl
         def wrap_embed(globs):
-            orig = vars(repl.Interpreter)["runsource"]
+            orig = repl.Interpreter.runsource.im_func
             def runsource(self, source, *a, **kw):
                 return orig(self, passthrough(globs, string), *a, **kw)
             repl.Interpreter.runsource = runsource
