@@ -240,7 +240,20 @@ def shell(name):
         except ImportError:
             print("You should totally install ptpython, it's super awesome.")
             print("Specify `-i builtin` to shut this suggestion up.")
-            name = "builtin"
+    if name == "detect":
+        try:
+            import bpython
+            name = "bpython"
+        except ImportError:
+            pass
+    if name == "detect":
+        try:
+            import IPython
+            name = "ipython"
+        except ImportError:
+            pass
+    if name == "detect":
+        name = "builtin"
 
     def passthrough(globs, string):
         _add_modules(globs, [string])
@@ -342,7 +355,6 @@ def _parse_args():
         sys.stderr._unbuffered = True
     if not args.string and not args.interactive:
         args.interactive = 'detect'
-    print(args.interactive)
     args.interactive = shell(args.interactive)
 
     string = " ".join(args.string) if args.string else None
@@ -960,6 +972,7 @@ if __name__ == "__main__":
     _add_modules(globals(), _statements + [_string])
 
     
+    all_variables = _LazyString(lambda: _variables(run_globals, old_globals))
     variables = _LazyString(lambda: _variables(run_globals, old_globals))
 
     run_globals = dict(globals())
@@ -978,7 +991,6 @@ if __name__ == "__main__":
                 result()
 
     if interactive:
-        print("launching interactive")
         interactive(run_globals)
     
 
