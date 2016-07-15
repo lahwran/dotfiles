@@ -75,6 +75,8 @@ import token
 import tokenize
 import contextlib
 
+_debug = False
+
 class _Unbuffered(object):
     def __init__(self, stream):
         self.stream = stream
@@ -355,10 +357,14 @@ def _parse_args():
         sys.stderr._unbuffered = True
     if not args.string and not args.interactive:
         args.interactive = 'detect'
-    args.interactive = shell(args.interactive)
+    if args.interactive:
+        args.interactive = shell(args.interactive)
+    print(args.string)
 
     string = " ".join(args.string) if args.string else None
+    print(string)
     statements, string = _split_statements(string)
+    print(string)
     if args.print_joined:
         args.print_each = True
 
@@ -391,6 +397,7 @@ def _parse_args():
         name, equals, value = var.partition("=")
         assert equals, "please put an equals sign in variable defitions"
         globals()[name] = value
+    print(string)
 
     return (statements, string, args.interactive, args.print_each, args.debug,
             sys.stdout.write if args.print_joined else print)
@@ -798,8 +805,8 @@ def _variables(g, oldglobals, quick=False):
     shell_vars = f(os.environ, blist)
     blist |= set(os.environ.keys())
 
-    if quick:
-        blist |= set(_available_names)
+    #if quick:
+    #    blist |= set(_available_names)
 
     modules = f(dict((x.name, x) for x in _available), blist)
     blist |= set([x.name for x in _available])
@@ -810,7 +817,7 @@ def _variables(g, oldglobals, quick=False):
     remaining = f(oldglobals, blist)
     blist |= set(oldglobals.keys())
 
-    uservars = f(g, blist)
+    uservars = f(g, {})
 
     tail = ""
 
@@ -875,11 +882,12 @@ def _add_environment_vars(glob, outer_dir):
 def run(statements, expression, run_globals):
     try:
         for statement in statements:
-            exec statement in _derp
+            exec statement in run_globals
+        print(expression)
         if not expression.strip():
             _result = None
         else:
-            _result = eval("(%s)" % expression, _derp)
+            _result = eval("(%s)" % expression, run_globals)
 
         if "tensorflow" in sys.modules:
             import tensorflow
@@ -987,6 +995,7 @@ if __name__ == "__main__":
 
 
     if _string.strip() or _statements:
+        print(_string)
         try:
             result = run(_statements, _string, run_globals)
         except SystemExit:
