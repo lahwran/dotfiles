@@ -43,6 +43,18 @@ pip_dependencies = [
     "twisted",
     "blessings",
     "watchdog",
+    "chardet",
+    "decorator",
+    "flask",
+    "husl",
+    "ptpython",
+    "progressbar",
+    "prompt_toolkit",
+    "pudb",
+    "py",
+    "reqiests",
+    "treq",
+    "klein",
 ]
 
 ensure_nonexistant = [
