@@ -515,7 +515,7 @@ def _add_modules(globbles, strings):
         # repetitions of the module name...
 
         mod_re = "(?<!\w)(MODULE_NAME)(?!\w)".replace("MODULE_NAME", _mod)
-        return any(re.search(mod_re, _s) for _s in strings)
+        return _mod not in globbles and any(re.search(mod_re, _s) for _s in strings)
 
     for _mod in _optional_modules:
         if _wanted(_mod, "module"):
