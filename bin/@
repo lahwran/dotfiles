@@ -258,8 +258,6 @@ def _parse_args():
             help="print each result from the iterable - good with -l pipelining")
     parser.add_argument("-j", "--print-joined", action="store_true",
             help="print each result from the iterable, no newlines - good for -c pipelining")
-    parser.add_argument("-F", "--postfilter", default=None,
-            help="same as -f but run on result of expression, not input")
     parser.add_argument("-v", "--variables", nargs="*",
             help='use as -v x="hi" y="$there" to add variables to the expression')
     parser.add_argument("string", default=None, nargs="*",
@@ -284,8 +282,7 @@ def _parse_args():
     if args.unbuffered:
         sys.stdout._unbuffered = True
         sys.stderr._unbuffered = True
-    if not args.string and not args.lines \
-            and not args.chars and args.filter is None and args.postfilter is None:
+    if not args.string and not args.interactive:
         parser.print_help()
         sys.exit(1)
 
@@ -313,10 +310,6 @@ def _parse_args():
         if string is None:
             string = "char"
         string = "(%s) for char in characters" % string
-
-    if args.postfilter:
-        string = "_postfilter for _postfilter in (%s) if (%s)" % (string,
-                args.postfilter)
 
     if args.all:
         string = "all(%s)" % string
