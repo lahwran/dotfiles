@@ -756,7 +756,7 @@ def _format_var(name, value, f=None):
         simpledesc = "module"
     elif type(value) == type(str.join):
         simpledesc = "method"
-    elif type(value) == type("".join):
+    elif type(value) == type("".join) or type(value) == type(object().__str__) or type(value) == type(variables.__str__):
         simpledesc = "bound method"
     elif type(value) == str or type(value) == unicode:
         simpledesc = repr(value)
