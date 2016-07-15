@@ -232,6 +232,56 @@ def _split_statements(string):
     return strings[:-1], strings[-1]
 
 
+def shell(name):
+    if name == "detect":
+        try:
+            import ptpython
+            name = "ptpython"
+        except ImportError:
+            print("You should totally install ptpython, it's super awesome.")
+            print("Specifc `-i builtin` to shut this suggestion up.")
+            name = "builtin"
+
+    def passthrough(globs, string):
+        _add_modules(globs, [string])
+        return string
+
+    if name == "builtin":
+        import code
+
+        try:
+            import readline
+        except ImportError:
+            pass
+
+        def interact(local):
+            code.interact("Welcome to the @ built-in console.",
+                    readfunc=lambda prompt: passthrough(local, raw_input(prompt))
+                    local=local)
+
+        return interact
+    elif name == "ipython":
+        from IPython import embed
+        from IPython.terminal.embed import InteractiveShellEmbed
+
+        def e(globbelses):
+            embed(user_ns=globbelses)
+        InteractiveShellEmbed
+
+        # monkeypatch ipython.terminal.embed.[...].run_cell(self, string, ...)
+        # write with self.push(dict)
+    elif name == "ptpython":
+        from ptpython.repl import embed, PythonRepl
+        orig = vars(PythonRepl)["_execute"]
+        def _execute(self, cli, string):
+            return orig(self, cli, passthrough(self.get_locals(), string))
+        vars(PythonRepl)["_execute"] = _execute
+        # monkeypatch ptpython.repl.PythonRepl._execute(self, cli, string)
+        # write to actual external globals dict
+        return embed
+    elif name == "bpython":
+
+
 def _parse_args():
     import argparse
     class Thingy(argparse.RawDescriptionHelpFormatter,
@@ -263,32 +313,6 @@ def _parse_args():
             help="the expression, automatically joined by space if multiple specified")
     parser.add_argument("-d", "--debug", action="store_true",
             help='print debug info for type detection')
-    def shell(name):
-        if name == "detect":
-            try:
-                import ptpython
-                name = "ptpython"
-            except ImportError:
-                print("You should totally install ptpython, it's super awesome.")
-                print("Specifc `-i builtin` to shut this suggestion up.")
-                name = "builtin"
-
-        if name == "builtin":
-            import code
-            def interact(local):
-                code.interact("Welcome to the @ built-in console.", local=local)
-        elif name == "ipython":
-            from IPython import embed
-            def e(globbelses):
-                globbelses["_ipython_embed"] = embed
-                exec "_ipython_embed()" in globbelses
-            # monkeypatch ipython.terminal.embed.[...].run_cell(self, string, ...)
-            # write with self.push(dict)
-        elif name == "ptpython":
-            from ptpython.repl import embed
-            # monkeypatch ptpython.repl.PythonRepl._execute(self, cli, string)
-            # write to actual external globals dict
-            return embed
             
     parser.add_argument("-i", "--interactive", action="store", default=None,
             const="detect", type=shell
@@ -299,8 +323,6 @@ def _parse_args():
         sys.stdout._unbuffered = True
         sys.stderr._unbuffered = True
     if not args.string and not args.interactive:
-        parser.print_help()
-        print()
         args.interactive = shell('detect')
 
     string = " ".join(args.string) if args.string else None
