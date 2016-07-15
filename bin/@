@@ -247,33 +247,41 @@ def shell(name):
         return string
 
     if name == "ipython":
-        print("loading ipython")
         from IPython import embed
         from IPython.terminal.embed import InteractiveShellEmbed
 
         def e(globbelses):
+            orig = vars(InteractiveShellEmbed)["run_cell"]
+            def run_cell(self, string, *a, **kw):
+                return orig(self, passthrough(self.get_locals(), string), *a, **kw)
+            InteractiveShellEmbed.run_cell = run_cell
+
             embed(user_ns=globbelses)
-        InteractiveShellEmbed
 
         # monkeypatch ipython.terminal.embed.[...].run_cell(self, string, ...)
         # write with self.push(dict)
+        return e
     elif name == "ptpython":
         from ptpython.repl import embed, PythonRepl
-        orig = vars(PythonRepl)["_execute"]
-        def _execute(self, cli, string):
-            return orig(self, cli, passthrough(self.get_locals(), string))
-        PythonRepl._execute = _execute
+        def wrap_embed(globs):
+            orig = vars(PythonRepl)["_execute"]
+            def _execute(self, cli, string):
+                return orig(self, cli, passthrough(globs, string))
+            PythonRepl._execute = _execute
+            return embed(globs)
         # monkeypatch ptpython.repl.PythonRepl._execute(self, cli, string)
         # write to actual external globals dict
-        return embed
+        return wrap_embed
     elif name == "bpython":
         from bpython import embed
         from bpython import repl
-        orig = vars(repl.Interpreter)["runsource"]
-        def runsource(self, source, *a, **kw):
-            return orig(self, passthrough(self.get_locals(), string), *a, **kw)
-        repl.Interpreter.runsource = runsource
-        return embed
+        def wrap_embed(globs):
+            orig = vars(repl.Interpreter)["runsource"]
+            def runsource(self, source, *a, **kw):
+                return orig(self, passthrough(globs, string), *a, **kw)
+            repl.Interpreter.runsource = runsource
+            return embed(globs)
+        return wrap_embed
     else:
         if name != "builtin":
             print("warning: don't have interpreter %s, using builtin" % name)
