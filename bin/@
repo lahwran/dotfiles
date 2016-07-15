@@ -486,6 +486,9 @@ def _mute_fd(fdnum):
         #os.write(2, "unmuting fd 2 (this was written to fd 2)\n")
 
 def _add_modules(globbles, strings):
+    def _reset_vars():
+        if "variables" in globbles:
+            globbles["variables"]._cache = None
 
     def _wanted(_mod, kind=None):
         if kind is not None and _mod not in _available_names:
@@ -502,6 +505,7 @@ def _add_modules(globbles, strings):
     for _mod in _optional_modules:
         if _wanted(_mod, "module"):
             exec "import %s" % _mod in globbles
+            _reset_vars()
 
 
     if _wanted("terminal", "pre-initialized blessings instance"):
@@ -509,6 +513,7 @@ def _add_modules(globbles, strings):
         terminal = blessings.Terminal(force_styling=True)
         globbles["blessings"] = blessings
         globbles["terminal"] = terminal
+        _reset_vars()
 
     # force non-short-circuit evaluation
     a = _wanted("session", "pre-initialized tensorflow session")
@@ -524,14 +529,17 @@ def _add_modules(globbles, strings):
             globbles["sess"] = session
             globbles["tensorflow"] = tensorflow
             globbles["tf"] = tensorflow
+            _reset_vars()
 
     if _wanted("np", "numpy module short-name"):
         import numpy as np
         globbles["np"] = np
+        _reset_vars()
 
     for _itertool_func in _itertools_values:
         if _wanted(_itertool_func):
             exec "from itertools import %s" % _itertool_func in globbles
+            _reset_vars()
         del _itertool_func
 
     for _avail in _available:
