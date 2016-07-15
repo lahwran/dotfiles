@@ -259,6 +259,7 @@ def user_install():
             before=True)
     install_file("files/vimrc", "~/.vimrc_global")
     install_file("files/vimrc_newsession", "~/.vimrc_newsession")
+    install_file("files/plansmd.vim", "~/.vim/syntax/plansmd.vim")
 
     install_text("~/.bashrc", "DOTFILES_DIR=%s" % (quote(path(".")),),
             prev_existance=False, before=True)

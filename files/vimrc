@@ -385,7 +385,7 @@ nnoremap <F5> :GundoToggle<CR>
 autocmd BufWritePost * filetype detect
 autocmd BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
 autocmd BufNewFile,BufFilePre,BufRead * if &filetype == "" | set ft=markdown | endif
-autocmd BufNewFile,BufFilePre,BufRead *.plans.md set filetype=cel
+autocmd BufNewFile,BufFilePre,BufRead *.plans.md set filetype=plansmd
 
 set nolazyredraw                  " don't update screen inside macros, etc
 
