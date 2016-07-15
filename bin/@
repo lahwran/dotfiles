@@ -917,7 +917,8 @@ def run(statements, expression, run_globals):
         try:
             iterator = iter(_result)
         except TypeError as e:
-            if getattr(_result, "__iter__", None) is not None:
+            if getattr(_result, "__iter__", None):
+                print(repr(_result.__iter__))
                 raise
         else:
             if _shouldprint:
@@ -955,7 +956,7 @@ def run(statements, expression, run_globals):
             return succeed
 
     if not isinstance(_result, bool) or _shouldprint:
-        if _hasdoc(_result) and repr(_result) == str(_result):
+        if (_hasdoc(_result) and repr(_result) == str(_result)) or _result.__str__ == object.__str__:
             if _debug:
                 print("printed docstring:", _result.__doc__)
             else:
