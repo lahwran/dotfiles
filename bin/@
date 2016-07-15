@@ -269,8 +269,9 @@ def _parse_args():
             return interact
         elif name == "ipython":
             from IPython import embed
-            def e():
-                embed
+            def e(globbelses):
+                globbelses["_ipython_embed"] = embed
+                exec "_ipython_embed()" in globbelses
         elif name == "ptpython":
             from ptpython.repl import embed
             
