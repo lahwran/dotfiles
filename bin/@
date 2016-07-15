@@ -709,10 +709,12 @@ class _LazyString(object):
         return self
 
     def __repr__(self):
-        try:
-            return 'l' + repr(self.value)
-        except Exception:
-            return '<%s broken>' % self.__class__.__name__
+        print(self)
+        return ""
+        #try:
+        #    return "LazyString(%r)" % self._func
+        #except Exception:
+        #    return '<%s broken>' % self.__class__.__name__
 
 def _hasdoc(value):
     doc = getattr(value, "__doc__", None)
