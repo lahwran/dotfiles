@@ -805,10 +805,11 @@ def _variables(g, oldglobals, quick=False):
     iterfuncs = None
     if not quick:
         modules = f(dict((x.name, x) for x in _available), blist)
-        blist |= set([x.name for x in _available])
+    blist |= set([x.name for x in _available])
 
+    if not quick:
         iterfuncs = f(dict((x.name, x) for x in _available_itertools), blist)
-        blist |= set([x.name for x in _available_itertools])
+    blist |= set([x.name for x in _available_itertools])
 
     remaining = f(oldglobals, blist)
     blist |= set(oldglobals.keys())
@@ -844,7 +845,7 @@ def _variables(g, oldglobals, quick=False):
             "\n"
         ).format(iterfuncs=iterfuncs)
     if remaining:
-        remaining += (
+        result += (
             "Utilities and globals specific to @\n"
             "-----------------------------------\n"
             "\n"
@@ -879,7 +880,6 @@ def run(statements, expression, run_globals):
     try:
         for statement in statements:
             exec statement in run_globals
-        import pudb; pudb.set_trace()
         if not expression.strip():
             _result = None
         else:
@@ -906,7 +906,7 @@ def run(statements, expression, run_globals):
     if _result is None:
         _result = True
 
-    if not isinstance(_result, basestring) or isinstance(_result, _LazyString):
+    if not (isinstance(_result, basestring) or isinstance(_result, _LazyString)):
         try:
             iterator = iter(_result)
         except TypeError as e:
