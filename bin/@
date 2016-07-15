@@ -264,8 +264,19 @@ def _parse_args():
     parser.add_argument("-d", "--debug", action="store_true",
             help='print debug info for type detection')
     def shell(name):
+        if name == "detect":
+            try:
+                import ptpython
+                name = "ptpython"
+            except ImportError:
+                print("You should totally install ptpython, it's super awesome.")
+                print("Specifc `-i builtin` to shut this suggestion up.")
+                name = "builtin"
+
         if name == "builtin":
-            return interact
+            import code
+            def interact(local):
+                code.interact("Welcome to the @ built-in console.", local=local)
         elif name == "ipython":
             from IPython import embed
             def e(globbelses):
@@ -280,7 +291,7 @@ def _parse_args():
             return embed
             
     parser.add_argument("-i", "--interactive", action="store", default=None,
-            const=interact, type=shell
+            const="detect", type=shell
             help='launch interactive mode')
     args = parser.parse_args()
 
