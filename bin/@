@@ -271,8 +271,12 @@ def _parse_args():
             def e(globbelses):
                 globbelses["_ipython_embed"] = embed
                 exec "_ipython_embed()" in globbelses
+            # monkeypatch ipython.terminal.embed.[...].run_cell(self, string, ...)
+            # write with self.push(dict)
         elif name == "ptpython":
             from ptpython.repl import embed
+            # monkeypatch ptpython.repl.PythonRepl._execute(self, cli, string)
+            # write to actual external globals dict
             return embed
             
     parser.add_argument("-i", "--interactive", action="store", default=None,
