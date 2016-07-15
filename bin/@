@@ -251,12 +251,12 @@ def shell(name):
         from IPython.terminal.embed import InteractiveShellEmbed
 
         def e(globbelses):
-            orig = vars(InteractiveShellEmbed)["run_cell"]
+            orig = InteractiveShellEmbed.run_cell.im_func
             def run_cell(self, string, *a, **kw):
-                return orig(self, passthrough(self.get_locals(), string), *a, **kw)
+                return orig(self, passthrough(globbelses, string), *a, **kw)
             InteractiveShellEmbed.run_cell = run_cell
 
-            embed(user_ns=globbelses)
+            return embed(user_ns=globbelses)
 
         # monkeypatch ipython.terminal.embed.[...].run_cell(self, string, ...)
         # write with self.push(dict)
@@ -756,7 +756,7 @@ def show(x, all=False):
         return "\n".join(
             _format_var(name, value)
             for name, value in sorted(d.items(), key=lambda x: x[0]))
-    print(_format_var(x, f="{value}"))
+    print(_format_var(None, x, f="{value}"))
 
     m = dict((q, getattr(x, q)) for q in dir(x) if all or not q.startswith("__"))
     if _hasdoc(x):
