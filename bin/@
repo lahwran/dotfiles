@@ -275,11 +275,18 @@ def shell(name):
         orig = vars(PythonRepl)["_execute"]
         def _execute(self, cli, string):
             return orig(self, cli, passthrough(self.get_locals(), string))
-        vars(PythonRepl)["_execute"] = _execute
+        PythonRepl._execute = _execute
         # monkeypatch ptpython.repl.PythonRepl._execute(self, cli, string)
         # write to actual external globals dict
         return embed
     elif name == "bpython":
+        from bpython import embed
+        from bpython import repl
+        orig = vars(repl.Interpreter)["runsource"]
+        def runsource(self, source, *a, **kw):
+            return orig(self, passthrough(self.get_locals(), string), *a, **kw)
+        repl.Interpreter.runsource = runsource
+        return embed
 
 
 def _parse_args():
