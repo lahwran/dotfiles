@@ -792,17 +792,19 @@ def show(x, all=False):
         print(f(m, {}))
 
 
-def _variables(g, oldglobals):
+def _variables(g, oldglobals, quick=False):
     def f(d, blist):
         return "\n".join(
             _format_var(name, value)
             for name, value in sorted(d.items(), key=lambda x: x[0])
             if name not in blist)
     blist = set(_blacklist)
-    shell_vars = f(os.environ, blist)
+    if not quick:
+        shell_vars = f(os.environ, blist)
     blist |= set(os.environ.keys())
 
-    modules = f(dict((x.name, x) for x in _available), blist)
+    if not quick:
+        modules = f(dict((x.name, x) for x in _available), blist)
     blist |= set([x.name for x in _available])
 
     iterfuncs = f(dict((x.name, x) for x in _available_itertools), blist)
@@ -822,30 +824,38 @@ def _variables(g, oldglobals):
             "{}\n"
         ).format(uservars)
 
-    return (
-        "Available names:\n"
-        "================\n"
-        "\n"
-        "Variables from shell environment\n"
-        "--------------------------------\n"
-        "\n"
-        "{shell_vars}\n"
-        "\n"
-        "Imported and auto-importing modules\n"
-        "-----------------------------------\n"
-        "\n"
-        "'importable' modules will automatically import on use.\n"
-        "\n"
-        "{modules}\n"
-        "\n"
+    result = ""
+    if shell_vars is not None:
+        result += (
+            "Variables from shell environment\n"
+            "--------------------------------\n"
+            "\n"
+            "{shell_vars}\n"
+            "\n"
+        ).format(shell_vars)
+    if modules is not None:
+        result += (
+            "Imported and auto-importing modules\n"
+            "-----------------------------------\n"
+            "\n"
+            "'importable' modules will automatically import on use.\n"
+            "\n"
+            "{modules}\n"
+            "\n"
+        )
+    (
         "extra: these functions will be auto-imported from itertools:\n"
         "\n"
         "{iterfuncs}\n"
         "\n"
+    )
+    (
         "Utilities and globals specific to @\n"
         "-----------------------------------\n"
         "\n"
         "{remaining}\n"
+    )
+    (
         "{tail}"
     ).format(shell_vars=shell_vars, modules=modules, iterfuncs=iterfuncs,
             remaining=oldremaining, tail=tail)
@@ -973,7 +983,7 @@ if __name__ == "__main__":
 
     
     all_variables = _LazyString(lambda: _variables(run_globals, old_globals))
-    variables = _LazyString(lambda: _variables(run_globals, old_globals))
+    variables = _LazyString(lambda: _variables(run_globals, old_globals, quick=True))
 
     run_globals = dict(globals())
     _add_environment_vars(run_globals, dir())
