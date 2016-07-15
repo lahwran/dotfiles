@@ -735,45 +735,40 @@ def _hasdoc(value):
     return doc != getattr(type(value), "__doc__", None) and doc
 
 def _format_var(name, value, f=None):
-    def truncate_to_line(v):
+    def truncate_to_line(v, length=100):
         s = v.split("\n")
-        if len(s) > 1 or len(s[0]) >= 80:
-            v = s[0][:77] + "..."
+        if len(s) > 1 or len(s[0]) >= length:
+            v = s[0][:length/2 - 5] + "   ...   " + s[0][-(length/2 - 6):]
         return v
 
     if f is None:
         f = "- {name}: {value}"
-
     
     if type(value) == _LazyString:
         value = "<Lazy String>"
-    elif _hasdoc(value):
-        simpledesc = None
-        if type(value) == type(_format_var):
-            simpledesc = "function"
-        elif type(value) == type(print):
-            simpledesc = "builtin"
-        elif type(value) == type:
-            simpledesc = "class"
-        elif type(value) == type(token):
-            simpledesc = "module"
-        elif type(value) == type(str.join):
-            simpledesc = "method"
-        elif type(value) == type("".join):
-            simpledesc = "bound method"
-        else:
-            simpledesc = str(value)
-
-        value = ("%s - %s" % (simpledesc, value.__doc__)).strip()
-        value = truncate_to_line(value)
-
+    if type(value) == type(_format_var):
+        simpledesc = "function"
+    elif type(value) == type(print):
+        simpledesc = "builtin"
+    elif type(value) == type:
+        simpledesc = "class"
+    elif type(value) == type(token):
+        simpledesc = "module"
+    elif type(value) == type(str.join):
+        simpledesc = "method"
+    elif type(value) == type("".join):
+        simpledesc = "bound method"
     elif type(value) == str or type(value) == unicode:
-        value = repr(truncate_to_line(value))
+        value = repr(value)
     else:
         value = str(value)
 
-    if len(value) > 100:
-        value = value[:45] + "   ...   " + value[-44:]
+    if _hasdoc(value):
+        value = ("%s - %s" % (simpledesc, value.__doc__.split("\n")[0])).strip()
+        value = truncate_to_line(value)
+    else:
+        value = simpledesc
+
 
     return f.format(name=name, value=value)
 
