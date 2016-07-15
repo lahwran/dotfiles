@@ -220,7 +220,7 @@ bytes = bytes()
 def _split_statements(string):
 
     if string is None:
-        return [], None
+        return [], ""
 
     operations = [[]]
     for type, tokenstring, start, end, line in tokenize.generate_tokens(iter(string.split("\n")).next):
@@ -351,11 +351,11 @@ def _parse_args():
 
 
     if args.lines:
-        if string is None:
+        if not string.strip():
             string = "line"
         string = "(%s) for line in lines" % string
     if args.chars:
-        if string is None:
+        if not string.strip():
             string = "char"
         string = "(%s) for char in characters" % string
 
@@ -518,31 +518,7 @@ def _add_modules(globbles, strings):
         import numpy as np
         globbles["np"] = np
 
-    _available_itertools = []
-    _itertools_values = [
-        "count",
-        "cycle",
-        "repeat",
-        "chain",
-        "compress",
-        "dropwhile",
-        "groupby",
-        "ifilter",
-        "ifilterfalse",
-        "islice",
-        "imap",
-        "starmap",
-        "tee",
-        "takewhile",
-        "izip",
-        "izip_longest",
-        "product",
-        "permutations",
-        "combinations",
-        "combinations_with_replacement",
-    ]
     for _itertool_func in _itertools_values:
-        _available_itertools.append(_Importable(_itertool_func, "itertools function"))
         if _wanted(_itertool_func):
             exec "from itertools import %s" % _itertool_func in globbles
         del _itertool_func
@@ -550,6 +526,31 @@ def _add_modules(globbles, strings):
     for _avail in _available:
         if _avail.name not in globbles:
             globbles[_avail.name] = _avail
+_available_itertools = []
+_itertools_values = [
+    "count",
+    "cycle",
+    "repeat",
+    "chain",
+    "compress",
+    "dropwhile",
+    "groupby",
+    "ifilter",
+    "ifilterfalse",
+    "islice",
+    "imap",
+    "starmap",
+    "tee",
+    "takewhile",
+    "izip",
+    "izip_longest",
+    "product",
+    "permutations",
+    "combinations",
+    "combinations_with_replacement",
+]
+for _itertool_func in _itertools_values:
+    _available_itertools.append(_Importable(_itertool_func, "itertools function"))
 
 _blacklist = [
     "interactive",
@@ -938,7 +939,7 @@ if __name__ == "__main__":
     variables = _LazyString(lambda: _variables(run_globals, old_globals))
 
     run_globals = dict(globals())
-    _add_environment_vars(_command_globals, dir())
+    _add_environment_vars(run_globals, dir())
     old_globals = dict(globals())
 
 
