@@ -742,7 +742,7 @@ def _format_var(name, value, f=None):
         return v
 
     if f is None:
-        f = "- {bold}{name}{normal}: {value}"
+        f = "- {name}: {value}"
 
     
     if type(value) == _LazyString:
@@ -771,6 +771,9 @@ def _format_var(name, value, f=None):
         value = repr(truncate_to_line(value))
     else:
         value = str(value)
+
+    if len(value) > 100:
+        value = value[:45] + "   ...   " + value[-44:]
 
     return f.format(name=name, value=value)
 
@@ -957,8 +960,8 @@ def run(statements, expression, run_globals):
 
     if not isinstance(_result, bool) or _shouldprint:
         if _debug:
-            print("hasdoc:", _hasdoc(_result), "repr and str equal:", repr(_result) == str(_result), "uses object str:", _result.__str__ == object.__str__)
-        if (_hasdoc(_result) and repr(_result) == str(_result)) or _result.__str__ == object.__str__:
+            print("hasdoc:", _hasdoc(_result), "repr and str equal:", repr(_result) == str(_result), "uses object str:", type(_result).__str__ == object.__str__)
+        if (_hasdoc(_result) and repr(_result) == str(_result)) or type(_result).__str__ == object.__str__:
             if _debug:
                 print("printed docstring:", _result.__doc__)
             else:
