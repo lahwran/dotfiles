@@ -717,8 +717,8 @@ def _add_modules(globbles, strings):
                 session = tf.InteractiveSession()
                 globbles["session"] = session
                 globbles["sess"] = session
-                globbles["tensorflow"] = tensorflow
-                globbles["tf"] = tensorflow
+                globbles["tensorflow"] = tf
+                globbles["tf"] = tf
                 _reset_vars()
 
     if _wanted("np", "numpy module short-name"):
