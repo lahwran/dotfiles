@@ -956,6 +956,8 @@ def run(statements, expression, run_globals):
             return succeed
 
     if not isinstance(_result, bool) or _shouldprint:
+        if _debug:
+            print("hasdoc:", _hasdoc(_result), "repr and str equal:", repr(_result) == str(_result), "uses object str:", _result.__str__ == object.__str__)
         if (_hasdoc(_result) and repr(_result) == str(_result)) or _result.__str__ == object.__str__:
             if _debug:
                 print("printed docstring:", _result.__doc__)
