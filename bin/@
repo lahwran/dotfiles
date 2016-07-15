@@ -745,8 +745,8 @@ def _format_var(name, value, f=None):
         f = "- {name}: {value}"
     
     if type(value) == _LazyString:
-        value = "<Lazy String>"
-    if type(value) == type(_format_var):
+        simpledesc = "<Lazy String>"
+    elif type(value) == type(_format_var):
         simpledesc = "function"
     elif type(value) == type(print):
         simpledesc = "builtin"
@@ -759,16 +759,15 @@ def _format_var(name, value, f=None):
     elif type(value) == type("".join):
         simpledesc = "bound method"
     elif type(value) == str or type(value) == unicode:
-        value = repr(value)
+        simpledesc = repr(value)
     else:
-        value = str(value)
+        simpledesc = str(value)
 
     if _hasdoc(value):
         value = ("%s - %s" % (simpledesc, value.__doc__.split("\n")[0])).strip()
         value = truncate_to_line(value)
     else:
-        value = simpledesc
-
+        value = truncate_to_line(simpledesc)
 
     return f.format(name=name, value=value)
 
