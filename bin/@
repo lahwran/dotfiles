@@ -300,7 +300,8 @@ def _parse_args():
         sys.stderr._unbuffered = True
     if not args.string and not args.interactive:
         parser.print_help()
-        sys.exit(1)
+        print()
+        args.interactive = shell('detect')
 
     string = " ".join(args.string) if args.string else None
     statements, string = _split_statements(string)
