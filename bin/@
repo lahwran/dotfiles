@@ -247,6 +247,7 @@ def shell(name):
         return string
 
     if name == "ipython":
+        print("loading ipython")
         from IPython import embed
         from IPython.terminal.embed import InteractiveShellEmbed
 
@@ -324,7 +325,7 @@ def _parse_args():
             help='print debug info for type detection')
             
     parser.add_argument("-i", "--interactive", action="store", default=None,
-            const="detect", type=shell, nargs="?",
+            const="detect", nargs="?",
             help='launch interactive mode')
     args = parser.parse_args()
 
@@ -332,7 +333,9 @@ def _parse_args():
         sys.stdout._unbuffered = True
         sys.stderr._unbuffered = True
     if not args.string and not args.interactive:
-        args.interactive = shell('detect')
+        args.interactive = 'detect'
+    print(args.interactive)
+    args.interactive = shell(args.interactive)
 
     string = " ".join(args.string) if args.string else None
     statements, string = _split_statements(string)
@@ -551,10 +554,12 @@ _itertools_values = [
 ]
 for _itertool_func in _itertools_values:
     _available_itertools.append(_Importable(_itertool_func, "itertools function"))
+del _itertool_func
 
 _blacklist = [
     "interactive",
     "_format_var",
+    "run_globals",
     "_add_environment_vars",
     "_available",
     "_LazyString",
@@ -936,6 +941,7 @@ if __name__ == "__main__":
 
     _add_modules(globals(), _statements + [_string])
 
+    
     variables = _LazyString(lambda: _variables(run_globals, old_globals))
 
     run_globals = dict(globals())
@@ -954,6 +960,7 @@ if __name__ == "__main__":
                 result()
 
     if interactive:
+        print("launching interactive")
         interactive(run_globals)
     
 
