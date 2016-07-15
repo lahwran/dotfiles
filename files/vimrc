@@ -381,6 +381,11 @@ augroup checktime
     endif
 augroup END
 nnoremap <F5> :GundoToggle<CR>
+
+autocmd BufWritePost * filetype detect
+autocmd BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
+autocmd BufNewFile,BufFilePre,BufEnter * if &filetype == "" | set ft=markdown | endif
+
 set nolazyredraw                  " don't update screen inside macros, etc
 
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
