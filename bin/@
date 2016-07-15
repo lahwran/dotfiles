@@ -584,6 +584,10 @@ for _itertool_func in _itertools_values:
 del _itertool_func
 
 _blacklist = [
+    "_chunks_guard",
+    "_available_names",
+    "_mute_fd",
+    "_debug",
     "interactive",
     "_format_var",
     "run_globals",
@@ -613,7 +617,6 @@ _blacklist = [
     "_Unbuffered",
     "__builtins__",
     "_statement",
-    "variables",
     "_variables",
     "_result",
     "_split_statements",
@@ -804,11 +807,15 @@ def _variables(g, oldglobals, quick=False):
     modules = None
     iterfuncs = None
     if not quick:
-        modules = f(dict((x.name, x) for x in _available), blist)
+        modules = f(dict((x.name, g.get(x.name, x)) for x in _available), blist)
+    else:
+        modules = f(dict((x.name, g[x.name]) for x in _available if x.name in g), blist)
     blist |= set([x.name for x in _available])
 
     if not quick:
-        iterfuncs = f(dict((x.name, x) for x in _available_itertools), blist)
+        iterfuncs = f(dict((x.name, g.get(x.name, x)) for x in _available_itertools), blist)
+    else:
+        iterfuncs = f(dict((x.name, g[x.name]) for x in _available_itertools if x.name in g), blist)
     blist |= set([x.name for x in _available_itertools])
 
     remaining = f(oldglobals, blist)
