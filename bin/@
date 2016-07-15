@@ -291,7 +291,7 @@ def shell(name):
         def wrap_embed(globs):
             orig = repl.Interpreter.runsource.im_func
             def runsource(self, source, *a, **kw):
-                return orig(self, passthrough(globs, string), *a, **kw)
+                return orig(self, passthrough(globs, source), *a, **kw)
             repl.Interpreter.runsource = runsource
             return embed(globs)
         return wrap_embed
@@ -795,25 +795,19 @@ def _variables(g, oldglobals, quick=False):
             for name, value in sorted(d.items(), key=lambda x: x[0])
             if name not in blist)
     blist = set(_blacklist)
-    if not quick:
-        shell_vars = f(os.environ, blist)
-    else:
-        shell_vars = None
+    shell_vars = f(os.environ, blist)
     blist |= set(os.environ.keys())
 
-    if not quick:
-        modules = f(dict((x.name, x) for x in _available), blist)
-    else:
-        modules = None
+    if quick:
+        blist |= set(_available_names)
+
+    modules = f(dict((x.name, x) for x in _available), blist)
     blist |= set([x.name for x in _available])
 
-    if not quick:
-        iterfuncs = f(dict((x.name, x) for x in _available_itertools), blist)
-    else:
-        iterfuncs = None
+    iterfuncs = f(dict((x.name, x) for x in _available_itertools), blist)
     blist |= set([x.name for x in _available_itertools])
 
-    oldremaining = f(oldglobals, blist)
+    remaining = f(oldglobals, blist)
     blist |= set(oldglobals.keys())
 
     uservars = f(g, blist)
@@ -821,7 +815,7 @@ def _variables(g, oldglobals, quick=False):
     tail = ""
 
     result = ""
-    if shell_vars is not None:
+    if shell_vars:
         result += (
             "Variables from shell environment\n"
             "--------------------------------\n"
@@ -829,7 +823,7 @@ def _variables(g, oldglobals, quick=False):
             "{shell_vars}\n"
             "\n"
         ).format(shell_vars=shell_vars)
-    if modules is not None:
+    if modules:
         result += (
             "Imported and auto-importing modules\n"
             "-----------------------------------\n"
@@ -839,14 +833,14 @@ def _variables(g, oldglobals, quick=False):
             "{modules}\n"
             "\n"
         ).format(modules=modules)
-    if iterfuncs is not None:
+    if iterfuncs:
         result += (
             "extra: these functions will be auto-imported from itertools:\n"
             "\n"
             "{iterfuncs}\n"
             "\n"
         ).format(iterfuncs=iterfuncs)
-    if remaining is not None:
+    if remaining:
         remaining += (
             "Utilities and globals specific to @\n"
             "-----------------------------------\n"
