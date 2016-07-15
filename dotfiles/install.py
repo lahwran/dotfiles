@@ -38,6 +38,7 @@ os_dependencies = [
 ]
 
 pip_dependencies = [
+    "pip",
     "virtualenv",
     "pytest",
     "twisted",
@@ -52,7 +53,7 @@ pip_dependencies = [
     "prompt_toolkit",
     "pudb",
     "py",
-    "reqiests",
+    "requests",
     "treq",
     "klein",
 ]
@@ -345,14 +346,6 @@ def root_install():
     
     # install os packages
     logger.info("Installing OS packages...")
-
-    try:
-        # hack
-        subprocess.check_call(["whereis", "xinit"])
-    except (OSError, subprocess.CalledProcessError):
-        pass
-    else:
-        os_dependencies.append("x11vnc")
 
     os_specific.install_packages_root(os_dependencies)
 
