@@ -359,12 +359,9 @@ def _parse_args():
         args.interactive = 'detect'
     if args.interactive:
         args.interactive = shell(args.interactive)
-    print(args.string)
 
     string = " ".join(args.string) if args.string else None
-    print(string)
     statements, string = _split_statements(string)
-    print(string)
     if args.print_joined:
         args.print_each = True
 
@@ -397,7 +394,6 @@ def _parse_args():
         name, equals, value = var.partition("=")
         assert equals, "please put an equals sign in variable defitions"
         globals()[name] = value
-    print(string)
 
     return (statements, string, args.interactive, args.print_each, args.debug,
             sys.stdout.write if args.print_joined else print)
@@ -805,19 +801,19 @@ def _variables(g, oldglobals, quick=False):
     shell_vars = f(os.environ, blist)
     blist |= set(os.environ.keys())
 
-    #if quick:
-    #    blist |= set(_available_names)
+    modules = None
+    iterfuncs = None
+    if not quick:
+        modules = f(dict((x.name, x) for x in _available), blist)
+        blist |= set([x.name for x in _available])
 
-    modules = f(dict((x.name, x) for x in _available), blist)
-    blist |= set([x.name for x in _available])
-
-    iterfuncs = f(dict((x.name, x) for x in _available_itertools), blist)
-    blist |= set([x.name for x in _available_itertools])
+        iterfuncs = f(dict((x.name, x) for x in _available_itertools), blist)
+        blist |= set([x.name for x in _available_itertools])
 
     remaining = f(oldglobals, blist)
     blist |= set(oldglobals.keys())
 
-    uservars = f(g, {})
+    uservars = f(g, blist)
 
     tail = ""
 
@@ -995,7 +991,6 @@ if __name__ == "__main__":
 
 
     if _string.strip() or _statements:
-        print(_string)
         try:
             result = run(_statements, _string, run_globals)
         except SystemExit:
