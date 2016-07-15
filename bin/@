@@ -816,13 +816,6 @@ def _variables(g, oldglobals, quick=False):
     uservars = f(g, blist)
 
     tail = ""
-    if uservars:
-        tail = ("\n"
-            "Your variables\n"
-            "==============\n"
-            "\n"
-            "{}\n"
-        ).format(uservars)
 
     result = ""
     if shell_vars is not None:
@@ -832,7 +825,7 @@ def _variables(g, oldglobals, quick=False):
             "\n"
             "{shell_vars}\n"
             "\n"
-        ).format(shell_vars)
+        ).format(shell_vars=shell_vars)
     if modules is not None:
         result += (
             "Imported and auto-importing modules\n"
@@ -842,23 +835,29 @@ def _variables(g, oldglobals, quick=False):
             "\n"
             "{modules}\n"
             "\n"
-        )
-    (
-        "extra: these functions will be auto-imported from itertools:\n"
-        "\n"
-        "{iterfuncs}\n"
-        "\n"
-    )
-    (
-        "Utilities and globals specific to @\n"
-        "-----------------------------------\n"
-        "\n"
-        "{remaining}\n"
-    )
-    (
-        "{tail}"
-    ).format(shell_vars=shell_vars, modules=modules, iterfuncs=iterfuncs,
-            remaining=oldremaining, tail=tail)
+        ).format(modules=modules)
+    if iterfuncs is not None:
+        result += (
+            "extra: these functions will be auto-imported from itertools:\n"
+            "\n"
+            "{iterfuncs}\n"
+            "\n"
+        ).format(iterfuncs=iterfuncs)
+    if remaining is not None:
+        remaining += (
+            "Utilities and globals specific to @\n"
+            "-----------------------------------\n"
+            "\n"
+            "{remaining}\n"
+        ).format(remaining=remaining)
+    if uservars:
+        result += ("\n"
+            "Your variables\n"
+            "==============\n"
+            "\n"
+            "{}\n"
+        ).format(uservars)
+    return result
 
 
 def _add_environment_vars(glob, outer_dir):
