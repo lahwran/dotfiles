@@ -742,7 +742,7 @@ def _format_var(name, value, f=None):
         return v
 
     if f is None:
-        f = "- `{name}`: {value}"
+        f = "- {bold}{name}{normal}: {value}"
 
     
     if type(value) == _LazyString:
@@ -959,7 +959,8 @@ def run(statements, expression, run_globals):
             if _debug:
                 print("printed docstring:", _result.__doc__)
             else:
-                print(_result.__doc__)
+                #print(_result.__doc__)
+                show(_result)
         else:
             if _debug:
                 print("primary print:", _result)
