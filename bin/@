@@ -239,28 +239,14 @@ def shell(name):
             name = "ptpython"
         except ImportError:
             print("You should totally install ptpython, it's super awesome.")
-            print("Specifc `-i builtin` to shut this suggestion up.")
+            print("Specify `-i builtin` to shut this suggestion up.")
             name = "builtin"
 
     def passthrough(globs, string):
         _add_modules(globs, [string])
         return string
 
-    if name == "builtin":
-        import code
-
-        try:
-            import readline
-        except ImportError:
-            pass
-
-        def interact(local):
-            code.interact("Welcome to the @ built-in console.",
-                    readfunc=lambda prompt: passthrough(local, raw_input(prompt))
-                    local=local)
-
-        return interact
-    elif name == "ipython":
+    if name == "ipython":
         from IPython import embed
         from IPython.terminal.embed import InteractiveShellEmbed
 
@@ -287,6 +273,22 @@ def shell(name):
             return orig(self, passthrough(self.get_locals(), string), *a, **kw)
         repl.Interpreter.runsource = runsource
         return embed
+    else:
+        if name != "builtin":
+            print("warning: don't have interpreter %s, using builtin" % name)
+        import code
+
+        try:
+            import readline
+        except ImportError:
+            pass
+
+        def interact(local):
+            code.interact("Welcome to the @ built-in console.",
+                    readfunc=(lambda prompt: passthrough(local, raw_input(prompt))),
+                    local=local)
+
+        return interact
 
 
 def _parse_args():
@@ -322,7 +324,7 @@ def _parse_args():
             help='print debug info for type detection')
             
     parser.add_argument("-i", "--interactive", action="store", default=None,
-            const="detect", type=shell
+            const="detect", type=shell, nargs="?",
             help='launch interactive mode')
     args = parser.parse_args()
 
@@ -367,7 +369,7 @@ def _parse_args():
         assert equals, "please put an equals sign in variable defitions"
         globals()[name] = value
 
-    return (statements, string, args.print_each, args.debug,
+    return (statements, string, args.interactive, args.print_each, args.debug,
             sys.stdout.write if args.print_joined else print)
 
 _available_names = set()
@@ -550,6 +552,7 @@ def _add_modules(globbles, strings):
             globbles[_avail.name] = _avail
 
 _blacklist = [
+    "interactive",
     "_format_var",
     "_add_environment_vars",
     "_available",
@@ -844,14 +847,14 @@ def run(statements, expression, run_globals):
                 _result = session.run(_result)
     except KeyboardInterrupt:
         sys.stderr.write("@ killed (ctrl+d to close cleanly)")
-        fixme: return fail
+        return fail
     except BaseException as e:
         import traceback
         x = traceback.format_exc().split("\n")
         y = "\n".join(x[4:])
         sys.stderr.write(y)
         sys.stderr.flush()
-        fixme: return fail
+        return fail
 
 
     if _result is None:
@@ -896,7 +899,7 @@ def run(statements, expression, run_globals):
                         print(result2)
                 elif _debug:
                     print("nothing to print")
-            fixme: return succeed
+            return succeed
 
     if not isinstance(_result, bool) or _shouldprint:
         if _hasdoc(_result) and repr(_result) == str(_result):
@@ -915,19 +918,19 @@ def run(statements, expression, run_globals):
             print("bool result, returning exit code:", 0 if _result else 1, _result)
 
         if _result:
-            fixme: return succeed
+            return succeed
         else:
-            fixme: return fail
+            return fail
     else:
         if _debug:
             print("non-bool result, returning exit code 0 (true)")
-        fixme: return succeed
+        return succeed
 
 
 if __name__ == "__main__":
     _debuffer()
 
-    _statements, _string, _shouldprint, _debug, print = _parse_args()
+    _statements, _string, interactive, _shouldprint, _debug, print = _parse_args()
     del _parse_args
 
     _add_modules(globals(), _statements + [_string])
@@ -938,4 +941,18 @@ if __name__ == "__main__":
     _add_environment_vars(_command_globals, dir())
     old_globals = dict(globals())
 
-    run(_statements, _string, run_globals)
+
+    if _string.strip() or _statements:
+        try:
+            result = run(_statements, _string, run_globals)
+        except SystemExit:
+            if not interactive:
+                raise
+        else:
+            if not interactive:
+                result()
+
+    if interactive:
+        interactive(run_globals)
+    
+
