@@ -879,7 +879,7 @@ def run(statements, expression, run_globals):
     try:
         for statement in statements:
             exec statement in run_globals
-        print(expression)
+        import pudb; pudb.set_trace()
         if not expression.strip():
             _result = None
         else:
@@ -888,9 +888,9 @@ def run(statements, expression, run_globals):
         if "tensorflow" in sys.modules:
             import tensorflow
             if isinstance(_result, tensorflow.python.framework.ops.Tensor):
-                if "session" not in globals():
-                    session = tensorflow.InteractiveSession()
-                _result = session.run(_result)
+                if "session" not in run_globals:
+                    run_globals["session"] = tensorflow.InteractiveSession()
+                _result = run_globals["session"].run(_result)
     except KeyboardInterrupt:
         sys.stderr.write("@ killed (ctrl+d to close cleanly)")
         return fail
