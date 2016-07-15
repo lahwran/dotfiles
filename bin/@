@@ -712,8 +712,8 @@ def _add_modules(globbles, strings):
     a = _wanted("tensorflow", "tensorflow") or a
     if a:
         with _mute_fd(2):
-            tensorflow = _import("tensorflow")
-            if tensorflow:
+            tf = _import("tensorflow")
+            if tf:
                 session = tf.InteractiveSession()
                 globbles["session"] = session
                 globbles["sess"] = session
