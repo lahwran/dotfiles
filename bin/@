@@ -553,10 +553,6 @@ def _add_modules(globbles, strings):
             exec "from itertools import %s" % _itertool_func in globbles
             _reset_vars()
         del _itertool_func
-
-    for _avail in _available:
-        if _avail.name not in globbles:
-            globbles[_avail.name] = _avail
 _available_itertools = []
 _itertools_values = [
     "count",
@@ -801,13 +797,20 @@ def _variables(g, oldglobals, quick=False):
     blist = set(_blacklist)
     if not quick:
         shell_vars = f(os.environ, blist)
+    else:
+        shell_vars = None
     blist |= set(os.environ.keys())
 
     if not quick:
         modules = f(dict((x.name, x) for x in _available), blist)
+    else:
+        modules = None
     blist |= set([x.name for x in _available])
 
-    iterfuncs = f(dict((x.name, x) for x in _available_itertools), blist)
+    if not quick:
+        iterfuncs = f(dict((x.name, x) for x in _available_itertools), blist)
+    else:
+        iterfuncs = None
     blist |= set([x.name for x in _available_itertools])
 
     oldremaining = f(oldglobals, blist)
