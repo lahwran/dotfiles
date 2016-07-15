@@ -283,7 +283,7 @@ def shell(name):
             def _execute(self, cli, string):
                 return orig(self, cli, passthrough(globs, string))
             PythonRepl._execute = _execute
-            return embed(globs)
+            return embed(globs, vi_mode=True)
         # monkeypatch ptpython.repl.PythonRepl._execute(self, cli, string)
         # write to actual external globals dict
         return wrap_embed
