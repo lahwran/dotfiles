@@ -699,7 +699,7 @@ def _add_modules(globbles, strings):
 
     if _wanted("terminal", "pre-initialized blessings instance"):
         blessings = _import("blessings")
-        if blessings:
+        if blessings and "blessings" not in globbles:
             terminal = blessings.Terminal(force_styling=True)
             globbles["blessings"] = blessings
             globbles["terminal"] = terminal
@@ -713,10 +713,11 @@ def _add_modules(globbles, strings):
     if a:
         with _mute_fd(2):
             tf = _import("tensorflow")
-            if tf:
+            if tf and "session" not in globbles:
                 session = tf.InteractiveSession()
                 globbles["session"] = session
                 globbles["sess"] = session
+                globbles["s"] = session
                 globbles["tensorflow"] = tf
                 globbles["tf"] = tf
                 _reset_vars()
@@ -1162,6 +1163,7 @@ if __name__ == "__main__":
 
     _statements, _string, interactive, _shouldprint, _debug, print = _parse_args()
     del _parse_args
+    sys.path.append(os.path.abspath("."))
 
     _add_modules(globals(), _statements + [_string])
 
