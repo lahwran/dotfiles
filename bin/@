@@ -242,6 +242,19 @@ def readall(file_like, max=None):
     return read
 
 
+def readfor(file_like, duration):
+    import select
+    import time
+    read = b""
+    start = time.time()
+    end = start + duration
+    while select.select([file_like], [], [], max(0, end - time.time()))[0] != []:
+        read += file_like.read(select.PIPE_BUF)
+    return read
+read_for = readfor
+read_until = readfor
+
+
 def shell(name):
     if name == "detect":
         try:
