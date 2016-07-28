@@ -234,6 +234,14 @@ def _split_statements(string):
     return strings[:-1], strings[-1]
 
 
+def readall(file_like, max=None):
+    import select
+    read = b""
+    while select.select([file_like], [], [], 0)[0] != [] and (max is None or len(read) < max):
+        read += file_like.read(select.PIPE_BUF)
+    return read
+
+
 def shell(name):
     if name == "detect":
         try:
