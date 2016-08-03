@@ -194,10 +194,10 @@ nnoremap ,o :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:read !~/SMDes
 
 " ,g'search here'<CR> to search current git repo and paste results into
 " current file
-nnoremap ,g' :read !ggrep --args '
+nnoremap ,g' :read !ggrep_ --args '
 " ,gg'search here'<CR> to search current git repo and paste results into
 " new scratch buffer
-nnoremap ,gg' :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:read !ggrep --args '
+nnoremap ,gg' :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:read !ggrep_ --args '
 nnoremap ,gw :call MakeScratchWindow()<CR><ESC><ESC>
 
 nnoremap ,ban :vnew<CR>:term ./gradlew --daemon installDebug<SPACE>
