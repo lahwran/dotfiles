@@ -220,9 +220,31 @@ def host_colors(hostname):
     return "\n".join("PROMPTCOLOR_%s='%s'" % (key, value) for key, value in sorted(d.items()))
 
 
+
+def which(program):
+    import os
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
+
+
 def user_install():
     global logger
 
+    if which("pip") is None or which("pip").startswith("/usr"):
+        wrap_process.call("python", ["python", path("get-pip.py"), "--user"])
     # install pip packages
     logger.info("Installing pip packages...")
     for dep in pip_dependencies:
