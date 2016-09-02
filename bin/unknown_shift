@@ -1,0 +1,154 @@
+#!/usr/bin/python
+import re
+import argparse
+import collections
+
+parser = argparse.ArgumentParser()
+parser.add_argument("command", help="extract or inline")
+parser.add_argument("filename")
+args = parser.parse_args()
+
+assert args.command in ["extract", "inline"]
+
+
+def pairs(iterable):
+    "pairs(iterable) -> (s0, s1), (s1,s2), (s2, s3), etc"
+    from itertools import tee, izip
+    a, b = tee(iterable)
+    next(b, None)
+    return izip(a, b)
+
+
+if __name__ == "__main__":
+    f = open(args.filename)
+
+    sections = collections.deque()
+    sections.append([])
+
+    current_unknown = None
+    current_unk_depth = None
+    for line in f:
+        flagline = re.match(r"^-{4,}$", line)
+        if flagline:
+            sections.appendleft([])
+            continue
+
+        match = re.match(r"^((?: )*)(?:(\? ?)|@ ?([0-9]+)|)(.*)$", line)
+        depth = len(match.group(1))
+        is_q = bool(match.group(2))
+        is_ref = bool(match.group(3))
+        ref = int(match.group(3)) if is_ref else None
+        text = match.group(4)
+
+        if (depth == 0 and (text.strip() or is_q or is_ref)) \
+                or (not sections[0] and (text or depth or is_q or is_ref or ref)):
+            sections[0].append([])
+        if not sections[0]:
+            continue
+
+        sections[0][-1].append((depth, is_q, is_ref, ref, text))
+
+    i = 0
+    while i < len(sections):
+        section = sections[i]
+
+        for sindex in xrange(len(section)):
+            old_block = section[sindex]
+            block = []
+            section[sindex] = block
+
+            current_ref = None
+            ref_depth = None
+
+            for index, value in enumerate(old_block):
+                depth, is_q, is_ref, ref, text = value
+                if current_ref and depth > ref_depth:
+                    assert not is_ref
+                    current_ref.append((depth - ref_depth, is_q, False, False,
+                        text))
+                    continue
+
+                current_ref = None
+                ref_depth = None
+
+                if is_q:
+                    if len(sections) == i + 1:
+                        sections.append([])
+                    next_section = sections[i+1]
+                    index = len(next_section) + 1
+                    block.append((depth, False, True, index, ""))
+                    current_ref = []
+                    ref_depth = depth
+                    next_section.append(current_ref)
+                    current_ref.append((0, False, False, None, text))
+                    continue
+
+                block.append(value)
+
+        i += 1
+
+    if args.command == "inline":
+        for a, b in pairs(reversed(sections)):
+            for block in b:
+                i = 0
+                while i < len(block):
+                    depth, is_q, is_ref, ref, text = block[i]
+                    if is_ref:
+                        try:
+                            filtered = [[dd + depth, iq, False, None, tx] for dd, iq, ir, rr, tx in a[ref-1]]
+                        except:
+                            import pprint
+                            pprint.pprint([a, ref])
+                            raise
+                        filtered[0][1] = True
+
+                        if i < len(block) - 1:
+                            block[i:i+1] = filtered
+                        else:
+                            block[i:] = filtered
+                    i += 1
+        sections = [sections[0]]
+
+
+    output = []
+    for index, section in enumerate(reversed(sections)):
+        if index != 0:
+            output.append("")
+            output.append("-"*50)
+            output.append("")
+
+        for block in section:
+            for depth, is_q, is_ref, ref, text in block:
+                formatted = "".join([
+                    " " * depth,
+                    "? " if is_q else "",
+                    "@ " if is_ref else "",
+                    str(ref) if is_ref else "",
+                    text if not is_ref else ""
+                ])
+                output.append(formatted)
+    print "\n".join(output)
+    
+
+
+"""
+
+
+        if current_unknown is not None and depth > current_unk_depth:
+            current_unknown.append((depth - current_unk_depth, line))
+            continue
+
+        current_unknown = None
+        current_unknown_depth = None
+        
+        if is_q:
+            current_unknown = [(0, text)]
+            current_unknown_depth = depth
+            text = ""
+
+
+
+"""
+
+            
+

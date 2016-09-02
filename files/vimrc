@@ -179,8 +179,10 @@ nnoremap ,Z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD^1:<C-
 
 " ,pf to run pytest in split on the current test file
 " ,pa to run pytest in a split in the current directory
-nnoremap ,pf :vnew \| r !py.test <C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
-nnoremap ,pa :vnew \| r !py.test<CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
+" nnoremap ,pf :vnew \| r !py.test <C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
+" nnoremap ,pa :vnew \| r !py.test<CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
+nnoremap ,p :%!unknown_shift extract /dev/stdin<CR><ESC><ESC>
+nnoremap ,P :%!unknown_shift inline /dev/stdin<CR><ESC><ESC>
 
 " ,r to reload current file, hopefully resetting vim's buffer settings
 nnoremap ,r :e __nonexistantfile__ \| e <C-r>=bufname("%")<CR><CR>
@@ -190,7 +192,7 @@ nnoremap ,n :NERDTree<CR>
 nnoremap ,<CR> :cd ~/SMDesktop<CR>:NERDTree ~/SMDesktop<CR>
 
 nnoremap ,t :call PrepWindowAct()<CR>:vnew<CR>:term<SPACE>
-nnoremap ,o :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:read !~/SMDesktop/overview<CR><ESC><ESC>
+" nnoremap ,o :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:read !~/SMDesktop/overview<CR><ESC><ESC>
 
 " ,g'search here'<CR> to search current git repo and paste results into
 " current file
@@ -200,7 +202,7 @@ nnoremap ,g' :read !ggrep_ --args '
 nnoremap ,gg' :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:read !ggrep_ --args '
 nnoremap ,gw :call MakeScratchWindow()<CR><ESC><ESC>
 
-nnoremap ,ban :vnew<CR>:term ./gradlew --daemon installDebug<SPACE>
+" nnoremap ,ban :vnew<CR>:term ./gradlew --daemon installDebug<SPACE>
 
 if exists(':tnoremap')
     tnoremap <ESC><ESC> <C-\><C-n>G:call search(".", "b")<CR>$
