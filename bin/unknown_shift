@@ -27,10 +27,20 @@ if __name__ == "__main__":
 
     current_unknown = None
     current_unk_depth = None
+    ignorenext = False
     for line in f:
         flagline = re.match(r"^-{4,}$", line)
+        if ignorenext:
+            ignorenext = False
+            if not line.strip() and not flagline:
+                continue
         if flagline:
+            if sections[0] and sections[0][-1]:
+                _, _, _, _, text = sections[0][-1][-1]
+                if not text.strip():
+                    sections[0][-1].pop()
             sections.appendleft([])
+            ignorenext = True
             continue
 
         match = re.match(r"^((?: )*)(?:(\? ?)|@ ?([0-9]+)|)(.*)$", line)
@@ -100,6 +110,7 @@ if __name__ == "__main__":
                             import pprint
                             pprint.pprint([a, ref])
                             raise
+                        a[ref-1] = None
                         filtered[0][1] = True
 
                         if i < len(block) - 1:
@@ -107,7 +118,7 @@ if __name__ == "__main__":
                         else:
                             block[i:] = filtered
                     i += 1
-        sections = [sections[0]]
+        sections = [s for s in sections if any(x is not None for x in s)]
 
 
     output = []
