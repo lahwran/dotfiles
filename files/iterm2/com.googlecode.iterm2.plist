@@ -19236,22 +19236,27 @@
 	<array/>
 	<key>NSTableView Sort Ordering KeyBingingTable</key>
 	<array/>
+	<key>NSToolbar Configuration com.apple.NSColorPanel</key>
+	<dict>
+		<key>TB Is Shown</key>
+		<integer>1</integer>
+	</dict>
 	<key>NSWindow Frame NSColorPanel</key>
 	<string>3146 519 214 309 2560 0 2560 1418 </string>
 	<key>NSWindow Frame NSFontPanel</key>
 	<string>575 775 445 136 0 0 2560 1440 </string>
 	<key>NSWindow Frame Preferences</key>
-	<string>908 399 606 456 0 0 2560 1417 </string>
+	<string>908 506 606 456 0 0 2560 1417 </string>
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>155 594 592 584 0 0 1920 1178 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>554 294 850 749 0 0 1920 1177 </string>
+	<string>0 328 850 849 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
-	<string>241 159 1081 849 0 0 1920 1177 </string>
+	<string>666 221 850 849 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
-	<string>778 77 850 749 0 0 1920 1177 </string>
+	<string>1270 500 1340 849 0 0 2560 1417 </string>
 	<key>NSWindow Frame iTerm Window 3</key>
-	<string>0 78 1914 1099 0 0 1920 1177 </string>
+	<string>0 531 850 849 0 0 2560 1417 </string>
 	<key>NSWindow Frame iTerm Window 4</key>
 	<string>547 244 850 749 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 5</key>
@@ -20878,10 +20883,14 @@
 	</array>
 	<key>NoSyncHaveShownPromoWithId_4</key>
 	<true/>
+	<key>NoSyncHaveWarnedAboutIncompatibleSoftware</key>
+	<true/>
 	<key>NoSyncInstallationId</key>
 	<string>F652A0D0-FDA1-4D4D-862B-2D51E0B5B386</string>
 	<key>NoSyncNeverRemindPrefsChangesCopy</key>
 	<true/>
+	<key>NoSyncPermissionToShowTip</key>
+	<false/>
 	<key>NoSyncSilenceAnnoyingBellAutomatically</key>
 	<true/>
 	<key>NoSyncTimeOfFirstLaunchOfVersionWithTip</key>
@@ -20939,6 +20948,8 @@
 	</dict>
 	<key>PrefsCustomFolder</key>
 	<string>/Users/lahwran/dotfiles/files/iterm2</string>
+	<key>Print In Black And White</key>
+	<true/>
 	<key>PromptOnQuit</key>
 	<true/>
 	<key>QuitWhenAllWindowsClosed</key>
@@ -20958,7 +20969,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2016-07-06T18:04:42Z</date>
+	<date>2016-08-16T21:13:10Z</date>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>Secure Input</key>
@@ -21014,6 +21025,6 @@
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>iTerm Version</key>
-	<string>3.0.0</string>
+	<string>3.0.5</string>
 </dict>
 </plist>
