@@ -724,9 +724,9 @@ def _add_modules(globbles, strings):
 
     if _wanted("terminal", "pre-initialized blessings instance"):
         blessings = _import("blessings")
-        if blessings and "blessings" not in globbles:
+        globbles["blessings"] = blessings
+        if blessings and "terminal" not in globbles:
             terminal = blessings.Terminal(force_styling=True)
-            globbles["blessings"] = blessings
             globbles["terminal"] = terminal
 
     # force non-short-circuit evaluation
