@@ -54,7 +54,7 @@ def exit(*a, **kw):
         nvim.command('sb %s' % termbuf)
         nvim.command('set swb=' + (swb or ''))
         nvim.input('i')
-        nvim.session.stop()
+        nvim.stop_loop()
     except:
         import traceback
         traceback.print_exc()
@@ -63,4 +63,4 @@ def exit(*a, **kw):
         sys.exit(1)
 
 
-nvim.session.run(exit, exit, setup)
+nvim.run_loop(exit, exit, setup)

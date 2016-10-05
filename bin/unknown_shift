@@ -28,6 +28,7 @@ if __name__ == "__main__":
     current_unknown = None
     current_unk_depth = None
     ignorenext = False
+    lastdepth = 0
     for line in f:
         flagline = re.match(r"^-{4,}$", line)
         if ignorenext:
@@ -49,6 +50,11 @@ if __name__ == "__main__":
         is_ref = bool(match.group(3))
         ref = int(match.group(3)) if is_ref else None
         text = match.group(4)
+        if not is_q and not is_ref and not ref and not text.strip():
+            depth = lastdepth
+            text = text.strip()
+        else:
+            lastdepth = depth
 
         if (depth == 0 and (text.strip() or is_q or is_ref)) \
                 or (not sections[0] and (text or depth or is_q or is_ref or ref)):

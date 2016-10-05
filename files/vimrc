@@ -385,11 +385,23 @@ augroup END
 nnoremap <F5> :GundoToggle<CR>
 
 autocmd BufWritePost * filetype detect
-autocmd BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
-autocmd BufNewFile,BufFilePre,BufRead * if &filetype == "" | set ft=markdown | endif
-autocmd BufNewFile,BufFilePre,BufRead *.plans.md set filetype=plansmd
+autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.md set filetype=markdown
+autocmd BufNewFile,BufFilePre,BufRead,BufWritePost * if &filetype == "" | set ft=markdown | endif
+autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.plans.md set filetype=plansmd
+autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.cuh,*.cu set filetype=cuda
+autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.h,*.hpp,*.hxx set filetype=cpp
+autocmd FileType cpp setlocal nosmarttab shiftwidth=4 tabstop=4 noexpandtab
+autocmd FileType c setlocal nosmarttab shiftwidth=4 tabstop=4 noexpandtab
+autocmd FileType cuda setlocal nosmarttab shiftwidth=4 tabstop=4 noexpandtab
 
 set nolazyredraw                  " don't update screen inside macros, etc
+
+set wrap
+set showbreak=...\ 
+set breakindent
+set breakindentopt=min:30,shift:4
+set linebreak
+
 
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.

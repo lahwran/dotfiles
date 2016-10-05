@@ -373,8 +373,8 @@ def root_install():
     os_specific.install_packages_root(os_dependencies)
 
     logger.info("Installing pip...")
-    wrap_process.call("get-pip", [sys.executable, path("get-pip.py")])
-    wrap_process.call("pip", ["pip", "install", "--upgrade", "pip"])
+    #wrap_process.call("get-pip", [sys.executable, path("get-pip.py")])
+    #wrap_process.call("pip", ["pip", "install", "--upgrade", "pip"])
 
     if os.path.exists("/etc/environment"):
         # install global environment defaults
