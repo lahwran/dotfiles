@@ -619,7 +619,6 @@ _optional_modules = [
     "zipfile",
     "zlib",
 
-    "blessings",
     "cffi",
     "chardet",
     "colorama",
@@ -722,10 +721,12 @@ def _add_modules(globbles, strings):
             _import(_mod)
 
 
-    if _wanted("terminal", "pre-initialized blessings instance"):
+    if _wanted("terminal", "pre-initialized blessings instance") or _wanted("blessings", "blessings module"):
         blessings = _import("blessings")
-        if blessings and "blessings" not in globbles:
-            terminal = blessings.Terminal(force_styling=True)
+        if blessings:
+            terminal = globbles.get("terminal")
+            if not terminal:
+                terminal = blessings.Terminal(force_styling=True)
             globbles["blessings"] = blessings
             globbles["terminal"] = terminal
 

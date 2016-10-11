@@ -37,9 +37,9 @@ endif
 
 " this also from byron's
 " jumps between screen lines by default, rather than logical lines
-map     j gj
+map <silent> <nowait>     j gj
+map <silent> <nowait>     k gk
 ounmap  j
-map     k gk
 ounmap  k
 
 filetype plugin on
@@ -105,8 +105,8 @@ set nowrap
 " I like being able to scroll with the mouse, since it's so close-by
 " on my laptop keyboard anyway
 set mouse=a 
-nnoremap <F3> :set mouse=a<CR>
-nnoremap <F4> :set mouse=<CR>
+nnoremap <silent> <nowait> <F3> :set mouse=a<CR>
+nnoremap <silent> <nowait> <F4> :set mouse=<CR>
 
 " f2 to toggle paste mode - disables autoindent
 " noremap <F2> :set invpaste paste?<CR>
@@ -128,8 +128,8 @@ hi Visual cterm=NONE ctermfg=black ctermbg=darkyellow
 set timeout timeoutlen=1000 ttimeoutlen=100
 
 " keep visual selection highlighted when indenting/deindenting
-vnoremap < <gv
-vnoremap > >gv
+vnoremap <silent> <nowait> < <gv
+vnoremap <silent> <nowait> > >gv
 
 " bash-like tab completion when typing paths in :e and friends
 set wildmode=longest:full,full
@@ -138,16 +138,24 @@ set wildmenu
 " I want unlimited :(
 let g:terminal_scrollback_buffer_size=100000
 
+function! SetWeirdEsc()
+    nnoremap <silent> <nowait> <D-A-C-S-ESC> <ESC><ESC>:q<CR>
+    nnoremap <silent> <nowait> <D-A-C-S-CR> <CR>
+endfunction
 
 function! PrepWindowAct()
-    cnoremap <ESC> <C-\><C-n>:q<CR>:call CancelWindowCommandAction()<CR><ESC><ESC>
+    nnoremap <silent> <nowait> <D-A-C-S-ESC> <ESC><ESC>:q<CR><C-\><C-n>:q<CR>:call CancelWindowCommandAction()<CR><ESC><ESC>
+    "cnoremap <ESC> <ESC><C-\><C-n>:q<CR>:call CancelWindowCommandAction()<CR><ESC><ESC>
+    nnoremap <silent> <nowait> <D-A-C-S-CR> <CR><C-\><C-n>:call CancelWindowCommandAction()<CR>
     cnoremap <CR> <CR><C-\><C-n>:call CancelWindowCommandAction()<CR>
 endfunction
 
 function! CancelWindowCommandAction()
-    cunmap <ESC>
+    " cunmap <ESC>
     cunmap <CR>
+    call SetWeirdEsc()
 endfunction
+call SetWeirdEsc()
 
 function! MakeScratchWindow()
     vnew
@@ -166,32 +174,32 @@ let g:wingrab_last_buffer = -1
 function! Wincp()
     let g:wingrab_last_buffer = bufnr("%")
 endfunction
-nnoremap ,u :call Wincp()<CR>:hide<CR><C-=><ESC><ESC>
-nnoremap ,<S-U> :call Wincp()<CR><ESC><ESC>
-nnoremap ,h :aboveleft vnew<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
-nnoremap ,l :rightbelow vnew<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
-nnoremap ,k :aboveleft new<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
-nnoremap ,j :rightbelow new<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
+nnoremap <silent> <nowait> ,u :call Wincp()<CR>:hide<CR><C-=><ESC><ESC>
+nnoremap <silent> <nowait> ,<S-U> :call Wincp()<CR><ESC><ESC>
+nnoremap <silent> <nowait> ,h :aboveleft vnew<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
+nnoremap <silent> <nowait> ,l :rightbelow vnew<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
+nnoremap <silent> <nowait> ,k :aboveleft new<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
+nnoremap <silent> <nowait> ,j :rightbelow new<CR>:execute "buffer! " . g:wingrab_last_buffer<CR><C-=><ESC><ESC>
 
 " ,z to open git-tracked version of this file in scratch split
-nnoremap ,z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD:<C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
-nnoremap ,Z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD^1:<C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
+nnoremap <silent> <nowait> ,z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD:<C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
+nnoremap <silent> <nowait> ,Z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD^1:<C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
 
 " ,pf to run pytest in split on the current test file
 " ,pa to run pytest in a split in the current directory
 " nnoremap ,pf :vnew \| r !py.test <C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
 " nnoremap ,pa :vnew \| r !py.test<CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
-nnoremap ,p :%!unknown_shift extract /dev/stdin<CR><ESC><ESC>
-nnoremap ,P :%!unknown_shift inline /dev/stdin<CR><ESC><ESC>
+nnoremap <silent> <nowait> ,p :%!unknown_shift extract /dev/stdin<CR><ESC><ESC>
+nnoremap <silent> <nowait> ,P :%!unknown_shift inline /dev/stdin<CR><ESC><ESC>
 
 " ,r to reload current file, hopefully resetting vim's buffer settings
 nnoremap ,r :e __nonexistantfile__ \| e <C-r>=bufname("%")<CR><CR>
 
 " ,n to open nerdtree
-nnoremap ,n :NERDTree<CR>
+nnoremap <silent> <nowait> ,n :NERDTree<CR>
 nnoremap ,<CR> :cd ~/SMDesktop<CR>:NERDTree ~/SMDesktop<CR>
 
-nnoremap ,t :call PrepWindowAct()<CR>:vnew<CR>:term<SPACE>
+nnoremap <silent> <nowait> ,t :call PrepWindowAct()<CR>:vnew<CR>:term<CR><C-\><C-n>:call CancelWindowCommandAction()<CR>i
 " nnoremap ,o :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:read !~/SMDesktop/overview<CR><ESC><ESC>
 
 " ,g'search here'<CR> to search current git repo and paste results into
@@ -199,28 +207,38 @@ nnoremap ,t :call PrepWindowAct()<CR>:vnew<CR>:term<SPACE>
 nnoremap ,g' :read !ggrep_ --args '
 " ,gg'search here'<CR> to search current git repo and paste results into
 " new scratch buffer
-nnoremap ,gg' :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:read !ggrep_ --args '
-nnoremap ,gw :call MakeScratchWindow()<CR><ESC><ESC>
+nnoremap <nowait> ,gg' :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:read !ggrep_ --args '
+vmap <silent> <nowait> ,gg "gy<ESC><ESC>,gg'<C-r>"'<CR><ESC><ESC>
+nnoremap <silent> <nowait> ,gw :call MakeScratchWindow()<CR><ESC><ESC>
 
 " nnoremap ,ban :vnew<CR>:term ./gradlew --daemon installDebug<SPACE>
 
 if exists(':tnoremap')
-    tnoremap <ESC><ESC> <C-\><C-n>G:call search(".", "b")<CR>$
+    tnoremap <silent> <nowait> <ESC><ESC> <C-\><C-n>G:call search(".", "b")<CR>$
 endif
 
 " ,m to join lines
-nnoremap ,m :join<CR>
+nnoremap <silent> <nowait> ,m :join<CR>
 
 " I often typo :q as :Q, but want it to do the same thing; similarly with
 " HJKL. this hides some features - I don't use them, but if you do, this may
 " be detrimental. also, I often typo :q as q:.
-nnoremap q: :
-noremap Q q
-noremap J j
-noremap K k
-noremap H h
-noremap L l
+"
+"nnoremap q: :
+noremap <silent> <nowait> Q q
+noremap <silent> <nowait> J j
+noremap <silent> <nowait> K k
+noremap <silent> <nowait> H h
+noremap <silent> <nowait> L l
 
+"unmap :
+"nnoremap : q:i
+"nnoremap / q/i
+"nnoremap ? q?i
+"
+"cnoremap <ESC> <ESC>q:
+nnoremap q: :
+set cedit=<ESC>
 
 " --- ctrlp config
 " this commented out code doesn't work, but it seems like it should...
@@ -232,12 +250,15 @@ noremap L l
 set wildignore+=*.pyc,*.so,.git,.hg,htmlcov,__pycache__,.*.sw*
 let g:ctrlp_open_multiple_files='v'
 let g:ctrlp_open_new_file='v'
+let g:ctrlp_working_path_mode = 'ra'
 let g:ctrlp_lazy_update=50
 let g:ctrlp_follow_symlinks=1
 let g:ctrlp_max_files = 0
+let g:ctrlp_max_history = 10000
 let g:ctrlp_prompt_mappings = {
             \ 'AcceptSelection("v")': ['<cr>'],
-            \ 'AcceptSelection("e")': ['<c-v>']
+            \ 'AcceptSelection("e")': ['<c-v>'],
+            \ 'ToggleMRURelative()': ['<F2>']
             \ }
 let g:ctrlp_user_command = '/Users/lahwran/dotfiles/bin/ctrlp_find %s'
 
@@ -379,10 +400,13 @@ augroup checktime
     if !has("gui_running")
         "silent! necessary otherwise throws errors when using command
         "line window.
-        autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * checktime
+        autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * if expand('%') !=# '[Command Line]' | checktime | endif
     endif
 augroup END
 nnoremap <F5> :GundoToggle<CR>
+
+autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * if expand('%') ==# '[Command Line]' | nmap <silent> <nowait> <buffer> <CR> <D-A-C-S-CR> | nmap <silent> <nowait> <buffer> <ESC> <D-A-C-S-ESC> | endif
+
 
 autocmd BufWritePost * filetype detect
 autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.md set filetype=markdown
@@ -402,6 +426,10 @@ set breakindent
 set breakindentopt=min:30,shift:4
 set linebreak
 
+
+nnoremap <C-i> :CtrlPChange<CR>
+nnoremap <C-I> :CtrlPChangeAll<CR>
+let g:ctrlp_cmd = 'CtrlPMixed'
 
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.
