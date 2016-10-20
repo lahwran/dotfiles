@@ -145,13 +145,14 @@ endfunction
 
 function! PrepWindowAct()
     nnoremap <silent> <nowait> <D-A-C-S-ESC> <ESC><ESC>:q<CR><C-\><C-n>:q<CR>:call CancelWindowCommandAction()<CR><ESC><ESC>
-    "cnoremap <ESC> <ESC><C-\><C-n>:q<CR>:call CancelWindowCommandAction()<CR><ESC><ESC>
     nnoremap <silent> <nowait> <D-A-C-S-CR> <CR><C-\><C-n>:call CancelWindowCommandAction()<CR>
+
+    "cnoremap <ESC> <ESC><C-\><C-n>:q<CR>:call CancelWindowCommandAction()<CR><ESC><ESC>
     cnoremap <CR> <CR><C-\><C-n>:call CancelWindowCommandAction()<CR>
 endfunction
 
 function! CancelWindowCommandAction()
-    " cunmap <ESC>
+    "cunmap <ESC>
     cunmap <CR>
     call SetWeirdEsc()
 endfunction
@@ -160,6 +161,72 @@ call SetWeirdEsc()
 function! MakeScratchWindow()
     vnew
     setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile
+endfunction
+
+function! ReadCmd(prefix, postfix, window, wclose, content)
+    let curline = getline('.')
+    call inputsave()
+    try
+        if empty(a:content)
+            call feedkeys(repeat("\<Left>", strlen(a:postfix)), 'n')
+            let l:cmd = input("$ ", a:prefix . a:postfix)
+            let l:cmd = substitute(l:cmd, '^\s*\(.\{-}\)\s*$', '\1', '')
+            if empty(l:cmd)
+                if a:window
+                    call CancelWindowCommandAction()
+                else
+                    call feedkeys(':', 'n')
+                    call feedkeys("\<ESC>\<ESC>", 'm')
+                endif
+                if a:wclose
+                    q
+                endif
+            else
+                call ReadCmd('', '', 0, 0, l:cmd)
+            endif
+            return 0
+        endif
+        let l:cmd = a:prefix . a:content . a:postfix
+
+        let l:output = system('(true;' . l:cmd . ') 2>&1')
+        "let l:output = substitute(l:output, '\n', '', '')
+        set paste
+        execute 'normal! i' . l:output
+        set nopaste
+    catch
+    endtry
+
+    call inputrestore()
+    call setline('.', curline)
+endfunction
+nnoremap <silent> <nowait> ,c :call ReadCmd('','',0,0,'')<CR>
+nnoremap <silent> <nowait> ,C :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:call ReadCmd("", "", 1, 1, '')<CR>
+
+nnoremap <silent> ! :set opfunc=ProgramFilter<cr>g@
+vnoremap <silent> ! :<c-u>call ProgramFilter(visualmode(), 1)<cr>
+function! ProgramFilter(vt, ...)
+    let [qr, qt] = [getreg('"'), getregtype('"')]
+    let [oai, ocin, osi, oinde] = [&ai, &cin, &si, &inde]
+    setl noai nocin nosi inde=
+
+    " in normal mode: let [sm, em] = ['[', ']']
+    " in visual mode: let [sm, em] = ['<', '>']
+    let [sm, em] = ['[<'[a:0], ']>'[a:0]]
+    exe 'silent norm!`' . sm . a:vt . '`' . em . 'x'
+
+    call inputsave()
+    let cmd = input('!')
+    call inputrestore()
+    "exe "norm!gv"
+    let l:vt = getregtype('"')
+
+    let out = system(cmd, @")
+    "let out = substitute(out, '$', '', '')
+    call setreg('"', out, l:vt)
+    exe "silent norm!P"
+
+    let [&ai, &cin, &si, &inde] = [oai, ocin, osi, oinde]
+    call setreg('"', qr, qt)
 endfunction
 
 set sessionoptions=buffers,help,blank,winsize,tabpages,cursor
@@ -192,8 +259,8 @@ nnoremap <silent> <nowait> ,Z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !g
 nnoremap <silent> <nowait> ,p :%!unknown_shift extract /dev/stdin<CR><ESC><ESC>
 nnoremap <silent> <nowait> ,P :%!unknown_shift inline /dev/stdin<CR><ESC><ESC>
 
-" ,r to reload current file, hopefully resetting vim's buffer settings
-nnoremap ,r :e __nonexistantfile__ \| e <C-r>=bufname("%")<CR><CR>
+nnoremap <silent> <nowait> ,b :call PrepWindowAct()<CR>:vnew<CR>:term build.sh<CR><C-\><C-n>:call CancelWindowCommandAction()<CR>
+nnoremap <silent> <nowait> ,r :call PrepWindowAct()<CR>:vnew<CR>:term ./launch.sh inner<CR><C-\><C-n>:call CancelWindowCommandAction()<CR>i
 
 " ,n to open nerdtree
 nnoremap <silent> <nowait> ,n :NERDTree<CR>
@@ -204,17 +271,19 @@ nnoremap <silent> <nowait> ,t :call PrepWindowAct()<CR>:vnew<CR>:term<CR><C-\><C
 
 " ,g'search here'<CR> to search current git repo and paste results into
 " current file
-nnoremap ,g' :read !ggrep_ --args '
+nnoremap ,g :call ReadCmd("ggrep_ ", "", 1, 0, '')<CR>
 " ,gg'search here'<CR> to search current git repo and paste results into
 " new scratch buffer
-nnoremap <nowait> ,gg' :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:read !ggrep_ --args '
-vmap <silent> <nowait> ,gg "gy<ESC><ESC>,gg'<C-r>"'<CR><ESC><ESC>
+nnoremap <nowait> ,gg :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:call ReadCmd("ggrep_ ", "", 1, 1, '')<CR>
+vmap <silent> <nowait> ,gg "gy<ESC><ESC>:call MakeScratchWindow()<CR>:call ReadCmd("ggrep_ '", "'", 1, 0, @@)<CR><ESC><ESC>
+
 nnoremap <silent> <nowait> ,gw :call MakeScratchWindow()<CR><ESC><ESC>
 
 " nnoremap ,ban :vnew<CR>:term ./gradlew --daemon installDebug<SPACE>
 
 if exists(':tnoremap')
-    tnoremap <silent> <nowait> <ESC><ESC> <C-\><C-n>G:call search(".", "b")<CR>$
+    "tnoremap <silent> <nowait> <ESC><ESC> <C-\><C-n>G:call search(".", "b")<CR>$
+    tnoremap <silent> <nowait> <C-W> <C-\><C-n><C-w>
 endif
 
 " ,m to join lines
@@ -238,7 +307,7 @@ noremap <silent> <nowait> L l
 "
 "cnoremap <ESC> <ESC>q:
 nnoremap q: :
-set cedit=<ESC>
+set cedit=<S-Tab>
 
 " --- ctrlp config
 " this commented out code doesn't work, but it seems like it should...
@@ -426,6 +495,12 @@ set breakindent
 set breakindentopt=min:30,shift:4
 set linebreak
 
+"function! MapWinCmd()
+"    nnoremap ,w qW:call nnoremap ,w
+"endfunction
+"call MapWinCmd
+"
+"nnoremap ,W 
 
 nnoremap <C-i> :CtrlPChange<CR>
 nnoremap <C-I> :CtrlPChangeAll<CR>
