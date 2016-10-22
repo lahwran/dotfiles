@@ -1,7 +1,8 @@
 #!/usr/bin/python
+import sys
+sys.stderr = sys.stdout
 import subprocess
 import argparse
-import sys
 import pipes
 parser = argparse.ArgumentParser(prefix_chars="-")
 parser.add_argument("--args", dest="ignored", action="store_true")
@@ -21,7 +22,7 @@ print "####", "Grep for %r" % args.args[0]
 if len(args.args[1:]):
     print "####", "in %r" % args.args[1:]
 cmd = ["git", "grep"]
-special = [ "-E"]
+special = [ "-P"]
 if args.c:
     special.extend(["-C", args.c])
     print "####", "with", args.c, "context"

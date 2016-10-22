@@ -668,7 +668,7 @@ _optional_modules = [
 ]
 
 @contextlib.contextmanager
-def _mute_fd(fdnum):
+def _mute_stderr():
     "Context manager that mutes file descriptor 2"
     if not _debug:
         #print("muting fd 2 (this was written to sys.stderr)", file=sys.stderr)
@@ -688,6 +688,44 @@ def _mute_fd(fdnum):
         os.dup2(p, fdnum)
         os.close(q)
         sys.stderr = os.fdopen(fdnum, "w")
+        #print("unmuting fd 2 (this was written to fd sys.stderr)", file=sys.stderr)
+        #os.write(2, "unmuting fd 2 (this was written to fd 2)\n")
+
+@contextlib.contextmanager
+def _mute_all():
+    "Context manager that mutes file descriptor 2"
+    fdnum2 = sys.stderr.fileno()
+    fdnum1 = sys.stdout.fileno()
+    if not _debug:
+        #print("muting fd 2 (this was written to sys.stderr)", file=sys.stderr)
+        #os.write(2, "muting fd 2 (this was written to fd 2)\n")
+        p = os.dup(fdnum2)
+        q = os.open("/dev/null", os.O_WRONLY)
+        os.dup2(q, fdnum2)
+        sys.stderr = os.fdopen(p, "w")
+        if fdnum2 != fdnum1:
+            w = os.dup(fdnum1)
+            v = os.open("/dev/null", os.O_WRONLY)
+            os.dup2(v, fdnum1)
+        else:
+            sys.stdout = sys.stderr
+        #print("just muted fd 2 (this was written to sys.stderr)", file=sys.stderr)
+        #os.write(2, "just muted fd 2 (this was written to fd 2)\n")
+
+    yield
+
+    if not _debug:
+        #print("about to unmute fd 2 (this was written to sys.stderr)", file=sys.stderr)
+        #os.write(2, "about to unmute fd 2 (this was written to fd 2)\n")
+        os.dup2(p, fdnum2)
+        os.close(q)
+        sys.stderr = os.fdopen(fdnum2, "w")
+        if fdnum1 != fdnum2:
+            os.dup2(w, fdnum1)
+            os.close(v)
+            sys.stdout = os.fdopen(fdnum1, "w")
+        else:
+            sys.stdout = sys.stderr
         #print("unmuting fd 2 (this was written to fd sys.stderr)", file=sys.stderr)
         #os.write(2, "unmuting fd 2 (this was written to fd 2)\n")
 
@@ -729,22 +767,22 @@ def _add_modules(globbles, strings):
             globbles["terminal"] = terminal
 
     # force non-short-circuit evaluation
-    a = _wanted("session", "pre-initialized tensorflow session")
-    a = _wanted("sess", "pre-initialized tensorflow session") or a
-    a = _wanted("s", "pre-initialized tensorflow session") or a
-    a = _wanted("tf", "tensorflow module short-name") or a
-    a = _wanted("tensorflow", "tensorflow") or a
-    if a:
-        with _mute_fd(2):
-            tf = _import("tensorflow")
-            if tf and "session" not in globbles:
-                session = tf.InteractiveSession()
-                globbles["session"] = session
-                globbles["sess"] = session
-                globbles["s"] = session
-                globbles["tensorflow"] = tf
-                globbles["tf"] = tf
-                _reset_vars()
+    #a = _wanted("session", "pre-initialized tensorflow session")
+    #a = _wanted("sess", "pre-initialized tensorflow session") or a
+    #a = _wanted("s", "pre-initialized tensorflow session") or a
+    #a = _wanted("tf", "tensorflow module short-name") or a
+    #a = _wanted("tensorflow", "tensorflow") or a
+    #if a:
+    #    with _mute_all():
+    #        tf = _import("tensorflow")
+    #        if tf and "session" not in globbles:
+    #            session = tf.InteractiveSession()
+    #            globbles["session"] = session
+    #            globbles["sess"] = session
+    #            globbles["s"] = session
+    #            globbles["tensorflow"] = tf
+    #            globbles["tf"] = tf
+    #            _reset_vars()
 
     if _wanted("np", "numpy module short-name"):
         numpy = _import("numpy")
@@ -787,7 +825,8 @@ del _itertool_func
 _blacklist = [
     "_chunks_guard",
     "_available_names",
-    "_mute_fd",
+    "_mute_stderr",
+    "_mute_all",
     "_debug",
     "interactive",
     "_format_var",
