@@ -63,12 +63,44 @@ set backspace=indent,eol,start " defaults to eol,start iirc
 set number
 
 " highlight the current line on the current window with underline
-autocmd VimEnter * set cul
 augroup BgHighlight
     autocmd!
-    autocmd WinEnter * set cul
-    autocmd WinLeave * set nocul
 augroup END
+
+
+nnoremap <nowait> <silent> 0gt :tabfirst \| tabN \| tabN \| tabN \| tabN \| tabN<CR>
+nnoremap <nowait> <silent> 1gt :tabfirst \| tabN \| tabN \| tabN \| tabN<CR>
+nnoremap <nowait> <silent> 2gt :tabfirst \| tabN \| tabN \| tabN<CR>
+nnoremap <nowait> <silent> 3gt :tabfirst \| tabN \| tabN<CR>
+nnoremap <nowait> <silent> 4gt :tabfirst \| tabN<CR>
+nnoremap <nowait> <silent> 5gt :tabfirst <CR>
+nnoremap <nowait> <silent> 6gt :tabfirst \| tabn <CR>
+nnoremap <nowait> <silent> 7gt :tabfirst \| tabn \| tabn <CR>
+nnoremap <nowait> <silent> 8gt :tabfirst \| tabn \| tabn \| tabn <CR>
+nnoremap <nowait> <silent> 9gt :tabfirst \| tabn \| tabn \| tabn \| tabn <CR>
+nmap <silent> g0t 0gt
+nmap <silent> g1t 1gt
+nmap <silent> g2t 2gt
+nmap <silent> g3t 3gt
+nmap <silent> g4t 4gt
+nmap <silent> g5t 5gt
+nmap <silent> g6t 6gt
+nmap <silent> g7t 7gt
+nmap <silent> g8t 8gt
+nmap <silent> g9t 9gt
+nmap <silent> gt0 0gt
+nmap <silent> gt1 1gt
+nmap <silent> gt2 2gt
+nmap <silent> gt3 3gt
+nmap <silent> gt4 4gt
+nmap <silent> gt5 5gt
+nmap <silent> gt6 6gt
+nmap <silent> gt7 7gt
+nmap <silent> gt8 8gt
+nmap <silent> gt9 9gt
+nmap <silent> gT 1gt
+
+"nnoremap <silent> gt1
 
 set history=10000 " increase history 'cause I like lots of it
 
@@ -217,13 +249,17 @@ function! ProgramFilter(vt, ...)
     call inputsave()
     let cmd = input('!')
     call inputrestore()
-    "exe "norm!gv"
-    let l:vt = getregtype('"')
 
-    let out = system(cmd, @")
-    "let out = substitute(out, '$', '', '')
-    call setreg('"', out, l:vt)
-    exe "silent norm!P"
+    if empty(cmd)
+        exe "silent norm!P"
+    else
+        let l:vt = getregtype('"')
+
+        let out = system(cmd, @")
+        "let out = substitute(out, '$', '', '')
+        call setreg('"', out, l:vt)
+        exe "silent norm!P"
+    endif
 
     let [&ai, &cin, &si, &inde] = [oai, ocin, osi, oinde]
     call setreg('"', qr, qt)
@@ -472,7 +508,7 @@ augroup checktime
         autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * if expand('%') !=# '[Command Line]' | checktime | endif
     endif
 augroup END
-nnoremap <F5> :GundoToggle<CR>
+nnoremap U :GundoToggle<CR>
 
 autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * if expand('%') ==# '[Command Line]' | nmap <silent> <nowait> <buffer> <CR> <D-A-C-S-CR> | nmap <silent> <nowait> <buffer> <ESC> <D-A-C-S-ESC> | endif
 
