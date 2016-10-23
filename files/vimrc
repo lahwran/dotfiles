@@ -249,10 +249,10 @@ endfunction
 nnoremap <silent> <nowait> ,c :call ReadCmd('','',0,0,'')<CR>
 nnoremap <silent> <nowait> ,C :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:call ReadCmd("", "", 1, 1, '')<CR>
 
-augroup fixjumps
-    autocmd!
-    autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * noremap <nowait> [ { | noremap <nowait> { [ | noremap <nowait> ] } | noremap <nowait> } ]
-augroup END
+"augroup fixjumps
+"    autocmd!
+"    autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * noremap <nowait> [ { | noremap <nowait> { [ | noremap <nowait> ] } | noremap <nowait> } ]
+"augroup END
 
 nnoremap <silent> ! :set opfunc=ProgramFilter<cr>g@
 vnoremap <silent> ! :<c-u>call ProgramFilter(visualmode(), 1)<cr>
@@ -529,7 +529,7 @@ augroup checktime
     if !has("gui_running")
         "silent! necessary otherwise throws errors when using command
         "line window.
-        autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * if expand('%') !=# '[Command Line]' | bufdo checktime | endif
+	autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * if expand('%') !=# '[Command Line]' | checktime | endif
     endif
 augroup END
 nnoremap U :GundoToggle<CR>
