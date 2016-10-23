@@ -35,6 +35,7 @@ if has("autocmd")
 
 endif
 
+set virtualedit=onemore
 
 set shada='10000,f1,<2500,@100000,/100000,h
 " this also from byron's
