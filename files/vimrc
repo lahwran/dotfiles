@@ -572,6 +572,7 @@ set linebreak
 nnoremap <C-i> :CtrlPChange<CR>
 nnoremap <C-I> :CtrlPChangeAll<CR>
 let g:ctrlp_cmd = 'CtrlPMixed'
+nnoremap <nowait> <silent> M `
 
 set sidescrolloff=8
 
