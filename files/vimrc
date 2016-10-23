@@ -254,8 +254,8 @@ nnoremap <silent> <nowait> ,C :call PrepWindowAct()<CR>:call MakeScratchWindow()
 "    autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * map <nowait> [ { | noremap <nowait> { [ | noremap <nowait> ] } | noremap <nowait> } ]
 "augroup END
 
-nnoremap <silent> ! :set opfunc=ProgramFilter<cr>g@
-vnoremap <silent> ! :<c-u>call ProgramFilter(visualmode(), 1)<cr>
+nnoremap <nowait> <silent> ! :set opfunc=ProgramFilter<cr>g@
+vnoremap <nowait> <silent> ! :<c-u>call ProgramFilter(visualmode(), 1)<cr>
 function! ProgramFilter(vt, ...)
     let [qr, qt] = [getreg('"'), getregtype('"')]
     let [oai, ocin, osi, oinde] = [&ai, &cin, &si, &inde]
@@ -366,7 +366,7 @@ noremap <silent> <nowait> L l
 "nnoremap ? q?i
 "
 "cnoremap <ESC> <ESC>q:
-nnoremap q: :
+nnoremap <nowait> q: :
 set cedit=<S-Tab>
 
 " --- ctrlp config
@@ -504,10 +504,10 @@ let racer_open_cmd="vnew"
 
 
 "vnoremap ,y I\|        \|          \|        \| <ESC><ESC>R\| yum do \| yum done \| useful \|<ESC><ESC>
-vnoremap ,Y 0I\|          \|            \|        \| <ESC><ESC>R\| exciting \| satisfying \| useful \| thing<ESC><ESC>O<CR><ESC>0i exciting: yummy to do<CR><ESC>0i satisfying: yummy to have out of the way<CR><ESC>0i useful: useful to have done<CR><ESC>0i scale: YES!!/yes/ish/no/NO!<CR><ESC><ESC>0jjl
-vnoremap ,y 0I\|          \|            \|        \| <ESC><ESC>R\| exciting \| satisfying \| useful \| thing<ESC><ESC>0jl
+vnoremap <nowait> ,Y 0I\|          \|            \|        \| <ESC><ESC>R\| exciting \| satisfying \| useful \| thing<ESC><ESC>O<CR><ESC>0i exciting: yummy to do<CR><ESC>0i satisfying: yummy to have out of the way<CR><ESC>0i useful: useful to have done<CR><ESC>0i scale: YES!!/yes/ish/no/NO!<CR><ESC><ESC>0jjl
+vnoremap <nowait> ,y 0I\|          \|            \|        \| <ESC><ESC>R\| exciting \| satisfying \| useful \| thing<ESC><ESC>0jl
 
-nnoremap ; :
+nnoremap <nowait> ; :
 
 augroup AutoSwap
 	autocmd!
