@@ -346,6 +346,10 @@ noremap <silent> <nowait> J j
 noremap <silent> <nowait> K k
 noremap <silent> <nowait> H h
 noremap <silent> <nowait> L l
+"noremap <silent> <nowait> <C-j> j
+"noremap <silent> <nowait> <C-k> k
+"noremap <silent> <nowait> <C-h> h
+"noremap <silent> <nowait> <C-l> l
 
 "unmap :
 "nnoremap : q:i
