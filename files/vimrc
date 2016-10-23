@@ -35,6 +35,8 @@ if has("autocmd")
 
 endif
 
+
+set shada='10000,f1,<2500,@100000,/100000,h
 " this also from byron's
 " jumps between screen lines by default, rather than logical lines
 map <silent> <nowait>     j gj
