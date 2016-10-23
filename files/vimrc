@@ -88,16 +88,16 @@ nmap <silent> g6t 6gt
 nmap <silent> g7t 7gt
 nmap <silent> g8t 8gt
 nmap <silent> g9t 9gt
-nmap <silent> gt0 0gt
-nmap <silent> gt1 1gt
-nmap <silent> gt2 2gt
-nmap <silent> gt3 3gt
-nmap <silent> gt4 4gt
-nmap <silent> gt5 5gt
-nmap <silent> gt6 6gt
-nmap <silent> gt7 7gt
-nmap <silent> gt8 8gt
-nmap <silent> gt9 9gt
+nmap <silent> <nowait> gt0 0gt
+nmap <silent> <nowait> gt1 1gt
+nmap <silent> <nowait> gt2 2gt
+nmap <silent> <nowait> gt3 3gt
+nmap <silent> <nowait> gt4 4gt
+nmap <silent> <nowait> gt5 5gt
+nmap <silent> <nowait> gt6 6gt
+nmap <silent> <nowait> gt7 7gt
+nmap <silent> <nowait> gt8 8gt
+nmap <silent> <nowait> gt9 9gt
 nmap <silent> gT 1gt
 
 "nnoremap <silent> gt1
