@@ -88,6 +88,7 @@ nmap <silent> g6t 6gt
 nmap <silent> g7t 7gt
 nmap <silent> g8t 8gt
 nmap <silent> g9t 9gt
+nmap <silent> <nowait> gtt 5gt
 nmap <silent> <nowait> gt0 0gt
 nmap <silent> <nowait> gt1 1gt
 nmap <silent> <nowait> gt2 2gt
@@ -98,7 +99,9 @@ nmap <silent> <nowait> gt6 6gt
 nmap <silent> <nowait> gt7 7gt
 nmap <silent> <nowait> gt8 8gt
 nmap <silent> <nowait> gt9 9gt
-nmap <silent> gT 1gt
+nmap <silent> <nowait> gTT 6gt
+nnoremap <silent> gt :echom "use gt5 to go to the main tab"<CR>
+nmap <silent> gT gt
 
 "nnoremap <silent> gt1
 
