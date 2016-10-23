@@ -251,7 +251,7 @@ nnoremap <silent> <nowait> ,C :call PrepWindowAct()<CR>:call MakeScratchWindow()
 
 "augroup fixjumps
 "    autocmd!
-"    autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * noremap <nowait> [ { | noremap <nowait> { [ | noremap <nowait> ] } | noremap <nowait> } ]
+"    autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * map <nowait> [ { | noremap <nowait> { [ | noremap <nowait> ] } | noremap <nowait> } ]
 "augroup END
 
 nnoremap <silent> ! :set opfunc=ProgramFilter<cr>g@
