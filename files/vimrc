@@ -39,8 +39,12 @@ endif
 " jumps between screen lines by default, rather than logical lines
 map <silent> <nowait>     j gj
 map <silent> <nowait>     k gk
+map <silent> <nowait>     0 g0
+map <silent> <nowait>     $ g$
 ounmap  j
 ounmap  k
+ounmap  0
+ounmap  $
 
 filetype plugin on
 filetype indent on
