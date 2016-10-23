@@ -249,12 +249,16 @@ endfunction
 nnoremap <silent> <nowait> ,c :call ReadCmd('','',0,0,'')<CR>
 nnoremap <silent> <nowait> ,C :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:call ReadCmd("", "", 1, 1, '')<CR>
 
+noremap <nowait> [ {
+noremap <nowait> { [
+noremap <nowait> ] }
+noremap <nowait> } ]
 augroup fixjumps
     autocmd!
-    autocmd BufEnter,FocusGained,BufEnter,FocusLost,WinLeave * noremap <nowait> [ {
-    autocmd BufEnter,FocusGained,BufEnter,FocusLost,WinLeave * noremap <nowait> { [
-    autocmd BufEnter,FocusGained,BufEnter,FocusLost,WinLeave * noremap <nowait> ] }
-    autocmd BufEnter,FocusGained,BufEnter,FocusLost,WinLeave * noremap <nowait> } ]
+    autocmd BufEnter,FocusGained,BufEnter,FocusLost,WinLeave * noremap <buffer> <nowait> [ {
+    autocmd BufEnter,FocusGained,BufEnter,FocusLost,WinLeave * noremap <buffer> <nowait> { [
+    autocmd BufEnter,FocusGained,BufEnter,FocusLost,WinLeave * noremap <buffer> <nowait> ] }
+    autocmd BufEnter,FocusGained,BufEnter,FocusLost,WinLeave * noremap <buffer> <nowait> } ]
 augroup END
 
 nnoremap <nowait> <silent> ! :set opfunc=ProgramFilter<cr>g@
