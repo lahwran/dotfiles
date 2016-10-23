@@ -88,7 +88,6 @@ nmap <silent> g6t 6gt
 nmap <silent> g7t 7gt
 nmap <silent> g8t 8gt
 nmap <silent> g9t 9gt
-nmap <silent> <nowait> gtt 5gt
 nmap <silent> <nowait> gt0 0gt
 nmap <silent> <nowait> gt1 1gt
 nmap <silent> <nowait> gt2 2gt
@@ -99,7 +98,16 @@ nmap <silent> <nowait> gt6 6gt
 nmap <silent> <nowait> gt7 7gt
 nmap <silent> <nowait> gt8 8gt
 nmap <silent> <nowait> gt9 9gt
-nmap <silent> <nowait> gTT 6gt
+nmap <silent> <nowait> gt<TAB> 0gt
+nmap <silent> <nowait> gtq 1gt
+nmap <silent> <nowait> gtw 2gt
+nmap <silent> <nowait> gte 3gt
+nmap <silent> <nowait> gtr 4gt
+nmap <silent> <nowait> gtt 5gt
+nmap <silent> <nowait> gty 6gt
+nmap <silent> <nowait> gtu 7gt
+nmap <silent> <nowait> gti 8gt
+nmap <silent> <nowait> gto 9gt
 nnoremap <silent> gt :echom "use gt5 to go to the main tab"<CR>
 nmap <silent> gT gt
 
@@ -544,6 +552,8 @@ set linebreak
 nnoremap <C-i> :CtrlPChange<CR>
 nnoremap <C-I> :CtrlPChangeAll<CR>
 let g:ctrlp_cmd = 'CtrlPMixed'
+
+set sidescrolloff=8
 
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.
