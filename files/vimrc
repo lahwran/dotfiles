@@ -92,7 +92,6 @@ nnoremap <nowait> <silent> 6gt :tabfirst \| tabn <CR>
 nnoremap <nowait> <silent> 7gt :tabfirst \| tabn \| tabn <CR>
 nnoremap <nowait> <silent> 8gt :tabfirst \| tabn \| tabn \| tabn <CR>
 nnoremap <nowait> <silent> 9gt :tabfirst \| tabn \| tabn \| tabn \| tabn <CR>
-nmap <silent> <nowait> gt<TAB> 0gt
 nmap <silent> <nowait> gtq 1gt
 nmap <silent> <nowait> gtw 2gt
 nmap <silent> <nowait> gte 3gt
