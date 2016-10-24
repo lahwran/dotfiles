@@ -75,6 +75,8 @@ augroup BgHighlight
 augroup END
 
 nnoremap <nowait> <C-W>_\| <C-W>_<C-W>\|
+nnoremap <nowait> <C-W>- <C-W>10-
+nnoremap <nowait> <C-W>+ <C-W>10+
 
 nnoremap <nowait> <silent> 0gt :tabfirst \| tabN \| tabN \| tabN \| tabN \| tabN<CR>
 nnoremap <nowait> <silent> 1gt :tabfirst \| tabN \| tabN \| tabN \| tabN<CR>
