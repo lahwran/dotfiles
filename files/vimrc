@@ -40,10 +40,11 @@ set virtualedit=onemore
 set shada='10000,f1,<2500,@100000,/100000,h
 " this also from byron's
 " jumps between screen lines by default, rather than logical lines
-map <silent> <nowait>     j gj
-map <silent> <nowait>     k gk
-map <silent> <nowait>     0 g0
-map <silent> <nowait>     $ g$
+noremap <silent> <nowait> <D-A-C-S-u> <nop>
+map <silent> <nowait> j gj<D-A-C-S-u>
+map <silent> <nowait> k gk<D-A-C-S-u>
+map <silent> <nowait> 0 g0<D-A-C-S-u>
+map <silent> <nowait> $ g$<D-A-C-S-u>
 ounmap  j
 ounmap  k
 ounmap  0
@@ -81,7 +82,7 @@ nnoremap <nowait> <C-W>+ <C-W>10+
 nmap <nowait> <C-_>\| <C-W>_\|
 nmap <nowait> <C--> <C-W>-
 
-nnoremap <nowait> <silent> 0gt :tabfirst \| tabN \| tabN \| tabN \| tabN \| tabN<CR>
+nnoremap <nowait> <silent> gt<TAB> :tabfirst \| tabN \| tabN \| tabN \| tabN \| tabN<CR>
 nnoremap <nowait> <silent> 1gt :tabfirst \| tabN \| tabN \| tabN \| tabN<CR>
 nnoremap <nowait> <silent> 2gt :tabfirst \| tabN \| tabN \| tabN<CR>
 nnoremap <nowait> <silent> 3gt :tabfirst \| tabN \| tabN<CR>
@@ -91,26 +92,6 @@ nnoremap <nowait> <silent> 6gt :tabfirst \| tabn <CR>
 nnoremap <nowait> <silent> 7gt :tabfirst \| tabn \| tabn <CR>
 nnoremap <nowait> <silent> 8gt :tabfirst \| tabn \| tabn \| tabn <CR>
 nnoremap <nowait> <silent> 9gt :tabfirst \| tabn \| tabn \| tabn \| tabn <CR>
-nmap <silent> g0t 0gt
-nmap <silent> g1t 1gt
-nmap <silent> g2t 2gt
-nmap <silent> g3t 3gt
-nmap <silent> g4t 4gt
-nmap <silent> g5t 5gt
-nmap <silent> g6t 6gt
-nmap <silent> g7t 7gt
-nmap <silent> g8t 8gt
-nmap <silent> g9t 9gt
-nmap <silent> <nowait> gt0 0gt
-nmap <silent> <nowait> gt1 1gt
-nmap <silent> <nowait> gt2 2gt
-nmap <silent> <nowait> gt3 3gt
-nmap <silent> <nowait> gt4 4gt
-nmap <silent> <nowait> gt5 5gt
-nmap <silent> <nowait> gt6 6gt
-nmap <silent> <nowait> gt7 7gt
-nmap <silent> <nowait> gt8 8gt
-nmap <silent> <nowait> gt9 9gt
 nmap <silent> <nowait> gt<TAB> 0gt
 nmap <silent> <nowait> gtq 1gt
 nmap <silent> <nowait> gtw 2gt
