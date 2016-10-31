@@ -1,5 +1,3 @@
-set nocompatible
-
 " this if block from https://bitbucket.org/byronclark/settings
 if has("autocmd")
     " remove any previous autocmd settings
@@ -345,7 +343,7 @@ endif
 nnoremap <silent> <nowait> ,m :join<CR>
 augroup fixgui
     au!
-	autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * normal "\<c-v>"
+	autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * echo localtime() | echo "hello" | echo "hello, ".localtime()
 augroup END
 
 
