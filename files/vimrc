@@ -343,8 +343,9 @@ endif
 nnoremap <silent> <nowait> ,m :join<CR>
 augroup fixgui
     au!
-	autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * exe "normal! <c-l>"
 augroup END
+
+command! S augroup fixgui \| au! \| autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * exe "normal! \<c-l>" \| augroup END
 
 
 " I often typo :q as :Q, but want it to do the same thing; similarly with
