@@ -118,6 +118,7 @@ set incsearch  " start searching before you hit enter
 "fold based on indent
 set foldmethod=indent
 set foldnestmax=100
+set showcmd
 
 highlight Folded ctermbg=none ctermfg=green cterm=none
 set foldcolumn=0 " no fold indicator column next to line numbers
