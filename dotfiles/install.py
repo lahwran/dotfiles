@@ -419,6 +419,8 @@ def main(mode="user", *args):
         os_specific.install_packages_user(os_dependencies)
     elif mode == "user":
         user_install(*args)
+    elif mode == "fake":
+        logger.warn("ON REQUEST, NOT ACTUALLY RUNNING INSTALL. please verify that only config files were changed.")
     else:
         logger.error("mode must be one of 'superuser', 'init', 'user': %s", mode)
     if os.path.exists(path(".do_sync")):

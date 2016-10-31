@@ -345,7 +345,19 @@ augroup fixgui
     au!
 augroup END
 
-command! S augroup fixgui \| au! \| autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * exe "normal! \<c-l>" \| augroup END
+function! Slow()
+    augroup fixgui
+        au!
+        autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * exe "normal! \<c-l>"
+    augroup END
+endfunction
+function! Fast()
+    augroup fixgui
+        au!
+    augroup END
+endfunction
+command! S call Slow()
+command! F call Fast()
 
 
 " I often typo :q as :Q, but want it to do the same thing; similarly with
