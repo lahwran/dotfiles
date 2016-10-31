@@ -334,7 +334,7 @@ nnoremap <silent> <nowait> ,gw :call MakeScratchWindow()<CR><ESC><ESC>
 if exists(':tnoremap')
     set breakindent
     set breakindentopt=min:30,shift:4
-    set shada='10000,f1,<2500,@100000,/100000,h
+    set shada='10000000,f1,<25000,@10000000,:10000000,/10000000,h,s100000
     "tnoremap <silent> <nowait> <ESC><ESC> <C-\><C-n>G:call search(".", "b")<CR>$
     tnoremap <silent> <nowait> <C-W> <C-\><C-n><C-w>
 endif
