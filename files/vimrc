@@ -37,7 +37,6 @@ endif
 
 set virtualedit=onemore
 
-set shada='10000,f1,<2500,@100000,/100000,h
 " this also from byron's
 " jumps between screen lines by default, rather than logical lines
 noremap <silent> <nowait> <D-A-C-S-u> <nop>
@@ -335,6 +334,9 @@ nnoremap <silent> <nowait> ,gw :call MakeScratchWindow()<CR><ESC><ESC>
 " nnoremap ,ban :vnew<CR>:term ./gradlew --daemon installDebug<SPACE>
 
 if exists(':tnoremap')
+    set breakindent
+    set breakindentopt=min:30,shift:4
+    set shada='10000,f1,<2500,@100000,/100000,h
     "tnoremap <silent> <nowait> <ESC><ESC> <C-\><C-n>G:call search(".", "b")<CR>$
     tnoremap <silent> <nowait> <C-W> <C-\><C-n><C-w>
 endif
@@ -548,8 +550,6 @@ set nolazyredraw                  " don't update screen inside macros, etc
 
 set wrap
 set showbreak=...\ 
-set breakindent
-set breakindentopt=min:30,shift:4
 set linebreak
 
 "function! MapWinCmd()
