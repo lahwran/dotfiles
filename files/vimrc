@@ -343,7 +343,7 @@ endif
 nnoremap <silent> <nowait> ,m :join<CR>
 augroup fixgui
     au!
-	autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * echo localtime() | echo "hello" | echo "hello, ".localtime()
+	autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * exe "normal! <c-l>"
 augroup END
 
 
