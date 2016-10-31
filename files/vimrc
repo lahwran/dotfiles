@@ -343,6 +343,11 @@ endif
 
 " ,m to join lines
 nnoremap <silent> <nowait> ,m :join<CR>
+augroup fixgui
+    au!
+	autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * normal "\<c-v>"
+augroup END
+
 
 " I often typo :q as :Q, but want it to do the same thing; similarly with
 " HJKL. this hides some features - I don't use them, but if you do, this may
