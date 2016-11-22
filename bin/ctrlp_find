@@ -1,7 +1,5 @@
 #!/bin/bash
 
-touch /tmp/derplol
-
 MYPATH="$1"
 export PATH="$(dirname $0):$PATH"
 
