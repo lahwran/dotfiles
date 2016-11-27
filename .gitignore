@@ -4,3 +4,4 @@
 *.sw*
 WARNING_GIT_OUT_OF_SYNC
 .do_sync
+*.egg-info

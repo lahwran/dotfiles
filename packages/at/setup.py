@@ -13,8 +13,13 @@ setup(
     license = "MIT",
     keywords = "example documentation tutorial",
     url = "http://packages.python.org/an_example_pypi_project",
-    packages=['an_example_pypi_project', 'tests'],
-    long_description=read('README'),
+    packages=['at'],
+    long_description=read('readme.md'),
+    entry_points={
+        'console_scripts': [
+            '@ = at:_main'
+        ],
+    },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
