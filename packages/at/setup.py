@@ -1,9 +1,6 @@
 import os
 from setuptools import setup
 
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
-
 setup(
     name = "at",
     version = "0.0.1",
@@ -14,7 +11,7 @@ setup(
     keywords = "utility",
     url = "https://github.com/lahwran/dotfiles/tree/master/packages/at",
     packages=['at'],
-    long_description=read('readme.md'),
+    long_description="",
     entry_points={
         'console_scripts': [
             '@ = at:_main'
