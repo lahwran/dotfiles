@@ -407,7 +407,7 @@ let g:ctrlp_prompt_mappings = {
             \ 'AcceptSelection("e")': ['<c-v>'],
             \ 'ToggleMRURelative()': ['<F2>']
             \ }
-let g:ctrlp_user_command = '/home/lahwran/dotfiles/bin/ctrlp_find %s'
+let g:ctrlp_user_command = '~/dotfiles/bin/ctrlp_find %s'
 
 set titlestring=%{expand(\"%:p:h\")}/%t%(\ %a%)\ -\ %{$USER}@%{hostname()}\ -\ vim
 
