@@ -586,6 +586,9 @@ let g:ctrlp_cmd = 'CtrlPMixed'
 
 set sidescrolloff=8
 
+inoremap <c-z> <esc><esc><c-z>
+inoremap <c-w> <esc><esc><c-w>
+
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.
 noh
