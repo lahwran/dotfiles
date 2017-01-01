@@ -22,7 +22,7 @@ print "####", "Grep for %r" % args.args[0]
 if len(args.args[1:]):
     print "####", "in %r" % args.args[1:]
 cmd = ["git", "grep"]
-special = [ "-P"]
+special = ["-P"]
 if args.c:
     special.extend(["-C", args.c])
     print "####", "with", args.c, "context"
@@ -49,10 +49,14 @@ output = process.communicate()
 if not args.r:
     # not in raw mode, fancify it
     lastpath = None
-    for line in output[0].split("\n"):
+    for line in output[0].replace("\r\n", "\n").split("\n"):
         if not line.strip():
             continue
-        path, colon, match = line.partition(":")
+        if "-" in line and (not ":" in line or line.index("-") < line.index(":")):
+            path, colon, match = line.partition("-")
+        else:
+            path, colon, match = line.partition(":")
+
         if path != lastpath:
             lastpath = path
             print

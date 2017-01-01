@@ -247,8 +247,8 @@ def user_install():
         wrap_process.call("python", ["python", path("get-pip.py"), "--user"])
     # install pip packages
     logger.info("Installing pip packages...")
-    for dep in pip_dependencies:
-        wrap_process.call("pip", ["pip", "install", "--user", dep])
+    wrap_process.call("pip", ["pip", "install", "--user"] + pip_dependencies)
+    wrap_process.call("pip", ["pip", "install", "--user", "--editable", path("packages/at/")])
 
     logger = logging.getLogger("u")
     logger.info("Doing user install...")

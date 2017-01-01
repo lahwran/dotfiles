@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # python 2 only, adjust path (or port, I'd love you) as needed
-# *not* /usr/bin/env python
 # run @ --help for (a little) more information
 # MIT licensed.
 """\
@@ -64,10 +63,6 @@ another great one:
 
 from __future__ import print_function
 
-import re
-import itertools
-import time
-import os
 import sys
 import codecs
 import ast
@@ -163,6 +158,7 @@ def chunks(generator, size, pad=_chunks_guard):
     chunks(generator, size, pad=<no pad>) - Yield size chunks from generator.
     fills the last one with pad if provided.
     """
+    import itertools
     q = itertools.izip_longest(*[iter(generator)]*size, fillvalue=pad)
     return ([a for a in b if a is not _chunks_guard] for b in q)
 
@@ -179,6 +175,7 @@ def delays(delta, iterable=None):
     else:
         deltafunc = delta
     for x in iterable:
+        import time
         time.sleep(float(deltafunc()))
         yield x
 
@@ -259,7 +256,7 @@ read_for = readfor
 read_until = readfor
 
 
-def shell(name):
+def shell(name="detect"):
     if name == "detect":
         try:
             import ptpython
@@ -670,6 +667,7 @@ _optional_modules = [
 @contextlib.contextmanager
 def _mute_stderr():
     "Context manager that mutes file descriptor 2"
+    import os
     if not _debug:
         #print("muting fd 2 (this was written to sys.stderr)", file=sys.stderr)
         #os.write(2, "muting fd 2 (this was written to fd 2)\n")
@@ -694,6 +692,7 @@ def _mute_stderr():
 @contextlib.contextmanager
 def _mute_all():
     "Context manager that mutes file descriptor 2"
+    import os
     fdnum2 = sys.stderr.fileno()
     fdnum1 = sys.stdout.fileno()
     if not _debug:
@@ -752,6 +751,7 @@ def _add_modules(globbles, strings):
         # repetitions of the module name...
 
         mod_re = "(?<!\w)(MODULE_NAME)(?!\w)".replace("MODULE_NAME", _mod)
+        import re
         return _mod not in globbles and any(re.search(mod_re, _s) for _s in strings)
 
     for _mod in _optional_modules:
@@ -823,6 +823,7 @@ for _itertool_func in _itertools_values:
 del _itertool_func
 
 _blacklist = [
+    "_parse_args",
     "_chunks_guard",
     "_available_names",
     "_mute_stderr",
@@ -1032,6 +1033,7 @@ def show(x, all=False):
 
 
 def _variables(g, oldglobals, quick=False):
+    import os
     def f(d, blist):
         return "\n".join(
             _format_var(name, value)
@@ -1106,6 +1108,7 @@ def _variables(g, oldglobals, quick=False):
 
 
 def _add_environment_vars(glob, outer_dir):
+    import os
     original_globals = dict(glob)
 
     overlap = set(original_globals) & set(os.environ)
@@ -1221,23 +1224,18 @@ def run(statements, expression, run_globals):
         return succeed
 
 
-if __name__ == "__main__":
-    _debuffer()
-
-    _statements, _string, interactive, _shouldprint, _debug, print = _parse_args()
-    del _parse_args
+def _run(_statements, _string, interactive, _shouldprint, _debug, print):
+    import os
     sys.path.append(os.path.abspath("."))
-
-    _add_modules(globals(), _statements + [_string])
-
-    
-    all_variables = _LazyString(lambda: _variables(run_globals, old_globals))
-    variables = _LazyString(lambda: _variables(run_globals, old_globals, quick=True))
-
-    run_globals = dict(globals())
-    _add_environment_vars(run_globals, dir())
     old_globals = dict(globals())
 
+    old_globals["all_variables"] = _LazyString(lambda: _variables(run_globals, old_globals))
+    old_globals["variables"] = _LazyString(lambda: _variables(run_globals, old_globals, quick=True))
+
+
+    _add_modules(old_globals, _statements + [_string])
+    run_globals = dict(old_globals)
+    _add_environment_vars(run_globals, list(old_globals.keys()))
 
     if _string.strip() or _statements:
         try:
@@ -1251,5 +1249,14 @@ if __name__ == "__main__":
 
     if interactive:
         interactive(run_globals)
-    
+
+
+def _main():
+    global print
+    _debuffer()
+    _statements, _string, interactive, _shouldprint, _debug, print = _parse_args()
+    _run(_statements, _string, interactive, _shouldprint, _debug, print)
+
+if __name__ == "__main__":
+    _main()
 
