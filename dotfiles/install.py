@@ -319,6 +319,7 @@ def user_install():
     install_file("submodules/syntastic/", "~/.vim/bundle/syntastic/")
     install_file("submodules/YouCompleteMe/", "~/.vim/bundle/YouCompleteMe/")
     install_file("submodules/gundo/", "~/.vim/bundle/gundo/")
+    install_file("submodules/vim-multiple-cursors/", "~/.vim/bundle/vim-multiple-cursors/")
 
     install_file("files/tmux.conf", "~/.tmux.conf")
 

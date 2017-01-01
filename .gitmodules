@@ -43,3 +43,6 @@
 [submodule "submodules/gundo"]
 	path = submodules/gundo
 	url = http://github.com/sjl/gundo.vim.git
+[submodule "submodules/vim-multiple-cursors"]
+	path = submodules/vim-multiple-cursors
+	url = https://github.com/terryma/vim-multiple-cursors

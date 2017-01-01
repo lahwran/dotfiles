@@ -997,7 +997,7 @@ def _format_var(name, value, f=None):
         simpledesc = "module"
     elif type(value) == type(str.join):
         simpledesc = "method"
-    elif type(value) == type("".join) or type(value) == type(object().__str__) or type(value) == type(variables.__str__):
+    elif type(value) == type("".join) or type(value) == type(object().__str__) or type(value) == type(bytes.__str__):
         simpledesc = "bound method"
     elif type(value) == str or type(value) == unicode:
         simpledesc = repr(value)
@@ -1123,7 +1123,7 @@ def _add_environment_vars(glob, outer_dir):
     glob.update(original_globals)
 
 
-def run(statements, expression, run_globals):
+def run(statements, expression, run_globals, _shouldprint):
     try:
         for statement in statements:
             exec statement in run_globals
@@ -1239,7 +1239,7 @@ def _run(_statements, _string, interactive, _shouldprint, _debug, print):
 
     if _string.strip() or _statements:
         try:
-            result = run(_statements, _string, run_globals)
+            result = run(_statements, _string, run_globals, _shouldprint)
         except SystemExit:
             if not interactive:
                 raise
