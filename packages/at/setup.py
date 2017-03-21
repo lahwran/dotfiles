@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name = "at",
-    version = "0.0.2",
+    version = "0.0.3",
     author = "lahwran",
     author_email = "lahwran0@gmail.com",
     description = "A set of utilities I use frequently in interactive environments",
