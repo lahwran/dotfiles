@@ -19599,9 +19599,9 @@
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>155 594 592 584 0 0 1920 1178 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>0 8 1914 1169 0 0 1920 1177 </string>
+	<string>434 328 850 849 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
-	<string>0 8 1914 1169 0 0 1920 1177 </string>
+	<string>995 28 850 849 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
 	<string>1270 500 1340 849 0 0 2560 1417 </string>
 	<key>NSWindow Frame iTerm Window 3</key>
@@ -21361,7 +21361,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2017-03-07T23:24:30Z</date>
+	<date>2017-03-30T20:34:59Z</date>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>Secure Input</key>
@@ -21422,5 +21422,7 @@
 	<integer>0</integer>
 	<key>kCPKSelectionViewShowHSBTextFieldsKey</key>
 	<false/>
+	<key>moveToApplicationsFolderAlertSuppress</key>
+	<true/>
 </dict>
 </plist>
