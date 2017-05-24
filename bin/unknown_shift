@@ -50,6 +50,8 @@ if __name__ == "__main__":
         is_ref = bool(match.group(3))
         ref = int(match.group(3)) if is_ref else None
         text = match.group(4)
+        if is_q and not text.strip():
+            text = "<error: empty>"
         if not is_q and not is_ref and not ref and not text.strip():
             depth = lastdepth
             text = text.strip()
@@ -114,7 +116,7 @@ if __name__ == "__main__":
                             filtered = [[dd + depth, iq, False, None, tx] for dd, iq, ir, rr, tx in a[ref-1]]
                         except:
                             import pprint
-                            pprint.pprint([a, ref])
+                            pprint.pprint([a, ref, block, b])
                             raise
                         a[ref-1] = None
                         filtered[0][1] = True
