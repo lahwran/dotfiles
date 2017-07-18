@@ -154,7 +154,7 @@ nnoremap <silent> <nowait> <F4> :set mouse=<CR>
 " horribly prominent so I can actually tell what's what
 highlight MatchParen cterm=NONE ctermbg=black ctermfg=darkblue
 
-highlight StatusLine ctermfg=blue
+highlight StatusLine cterm=bold ctermfg=blue
 
 " this goes with my terminal colors better (I use a simple version of
 " solarized - no weird app customization, just terminal colors)
@@ -571,6 +571,7 @@ set nolazyredraw                  " don't update screen inside macros, etc
 set wrap
 set showbreak=...\ 
 set linebreak
+
 
 "function! MapWinCmd()
 "    nnoremap ,w qW:call nnoremap ,w
