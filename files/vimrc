@@ -154,7 +154,7 @@ nnoremap <silent> <nowait> <F4> :set mouse=<CR>
 " horribly prominent so I can actually tell what's what
 highlight MatchParen cterm=NONE ctermbg=black ctermfg=darkblue
 
-highlight StatusLine ctermfg=blue
+highlight StatusLine cterm=bold ctermfg=blue
 
 " this goes with my terminal colors better (I use a simple version of
 " solarized - no weird app customization, just terminal colors)
@@ -562,8 +562,8 @@ autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.md set filetype=markdown
 autocmd BufNewFile,BufFilePre,BufRead,BufWritePost * if &filetype == "" | set ft=markdown | endif
 autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.plans.md set filetype=plansmd
 autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.cuh,*.cu set filetype=cpp syntax=nested_py_cuda_cpp
-autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.h,*.hpp,*.hxx,*.hh set filetype=cpp syntax=nested_py_cpp
-autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.c,*.cpp,*.cxx,*.cc set filetype=cpp syntax=nested_py_cpp
+autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.h,*.hpp,*.hxx,*.hh set filetype=cpp syntax=cpp
+autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.c,*.cpp,*.cxx,*.cc set filetype=cpp syntax=cpp
 autocmd FileType cpp setlocal nosmarttab shiftwidth=4 tabstop=4 noexpandtab
 autocmd FileType c setlocal nosmarttab shiftwidth=4 tabstop=4 noexpandtab
 autocmd FileType cuda setlocal nosmarttab shiftwidth=4 tabstop=4 noexpandtab
@@ -574,6 +574,7 @@ set nolazyredraw                  " don't update screen inside macros, etc
 set wrap
 set showbreak=...\ 
 set linebreak
+
 
 "function! MapWinCmd()
 "    nnoremap ,w qW:call nnoremap ,w
