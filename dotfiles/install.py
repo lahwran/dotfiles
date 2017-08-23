@@ -281,7 +281,6 @@ def user_install():
             before=True)
     install_file("files/vimrc", "~/.vimrc_global")
     install_file("files/vimrc_newsession", "~/.vimrc_newsession")
-    install_file("files/plansmd.vim", "~/.vim/syntax/plansmd.vim")
 
     install_text("~/.bashrc", "DOTFILES_DIR=%s" % (quote(path(".")),),
             prev_existance=False, before=True)
@@ -324,6 +323,8 @@ def user_install():
     install_file("files/tmux.conf", "~/.tmux.conf")
 
     install_file("files/gitignore", "~/.gitignore")
+    for filename in os.listdir(path("files/syntax/")):
+        install_file("files/syntax/"+filename, "~/.vim/syntax/"+filename)
 
 
     # git configuration

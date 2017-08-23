@@ -202,6 +202,7 @@ if [[ $- == *i* ]]; then
     fi
 
     export PYTHONIOENCODING="utf-8"
+    set -o ignoreeof
 fi
 
 # ~/.local/bin is where pip puts --user installed commands on mac. I think

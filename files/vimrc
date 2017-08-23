@@ -340,6 +340,9 @@ if exists(':tnoremap')
     set shada='10000000,f1,<25000,@10000000,:10000000,/10000000,h,s100000
     "tnoremap <silent> <nowait> <ESC><ESC> <C-\><C-n>G:call search(".", "b")<CR>$
     tnoremap <silent> <nowait> <C-W> <C-\><C-n><C-w>
+    nnoremap <c-z> <nop>
+    inoremap <c-z> <nop>
+    vnoremap <c-z> <nop>
 endif
 
 " ,m to join lines
@@ -588,6 +591,16 @@ set sidescrolloff=8
 
 inoremap <c-z> <esc><esc><c-z>
 inoremap <c-w> <esc><esc><c-w>
+
+augroup AutoDiffUpdate 
+  au! 
+  autocmd InsertLeave * if &diff | diffupdate | let b:old_changedtick = b:changedtick | endif 
+  autocmd CursorHold * 
+        \ if &diff && 
+        \    (!exists('b:old_changedtick') || b:old_changedtick != b:changedtick) | 
+        \   let b:old_changedtick = b:changedtick | diffupdate | 
+        \ endif 
+augroup END 
 
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.
