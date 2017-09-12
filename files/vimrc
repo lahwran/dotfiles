@@ -1,3 +1,4 @@
+set enc=utf-8
 " this if block from https://bitbucket.org/byronclark/settings
 if has("autocmd")
     " remove any previous autocmd settings
@@ -130,7 +131,7 @@ function! MyFoldText()
     let text = indenttext . foldtext() 
     return text
 endfunction
-set fillchars="fold:"
+set fillchars=vert:\│,fold:\ 
 highlight Folded ctermbg=none
 
 if has("syntax")
@@ -153,8 +154,9 @@ nnoremap <silent> <nowait> <F4> :set mouse=<CR>
 " color the normally confusing paren-highlight to a color that isn't too
 " horribly prominent so I can actually tell what's what
 highlight MatchParen cterm=NONE ctermbg=black ctermfg=darkblue
-
-highlight StatusLine cterm=bold ctermfg=blue
+highlight StatusLineNC cterm=underline
+highlight VertSplit cterm=NONE ctermfg=darkgrey ctermbg=none
+highlight StatusLine cterm=underline ctermfg=blue
 
 " this goes with my terminal colors better (I use a simple version of
 " solarized - no weird app customization, just terminal colors)
@@ -474,8 +476,8 @@ let g:gitgutter_eager = 0
 let g:gitgutter_diff_args = '--patience'
 set updatetime=1000
 
-set colorcolumn=80
-highlight ColorColumn ctermbg=0
+set colorcolumn=
+highlight ColorColumn ctermfg=none ctermbg=None
 
 let java_space_errors = 1
 
@@ -602,6 +604,49 @@ augroup AutoDiffUpdate
         \   let b:old_changedtick = b:changedtick | diffupdate | 
         \ endif 
 augroup END 
+
+highlight SearchCurrent ctermbg=green ctermfg=darkgray cterm=NONE
+highlight Search ctermbg=blue ctermfg=black
+fun! SearchHighlight()
+    silent! call matchdelete(b:ring)
+    let b:ring = matchadd('SearchCurrent', '\c\%#' . @/, 101)
+endfun
+
+fun! SearchNext()
+    try
+        execute 'normal! ' . 'Nn'[v:searchforward]
+    catch /E385:/
+        echohl ErrorMsg | echo "E385: search hit BOTTOM without match for: " . @/ | echohl None
+    catch /E486:/
+        echohl ErrorMsg | echo "E486: pattern not found: " . @/ | echohl None
+    endtry
+    call SearchHighlight()
+endfun
+
+fun! SearchPrev()
+    try
+        execute 'normal! ' . 'nN'[v:searchforward]
+    catch /E384:/
+        echohl ErrorMsg | echo "E384: search hit TOP without match for: " . @/ | echohl None
+    catch /E486:/
+        echohl ErrorMsg | echo "E486: pattern not found: " . @/ | echohl None
+    endtry
+    call SearchHighlight()
+endfun
+
+fun! OnSearch()
+    set hlsearch
+    call SearchHighlight()
+endfun
+
+" Highlight entry
+nnoremap <silent> n :call SearchNext()<CR>
+nnoremap <silent> N :call SearchPrev()<CR>
+nnoremap <silent> # #:call OnSearch()<CR>
+nnoremap <silent> * *:call OnSearch()<CR>
+
+" Use <C-L> to clear some highlighting
+nnoremap <silent> <C-L> :silent! call matchdelete(b:ring)<CR>:nohlsearch<CR>:set nolist nospell<CR><C-L>
 
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.
