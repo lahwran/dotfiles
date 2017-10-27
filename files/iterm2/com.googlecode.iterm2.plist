@@ -19599,11 +19599,11 @@
 	<key>NSWindow Frame SessionsPreferences</key>
 	<string>269 139 606 456 0 0 1920 1177 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>949 224 918 381 0 0 1920 1177 </string>
+	<string>949 316 918 381 0 0 1920 1177 </string>
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>155 594 592 584 0 0 1920 1178 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>0 28 1920 1149 0 0 1920 1177 </string>
+	<string>600 55 850 827 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>995 12 850 851 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
@@ -19965,7 +19965,7 @@
 			<key>Log Directory</key>
 			<string></string>
 			<key>Minimum Contrast</key>
-			<real>0.16940103471279144</real>
+			<real>0.18018030686469017</real>
 			<key>Mouse Reporting</key>
 			<true/>
 			<key>Name</key>
@@ -21080,7 +21080,7 @@
 			<key>Log Directory</key>
 			<string></string>
 			<key>Minimum Contrast</key>
-			<real>0.33887954905063289</real>
+			<real>1</real>
 			<key>Mouse Reporting</key>
 			<true/>
 			<key>Name</key>
@@ -21373,7 +21373,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2017-08-17T21:34:27Z</date>
+	<date>2017-10-27T08:13:59Z</date>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>Secure Input</key>
