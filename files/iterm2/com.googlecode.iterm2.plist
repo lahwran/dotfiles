@@ -19599,11 +19599,11 @@
 	<key>NSWindow Frame SessionsPreferences</key>
 	<string>269 139 606 456 0 0 1920 1177 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>949 316 918 381 0 0 1920 1177 </string>
+	<string>949 408 918 381 0 0 1920 1177 </string>
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>155 594 592 584 0 0 1920 1178 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>600 55 850 827 0 0 1920 1177 </string>
+	<string>922 149 850 827 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>995 12 850 851 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
@@ -21080,7 +21080,7 @@
 			<key>Log Directory</key>
 			<string></string>
 			<key>Minimum Contrast</key>
-			<real>1</real>
+			<real>0.20240803006329114</real>
 			<key>Mouse Reporting</key>
 			<true/>
 			<key>Name</key>
