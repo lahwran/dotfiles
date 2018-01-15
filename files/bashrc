@@ -13,7 +13,7 @@ shopt -s histappend
 export HISTSIZE=10000000000000
 export HISTFILESIZE=10000000000000
 if [ -e ~/.bash_history ] && ! [ -e ~/.bash_eternal_history ]; then
-    mv ~/.bash_history ~/.bash_eternal_history
+    cp ~/.bash_history ~/.bash_eternal_history
 fi
 export HISTFILE=~/.bash_eternal_history
 export HISTIGNORE=""
