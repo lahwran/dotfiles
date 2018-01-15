@@ -282,13 +282,14 @@ def user_install():
     install_file("files/vimrc", "~/.vimrc_global")
     install_file("files/vimrc_newsession", "~/.vimrc_newsession")
 
-    install_text("~/.bashrc", "trap '' INT TSTP" % (quote(path(".")),),
     install_text("~/.bashrc", "DOTFILES_DIR=%s" % (quote(path(".")),),
             prev_existance=False, before=True)
+    install_text("~/.bashrc", "trap '' INT TSTP", before=True)
     hostname = socket.gethostname().partition(".")[0]
     install_text("~/.bashrc", host_colors(hostname), before=True)
     install_text("~/.bashrc", "source ~/.bashrc_global")
     install_text("~/.bashrc", 'PATH="%s:$PATH"\n' % (path("bin/"),))
+    install_text("~/.bashrc", "trap - INT TSTP")
     install_file("files/bashrc", "~/.bashrc_global")
     delete_text("~/.bashrc",
         "# enable programmable completion features (you don't need to enable",
