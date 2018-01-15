@@ -282,6 +282,7 @@ def user_install():
     install_file("files/vimrc", "~/.vimrc_global")
     install_file("files/vimrc_newsession", "~/.vimrc_newsession")
 
+    install_text("~/.bashrc", "trap '' INT TSTP" % (quote(path(".")),),
     install_text("~/.bashrc", "DOTFILES_DIR=%s" % (quote(path(".")),),
             prev_existance=False, before=True)
     hostname = socket.gethostname().partition(".")[0]
