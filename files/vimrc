@@ -402,7 +402,8 @@ set cedit=<S-Tab>
 set wildignore+=*.pyc,*.so,.git,.hg,htmlcov,__pycache__,.*.sw*
 let g:ctrlp_open_multiple_files='v'
 let g:ctrlp_open_new_file='v'
-let g:ctrlp_working_path_mode = 'ra'
+"let g:ctrlp_working_path_mode = 'ra'
+let g:ctrlp_working_path_mode = 0
 let g:ctrlp_lazy_update=50
 let g:ctrlp_follow_symlinks=1
 let g:ctrlp_max_files = 0
@@ -559,6 +560,8 @@ nnoremap U :GundoToggle<CR>
 
 autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * if expand('%') ==# '[Command Line]' | nmap <silent> <nowait> <buffer> <CR> <D-A-C-S-CR> | nmap <silent> <nowait> <buffer> <ESC> <D-A-C-S-ESC> | endif
 
+autocmd FileType html setlocal shiftwidth=2 tabstop=2
+autocmd FileType ruby setlocal shiftwidth=2 tabstop=2
 
 autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.md set filetype=markdown
 autocmd BufNewFile,BufFilePre,BufRead,BufWritePost * if &filetype == "" | set ft=markdown | endif

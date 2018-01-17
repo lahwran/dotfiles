@@ -71,6 +71,10 @@ if [ "$NVIM_LISTEN_ADDRESS" != "" ]; then
         vimcd_ "$@"
         cd "$@"
     }
+else
+    function vimcd {
+        cd "$@"
+    }
 fi
 
 # set color prompt
@@ -195,9 +199,9 @@ if [[ $- == *i* ]]; then
         echo -n "loading completion... "
         . /etc/bash_completion
         echo "done"
-    elif [ -f $(brew --prefix)/etc/bash_completion ]; then
+    elif [ -f /usr/local/etc/bash_completion ]; then
         echo -n "loading completion... "
-        . $(brew --prefix)/etc/bash_completion
+        . /usr/local/etc/bash_completion
         echo "done"
     fi
 
