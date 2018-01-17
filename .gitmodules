@@ -46,3 +46,6 @@
 [submodule "submodules/vim-multiple-cursors"]
 	path = submodules/vim-multiple-cursors
 	url = https://github.com/terryma/vim-multiple-cursors
+[submodule "submodules/vim-jsx"]
+	path = submodules/vim-jsx
+	url = https://github.com/mxw/vim-jsx

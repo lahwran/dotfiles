@@ -288,6 +288,10 @@ def user_install():
     install_text("~/.bashrc", host_colors(hostname), before=True)
     install_text("~/.bashrc", "source ~/.bashrc_global")
     install_text("~/.bashrc", 'PATH="%s:$PATH"\n' % (path("bin/"),))
+    install_text("~/.bashrc", "trap '' INT TSTP", before=True)
+    install_text("~/.bashrc", "trap - INT TSTP")
+    install_text("~/.profile", "trap '' INT TSTP", before=True)
+    install_text("~/.profile", "trap - INT TSTP")
     install_file("files/bashrc", "~/.bashrc_global")
     delete_text("~/.bashrc",
         "# enable programmable completion features (you don't need to enable",
@@ -319,6 +323,7 @@ def user_install():
     install_file("submodules/YouCompleteMe/", "~/.vim/bundle/YouCompleteMe/")
     install_file("submodules/gundo/", "~/.vim/bundle/gundo/")
     install_file("submodules/vim-multiple-cursors/", "~/.vim/bundle/vim-multiple-cursors/")
+    install_file("submodules/vim-jsx/", "~/.vim/bundle/vim-jsx/")
 
     install_file("files/tmux.conf", "~/.tmux.conf")
 

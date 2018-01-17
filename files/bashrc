@@ -10,10 +10,14 @@ BASHRC_GLOBAL_WAS_RUN=yes
 # that automatically eventually, but watch out for failed bash
 # startups.
 shopt -s histappend
-HISTSIZE=10000000000000
-HISTFILESIZE=10000000000000
-HISTIGNORE=""
-HISTCONTROL=""
+export HISTSIZE=10000000000000
+export HISTFILESIZE=10000000000000
+if [ -e ~/.bash_history ] && ! [ -e ~/.bash_eternal_history ]; then
+    cp ~/.bash_history ~/.bash_eternal_history
+fi
+export HISTFILE=~/.bash_eternal_history
+export HISTIGNORE=""
+export HISTCONTROL=""
 export HISTTIMEFORMAT="%y-%m-%d %T "
 
 #   END history warning

@@ -651,6 +651,9 @@ nnoremap <silent> * *:call OnSearch()<CR>
 " Use <C-L> to clear some highlighting
 nnoremap <silent> <C-L> :silent! call matchdelete(b:ring)<CR>:nohlsearch<CR>:set nolist nospell<CR><C-L>
 
+let g:jsx_ext_required = 0
+
+
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.
 noh
