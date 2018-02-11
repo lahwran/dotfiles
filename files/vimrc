@@ -164,7 +164,7 @@ hi Search cterm=NONE ctermfg=grey ctermbg=darkblue
 hi Visual cterm=NONE ctermfg=black ctermbg=darkyellow
 
 " fix for vim oddness with multi-character actions
-set timeout timeoutlen=1000 ttimeoutlen=100
+set timeout timeoutlen=1000 ttimeoutlen=0
 
 " keep visual selection highlighted when indenting/deindenting
 vnoremap <silent> <nowait> < <gv

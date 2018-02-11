@@ -218,6 +218,11 @@ fi
 pathprepend "$HOME/.local/bin"
 pathprepend "$DOTFILES_DIR/bin"
 
+function bash_shortcuts() {
+    MANWIDTH=150 command man -P cat bash | col -b | @ 'l=list(lines);  start,end=[index for index, line in enumerate(l) if "Commands for Moving" in line or line.endswith("Programmable Completion")]; qq=[line.replace("\t", " "*8)[3:] for line in l[start:end]]; sections = [(index, label) for index, label in enumerate(qq) if len(label.strip()) and label[0] != " "] + [(len(qq), u"")]; f="Sections (usage: bash_shortcuts <section search>): \n" + "\n".join("    {}".format(label.strip()) for index, label in sections if label); sec = ([index for index, sect in enumerate(sections[:-1]) if section_search.strip().lower().replace(" ", "") in sect[1].lower().replace(" ", "")] + [0])[0]; start,end = [sections[idx][0] for idx in [sec, sec+1]]; "{}\n\n{}".format("\n".join(qq[start:end]), f)' -v section_search="$*"
+    #MANWIDTH=150 command man -P cat bash | col -b | @ 'l=list(lines);  start,end=[index for index, line in enumerate(l) if "Commands for Moving" in line or line.endswith("Programmable Completion")]; "".join(line + "\n" for line in l[start:end]) '
+}
+
 function timestamped () {
     @ '"%s - %s" % (terminal.bold(str(datetime.datetime.now())), line)' -plu
 }
