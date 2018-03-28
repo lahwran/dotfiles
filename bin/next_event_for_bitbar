@@ -1,0 +1,192 @@
+#!/usr/bin/python
+
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import math
+import sys
+import time
+import os
+import functools
+import hashlib
+import json
+import hsluv
+import re
+import subprocess
+import errno
+import datetime
+# /usr/local/bin/icalBuddy -n -li 1 -nrd -df 'DATE BEGIN %y-%m-%d DATE END' -tf 'TIME BEGIN %H:%M:%S TIME END' eventsToday+10
+
+now = datetime.datetime.now()
+
+def c(*args): return hsluv.hsluv_to_hex(args)
+cachefile = "/tmp/derp_caches.json"
+def cachefile_temp():
+    return cachefile + "_o"
+try:
+    with open(cachefile, "r") as reader:
+        caches = json.load(reader)
+except IOError as e:
+    if e.errno == errno.ENOENT:
+        caches = {}
+    else:
+        raise
+cacheables = []
+
+def asdf(): pass
+
+class Cacheable(object):
+    def __init__(self, expires, key, value):
+        self.orig_key = key
+        self.orig_expires = expires
+        self.orig_value = value
+
+        self.key = key
+        self.value = value
+        self.expires = expires
+        cacheables.append(self)
+
+    @property
+    def changed(self):
+        same = self.orig_key == self.key and self.orig_expires == self.expires and self.orig_value == self.value
+        return not same
+
+    @property
+    def entry(self):
+        e = self.expires
+        if type(e) == datetime.datetime:
+            e = astimestamp(e)
+        return {"expires": e, "result": self.value}
+
+def astimestamp(d):
+    return time.mktime(d.timetuple())
+
+def cache(*args_f, **kwargs_f):
+    def cache(func):
+        @functools.wraps(func)
+        def wrap(*args, **kwargs):
+            key = hashlib.sha256(json.dumps((args, kwargs))).hexdigest()
+            now_ts = astimestamp(now)
+            cached = caches.get(key)
+            if kwargs_f.get("enabled", True) and cached is not None and (not cached.get("expires") or cached["expires"] > now_ts):
+                #if cached.get("expires"):
+                #    sys.stderr.write("CACHE READ, expires in: %s\n" % datetime.timedelta(seconds=cached["expires"]-now))
+                #else:
+                #    sys.stderr.write("CACHE READ, no expiry\n")
+                result = cached["result"]
+                return Cacheable(cached.get("expires") or None, key, result), result
+            result = func(*args, **kwargs)
+            return Cacheable(None, key, result), result
+        return wrap
+    if len(args_f) == 1 and len(kwargs_f) == 0:
+        return cache(args_f[0])
+    else:
+        return cache
+
+@cache
+def get():
+    return subprocess.check_output(['/usr/local/bin/icalBuddy', '-n', '-li', '1', '-nrd', '-df', 'DATE BEGIN %y-%m-%d DATE END', '-tf', 'TIME BEGIN %H:%M:%S TIME END', 'eventsToday+10']).decode("utf-8")
+
+def quant(x, step):
+    return float(round(x/float(step))) * step
+def grey(mag):
+    return "#" + ord(255*mag).encode("hex")*3
+def lerp(x, y, a):
+    return y*a + x*(1-a)
+def bitline(line, **kwargs):
+    line = re.sub("\|", "\u2758", line).strip()
+    return "|".join([line] + ["%s=%s" % (k,v) for k,v in kwargs.items()])
+def get_extracts():
+    cacheable, output = get()
+    date = re.search("DATE BEGIN ([^D]+) DATE END", output)
+    times = re.findall("TIME BEGIN ([^T]+) TIME END", output)
+    firstline = output.replace("\r", "").split("\n")[0]
+    return firstline, date.group(1), times, cacheable, output
+
+def deltafmt(timedelta):
+    seconds = abs(timedelta.total_seconds())
+    minutes = seconds/60.0
+    hours = minutes/60.0
+    modulo_minutes = minutes % 60.0
+    minutes_5 = quant(minutes, 5)
+    minutes_15 = quant(minutes,15)
+    modulo_minutes_15 = quant(modulo_minutes, 15)
+
+    if seconds < 60:
+        s = "%d seconds" % seconds
+        color = c(0,100,73)
+    elif minutes < 3:
+        s = "%d minutes %02d seconds" % (math.ceil(minutes), seconds % 60)
+        color = c(20,100,73)
+    elif minutes < 15:
+        s = "%d minutes" % minutes
+        color = c(60,80,73)
+    elif minutes < 60:
+        s = "~%dm" % minutes_5
+        color = c(90,100,40)
+    else:
+        if hours < 3 and modulo_minutes_15 < 60 and modulo_minutes_15 != 0:
+            s = "%dh ~%dm" % (hours, modulo_minutes_15)
+        else:
+            s = "~%dh" % hours
+        distance = 1.0-1.0/hours
+        color = c(lerp(90, 135, distance),lerp(100,32,distance),lerp(40,90.6,distance))
+    return s, color
+
+def format_line(firstline):
+    name = firstline[2:]
+    name = re.sub("\([^)]+\)", "", name).strip()
+    maxlen = 40
+    if len(name) > maxlen:
+        name = name[:maxlen-2] + "..."
+    return name
+
+def main():
+    firstline, date, times, cacheable, output = get_extracts()
+    d1 = datetime.datetime.strptime(date + " " + times[0], "%y-%m-%d %H:%M:%S")
+    d2 = datetime.datetime.strptime(date + " " + times[1], "%y-%m-%d %H:%M:%S")
+
+    name = format_line(firstline)
+
+    suffix = [
+        "---",
+    ] + [bitline(line, href="https://calendar.google.com/calendar/r") for line in output.split("\n")]
+
+    if d2 < now:
+        if cacheable.expires is None:
+            cacheable.expires = now - datetime.timedelta(seconds=10)
+        return [
+            bitline("(Got event in past)"),
+        ]
+    elif d1 < now:
+        s, color = deltafmt(d2 - now)
+        if cacheable.expires is None:
+            cacheable.expires = min(d2, now + datetime.timedelta(minutes=2))
+        return [
+            bitline("%s ends in %s" % (name, s), color=color),
+        ] + suffix
+    if cacheable.expires is None:
+        cacheable.expires = min(d1, now + datetime.timedelta(minutes=2))
+
+    s, color = deltafmt(d1 - now)
+
+    return [
+        bitline("%s in %s" % (name, s), color=color),
+    ] + suffix
+
+if __name__ == "__main__":
+    for line in main():
+        print(line.encode("utf-8"))
+    caches_changed = False
+    for cacheable in cacheables:
+        if cacheable.key not in caches or cacheable.changed:
+            caches_changed = True
+            caches[cacheable.key] = cacheable.entry
+    if caches_changed:
+        print("CACHE UPDATE")
+        temp = cachefile_temp()
+        with open(temp, "w") as writer:
+            json.dump(caches, writer )
+        os.rename(temp, cachefile)
+
+    #print datetime.datetime.now()

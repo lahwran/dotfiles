@@ -49,3 +49,6 @@
 [submodule "submodules/vim-jsx"]
 	path = submodules/vim-jsx
 	url = https://github.com/mxw/vim-jsx
+[submodule "submodules/vim-auto-save"]
+	path = submodules/vim-auto-save
+	url = https://github.com/907th/vim-auto-save.git

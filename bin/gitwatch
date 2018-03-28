@@ -1,0 +1,89 @@
+#!/usr/bin/python
+
+from tempfile import mkdtemp
+import sys
+import argparse
+import subprocess
+import time
+import os
+import blessed
+import datetime
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--interval", "-i", required=False, default=2.0, type=float, help="number of seconds to sleep between updates")
+parser.add_argument("--timing", "-t", action="store_true", help="calculate timing, store in each commit (as a result, only stores on changes)")
+parser.add_argument("--include-msgs", "-m", action="store_true", help="include msgs in committed file")
+parser.add_argument("args", nargs=argparse.REMAINDER, help="program args")
+args = parser.parse_args()
+term = blessed.Terminal()
+
+d = mkdtemp()
+
+orig_cwd = os.getcwd()
+os.chdir(d)
+gmsg = ("Git dir: %s" % d)
+print gmsg
+filename = filename = os.path.join(d, "output")
+subprocess.check_output(["git", "init"], stderr=subprocess.STDOUT)
+first_iter = True
+try:
+    with term.fullscreen():
+        sys.stdout.write(term.clear + term.move(0,0) + gmsg)
+        info_lines = 1
+        while True:
+            firstline = None
+            messages = []
+            start = datetime.datetime.now()
+            try:
+                output = subprocess.check_output(" ".join(args.args), shell=True, stderr=subprocess.STDOUT, cwd=orig_cwd)
+                firstline = "no error"
+            except subprocess.CalledProcessError as e:
+                output = e.output or ""
+                firstline = "exited with code %d" % e.returncode
+            end = datetime.datetime.now()
+            duration = None
+            if args.timing:
+                duration = str(end-start)
+                messages.append("Ran in %s" % duration)
+            if messages:
+                msgs = "\n\n"+"\n".join(messages)
+                msgs_resplit = msgs.split("\n")
+            else:
+                msgs = ""
+                msgs_resplit = []
+            max_lines = (term.height - info_lines) - len(msgs_resplit)
+            lines = term.wrap(output)
+            if len(lines) >= max_lines:
+                lines = lines[:max_lines-2]
+                lines.append("")
+                lines.append("[... continues ...]")
+            lines.extend(msgs)
+            with open(filename, "w") as writer:
+                if args.include_msgs:
+                    writer.write(output + msgs)
+                else:
+                    writer.write(output)
+                
+            if first_iter:
+                subprocess.check_output(["git", "add", filename], stderr=subprocess.STDOUT)
+                subprocess.check_output(["git", "commit", "-m", firstline + msgs], stderr=subprocess.STDOUT)
+                first_iter = False
+            else:
+                subprocess.check_output(["git", "commit", "-m", firstline + msgs, filename, "--allow-empty"], stderr=subprocess.STDOUT)
+            info = "%s" % (end.isoformat(" "),)
+            if duration:
+                info += " (" + str(duration) + ")"
+            info_len = term.length(info) + 1
+            sys.stdout.write(term.move(0,term.width - info_len)
+                    + term.clear_eos
+                    + term.move(0,term.width - info_len)
+                    + info
+                    + term.move(info_lines,0)
+                    + "\n".join(lines))
+            sys.stdout.flush()
+            time.sleep(args.interval)
+except subprocess.CalledProcessError as e:
+    print e.output
+    sys.exit(e.returncode)
+except KeyboardInterrupt:
+    print
