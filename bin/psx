@@ -1,0 +1,337 @@
+#!/usr/bin/python
+import itertools
+
+import re
+import subprocess
+import os
+import argparse
+import sys
+import time
+import blessings
+#sys.argv[1:] = ["all", "memo"]
+#sys.argv[1:] = ["all", "misc"]
+#begin = time.time()
+arg_format = None
+class arg(object):
+    def __init__(self, name, label):
+        self.name = name
+        self.label = label
+    def __str__(self):
+        return arg_format.format(name=self.name, label=self.label.replace(" ", "\xA0"))
+
+class argset(object):
+    def __init__(self, *args, **kwargs):
+        self.args = list(args)
+        self.help = kwargs["help"]
+        keywords = kwargs["keywords"]
+        if type(keywords) == type(keywords[0]):
+            keywords = (keywords,)
+        self.keywords = keywords
+
+
+
+    @property
+    def summary(self):
+        if len(self.keywords) == 1:
+            return "`{}`: {}".format(self.keywords[0], self.help)
+        else:
+            return "`{}`: {} (aliases: {})".format(self.keywords[0], self.help, ", ".join(self.keywords[1:]))
+
+
+def expand_keys(d):
+    result = {}
+    for key, value in list(process_sets.items()):
+        if type(key) != type(key[0]):
+            for subkey in key:
+                result[subkey] = value
+        else:
+            result[key] = value
+    return result
+
+process_sets = [
+    argset(
+        "-a", # other user's processes
+        "-x", # include detached processes
+        help="All user's processes, including detached",
+        keywords=("a", "all", "aux")
+    ),
+    argset(
+        "-T", # attached to the device associated with standard input
+        help="All user's processes attached to controlling terminal",
+        keywords=("term",)
+    ),
+    argset(
+        "-x", # include detached processes
+        help="My processes, including detached",
+        keywords=("me", "mine")
+    ),
+    argset(
+        "-a", # other user's processes
+        help="Other users's processes, but no daemons",
+        keywords=("attached",)
+    ),
+]
+process_sets_lookup = {}
+for p in process_sets:
+    for keyword in p.keywords:
+        process_sets_lookup[keyword] = p
+        for x in range(0, len(keyword)):
+            k = keyword[:x].upper()
+            if k in process_sets_lookup:
+                process_sets_lookup[k] = None
+                continue
+            process_sets_lookup[k] = p
+def process_set(name):
+    try:
+        return process_sets_lookup[name].args
+    except KeyError:
+        raise ValueError("no such process set")
+process_sets_help = "\n".join([(" * " if i == 0 else "   ") + p.summary for i, p in enumerate(process_sets)])+"\n\n\n"
+
+colsets = [
+    argset(
+        "-o", arg("pid", "pid"),      #process ID
+        "-o", arg("comm", "command"),     #command
+        help="Basic",
+        keywords=("basic", "default","core")
+        ),
+    argset(
+        "-o", arg("acflag", "accounting flags"),   #accounting flag (alias acflg)
+        "-o", arg("ucomm", "accounting name"),    #name to be used for accounting
+        "-o", arg("paddr", "swap addr"),    #swap address (usually zero?)
+        help="Weird, useless things",
+        keywords="useless"
+    ),
+    argset(
+        "-o", arg("%cpu", "%cpu"),     #percentage CPU usage (alias pcpu)
+        "-o", arg("time", "cpu time"),     #accumulated CPU time, user + system (alias cputime)
+        "-o", arg("utime", "user time"),    #user CPU time (alias putime)
+        help="Cpu-use information",
+        keywords=("cpu","load")
+    ),
+    argset(
+        "-o", arg("%mem", "%mem"),     #percentage memory usage (alias pmem)
+        "-o", arg("rss", "res mem kb"),      #resident set size
+        "-o", arg("vsz", "virt mem kb"),      #virtual size in Kbytes (alias vsize)
+        help="Memory information",
+        keywords=("memory","ram")
+    ),
+    argset(
+        "-o", arg("flags", "flags"),    #the process flags, in hexadecimal (alias f)
+        "-o", arg("state", "state"),    #symbolic process state (alias stat)
+        "-o", arg("sl", "sleep time"),       #sleep time (in seconds; 127 = infinity)
+        help="Signal and state info",
+        keywords=("state")
+    ),
+    argset(
+        "-o", arg("state", "Idle/Run/Sleep/sTop/Unint/Zomb; +forgrnd <hipri >overqta Arandpg Exitng Lckdpg Nlowpri Sfifopg [s]esslead Vfrksus Wswpngout Xhasdbgr"),    #symbolic process state (alias stat)
+        help="Signal and state info",
+        keywords=("state_detailed","detail_state","detailed_state")
+    ),
+    argset(
+        "-o", arg("lstart", "start"),   #time started
+        "-o", arg("etime", "elapsed"),    #elapsed running time
+        #"-o", "start",    #time started (shitty format)
+        help="Lifetime information",
+        keywords=("time", "lifetime")
+    ),
+    argset(
+        "-o", arg("jobc", "#jobc"),     #job control count
+        "-o", arg("pgid", "procgroup"),     #process group number
+        "-o", arg("ppid", "parentid"),     #parent process ID
+        "-o", arg("tpgid", "tty procgroup"),    #control terminal process group ID
+        help="Information about child/parent processes",
+        keywords=("jobs", "parents", "children", "processes", "subprocesses")
+    ),
+    argset(
+        "-o", arg("gid", "grp"),      #processes group id (alias group)
+        "-o", arg("uid", "uid"),      #effective user ID
+        "-o", arg("user", "user"),     #user name (from UID)
+        #"-o", "logname",  #login name of user who started the session (wraps for some reason)
+        #"-o", arg("ruid", "real user"),     #real user ID
+        help="User info",
+        keywords=("users", "owners")
+    ),
+    argset(
+        "-o", arg("svgid", "suid group"),    #saved gid from a setgid executable
+        "-o", arg("svuid", "suid uid"),    #saved UID from a setuid executable
+        "-o", arg("rgid", "rl grp"),     #real group ID
+        "-o", arg("ruid", "ruid"),     #real user ID
+        "-o", arg("ruser", "real user"),    #user name (from ruid)
+        help="SUID user info",
+        keywords=("real_users","real_owners","suid","sudo","switched_users","su")
+    ),
+    argset(
+        "-o", arg("inblk", "#blks read"),    #total blocks read (alias inblock)
+        "-o", arg("oublk", "#blks wrote"),    #total blocks written (alias oublock)
+        "-o", arg("msgrcv", "#msgs tx"),   #total messages received (reads from pipes/sockets)
+        "-o", arg("msgsnd", "#msgs rx"),   #total messages sent (writes on pipes/sockets)
+        help="IO information",
+        keywords=("io")
+    ),
+    argset(
+        "-o", arg("xstat", "exit/stop"),    #exit or stop status (valid only for stopped or zombie process) - not clear what this means
+        "-o", arg("sig", "pending signals"),      #pending signals (alias pending)
+        "-o", arg("sigmask", "signals masked"),  #blocked signals (alias blocked)
+        "-o", arg("p_ru", "zombie resource use"),     #resource usage (valid only for zombie)
+        help="Signal and state info",
+        keywords=("signals")
+    ),
+    argset(
+        "-o", arg("majflt", "pagefaults"),   #total page faults
+        "-o", arg("minflt", "pagereclaims"),   #total page reclaims
+        "-o", arg("nsigs", "#signals taken"),    #total signals taken (alias nsignals)
+        "-o", arg("nvcsw", "#volun. ctx switch"),    #total voluntary context switches
+        "-o", arg("nivcsw", "#involun. ctx switch"),   #total involuntary context switches
+        "-o", arg("nswap", "#swaps"),    #total swaps in/out
+        help="Misc profiling information",
+        keywords=("profiling")
+    ),
+    argset(
+        "-o", arg("lim", "mem limit"),      #memoryuse limit
+        "-o", arg("nice", "nice"),     #nice value (alias ni)
+        "-o", arg("pri", "pri"),      #scheduling priority
+        help="Priority and quota information",
+        keywords=("priority","quotas")
+    ),
+    argset(
+        "-o", arg("ktrace", "ktrace flags"),   #tracing flags
+        "-o", arg("ktracep", "ktrace vnode"),  #tracing vnode
+        "-o", arg("upr", "post-syscall priority"),      #scheduling priority on return from system call (alias usrpri)
+        "-o", arg("nwchan", "waitchan addr"),   #wait channel (as an address - usually zero?)
+        "-o", arg("re", "core resid. time"),       #core residency time (in seconds; 127 = infinity - usually zero?)
+        "-o", arg("wchan", "waitchan sym"),    #wait channel (as a symbolic name - usually zero?)
+        "-o", arg("cpu", "short-term cpu"),      #short-term CPU usage factor (for scheduling)
+        "-o", arg("tsess", "tty sess id"),    #control terminal session ID
+        "-o", arg("sess", "sess id"),     #session ID
+        help="Misc kernel stuff",
+        keywords=("kernel"),
+    ),
+    argset(
+        "-o", arg("wq", "#WQ Thrds"),       #total number of workqueue threads
+        "-o", arg("wqb", "#blck WQTs"),      #number of blocked workqueue threads
+        "-o", arg("wqr", "#run WQTs"),      #number of running workqueue threads
+        "-o", arg("wql", "#wq lim"),      #workqueue limit status (C = constrained thread limit, T = total thread limit)
+        help="Workqueue information",
+        keywords=("workqueue")
+    ),
+    argset(
+        "-o", "args",    #command and arguments
+        #"-o", "command", #command and arguments
+        "-o", "tsiz",     #text size (in Kbytes)
+        help="Information about running binary and command",
+        keywords=("binary", "executable"),
+    ),
+    argset(
+        "-o", "tdev",     #control terminal device number
+        "-o", "tty",      #full name of control terminal
+        "-o", "tt",       #control terminal name (two letter abbreviation)
+        help="Information about tty",
+        keywords=("tty", "terminal")
+    ),
+    argset(
+        help="misc",
+        keywords="misc"
+    )
+]
+dont_care = [
+]
+def colset_group(*names, **kwargs):
+    def get(n):
+        for x in colsets:
+            if n in x.keywords:
+                return x
+        assert False
+    sets = [get(n) for n in names]
+    args = list(itertools.chain.from_iterable(x.args for x in sets))
+    return argset(*args, help="Shortcut for {}".format(",".join(names)), keywords=kwargs["keywords"])
+colsets += [
+    colset_group(*(x.keywords[0] for x in colsets), keywords="everything")
+]
+colsets_lookup = {}
+for p in colsets:
+    for keyword in p.keywords:
+        colsets_lookup[keyword] = p
+        for x in range(0, len(keyword)):
+            k = keyword[:x].upper()
+            if k in colsets_lookup:
+                colsets_lookup[k] = None
+                continue
+            colsets_lookup[k] = p
+def column_set(name):
+    result = []
+    name = name.replace(","," ").lower()
+    for x in name.split():
+        x = x.strip()
+        if not x:
+            continue
+        a = colsets_lookup.get(x.lower(), None)
+        if a is None:
+            a = colsets_lookup.get(x.upper(), None)
+        if a is None:
+            raise ValueError("no such colset")
+        result.append(a)
+            
+    return result
+column_sets_help = "\n".join([(" * " if i == 0 else "   ") + p.summary for i, p in enumerate(colsets)])+"\n\n\n"
+
+cmd = "ps"
+
+
+calculation = [
+    "-S", # include exited-child cpu time in parent cpu time
+    #"-M", # print threads for each task - sets columns :<
+]
+display = [
+    "-c", # shorten command name
+]
+
+parser = argparse.ArgumentParser(formatter_class=lambda *a, **kw: argparse.RawTextHelpFormatter(*a, max_help_position=16, **kw))
+parser.add_argument("--process_set", "-p", required=False, default=process_sets[0].keywords[0],
+        metavar="procset", help="Process set. One of:\n{}".format(process_sets_help),
+        type=process_set)
+parser.add_argument("column_set", nargs="*", default=[[colsets[0]]],
+        metavar="colset", help="One or more (comma or space separated) of:\n\n{}".format(column_sets_help),
+        type=column_set)
+parser.add_argument("--search", "-s", required=False, default=None, type=re.compile, help="Search (Python regex)")
+parser.add_argument("--no-headers", "-n", action="store_true")
+parser.add_argument("--trim-headers", "-t", action="store_true")
+parser.add_argument("--order", "-o", required=False, default=None, choices=[None, "cpu", "ram", "mem"], help="Order. one of cpu, ram (alias mem)")
+orders = {
+    None: [],
+    "cpu": ["-r"],
+    "ram": ["-m"],
+    "mem": ["-m"],
+}
+
+if __name__ == "__main__":
+    args = parser.parse_args()
+    args.column_set = list(itertools.chain.from_iterable(a.args for a in itertools.chain.from_iterable(args.column_set)))
+    order = orders[args.order]
+    if args.no_headers:
+        headers = []
+        arg_format = "{name}="
+    else:
+        headers = [
+            "-h",
+        ]
+        if args.trim_headers:
+            arg_format = "{name}={label}"
+        else:
+            arg_format = "{name}=[{label}]"
+    args.column_set = [str(x) for x in args.column_set]
+
+    #end = time.time()
+    #print end-begin
+    cmdargs = [cmd] + args.process_set + calculation + display + order + args.column_set + headers
+    output = subprocess.check_output(cmdargs)
+    output = output.replace("\xA0", " ")
+    if args.search is None:
+        print output.strip()
+    else:
+        lines=output.split("\n")
+        print "\n".join(line for line in lines if args.search.match(line))
+    sys.stdout.flush()
+
+    # %cpu %mem acflag acflg args blocked caught comm command cpu cputime etime f flags gid group ignored inblk inblock jobc ktrace ktracep lim login logname lstart majflt minflt msgrcv msgsnd ni nice nivcsw nsignals nsigs nswap nvcsw nwchan oublk oublock p_ru paddr pagein
+    #pcpu pending pgid pid pmem ppid pri pstime putime re rgid rgroup rss ruid ruser sess sig sigmask sl start stat state stime svgid svuid tdev time tpgid tsess tsiz tt tty ucomm uid upr user usrpri utime vsize vsz wchan wq wqb wql wqr xstat

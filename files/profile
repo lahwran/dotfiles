@@ -10,4 +10,3 @@ fi
 # extremely restrictive default permissions for files - other users
 # can't read them at all! this causes me problems sometimes, but
 # I prefer security by default.
-umask 077

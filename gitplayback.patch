@@ -1,0 +1,44 @@
+diff --git a/Users/laurenhorne/Library/Python/2.7/lib/python/site-packages/playback/__init__.py b/Users/laurenhorne/bin/gitplaybackderp
+index 8f4b94f..525c44d 100644
+--- a/Users/laurenhorne/Library/Python/2.7/lib/python/site-packages/playback/__init__.py
++++ b/Users/laurenhorne/bin/gitplaybackderp
+@@ -17,7 +17,7 @@ def get_text(repo, sha1, file_path):
+ 
+ def get_message(repo, sha1, file_path):
+     short_sha1 = sha1[:7]
+-    author = '(%s)' % repo.git.log(sha1, n=1, format='%ae').replace(
++    author = '(%s)' % repo.git.log(sha1, n=1, format='%ae, %ad').replace(
+         '\r', '').split('\n')[0]
+     message = repo.git.log(sha1, n=1, oneline=True, color='never').replace(
+         '\r', '').split('\n')[0][8:]
+@@ -120,19 +120,20 @@ def function(window):
+         old_text = get_text(repo, *commits[position - 1]) \
+             if position - 1 >= 0 else []
+         text = get_text(repo, *commit)
+-        diff = [
+-            line for line in list(difflib.ndiff(old_text, text))
+-            if line[:2] != '? ']
++        #diff = [
++        #    line for line in list(difflib.ndiff(old_text, text))
++        #    if line[:2] != '? ']
++        diff = text#.split("\n")
+ 
+         # `row` is the line number and `line` is the line text.
+         for row, line in enumerate(diff[min(first_row, len(diff) - 1):]):
+-            code = line[:2]
+-            if code == '+ ':
+-                color = curses.color_pair(2)
+-            elif code == '- ':
+-                color = curses.color_pair(1)
+-            else:
+-                color = curses.color_pair(0)
++            #code = line[:2]
++            #if code == '+ ':
++            #    color = curses.color_pair(2)
++            #elif code == '- ':
++            #    color = curses.color_pair(1)
++            #else:
++            color = curses.color_pair(0)
+             display_line(window, row, line, color)
+         display_prompt(window, get_message(repo, *commit))
+         while time.time() < next_refresh:

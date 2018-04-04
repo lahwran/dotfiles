@@ -151,6 +151,11 @@ def pairs(iterable):
     next(b, None)
     return izip(a, b)
 
+def write(contents, value):
+    sys.stdout.write(contents)
+    sys.stdout.flush()
+    return value
+
 
 _chunks_guard = object()
 def chunks(generator, size, pad=_chunks_guard):
@@ -368,6 +373,8 @@ def _parse_args():
             help="the expression, automatically joined by space if multiple specified")
     parser.add_argument("-d", "--debug", action="store_true",
             help='print debug info for type detection')
+    parser.add_argument("-q", "--quiet", action="store_true",
+            help='quiet, eg don\'t print on ctrl+c')
             
     parser.add_argument("-i", "--interactive", action="store", default=None,
             const="detect", nargs="?",
@@ -418,7 +425,7 @@ def _parse_args():
         globals()[name] = value
 
     return (statements, string, args.interactive, args.print_each, args.debug,
-            sys.stdout.write if args.print_joined else print)
+            sys.stdout.write if args.print_joined else print, args.quiet)
 
 _available_names = set()
 _available = []
@@ -1124,7 +1131,7 @@ def _add_environment_vars(glob, outer_dir):
     glob.update(original_globals)
 
 
-def run(statements, expression, run_globals, _shouldprint):
+def run(statements, expression, run_globals, _shouldprint, _quiet):
     try:
         for statement in statements:
             exec statement in run_globals
@@ -1140,7 +1147,8 @@ def run(statements, expression, run_globals, _shouldprint):
                     run_globals["session"] = tensorflow.InteractiveSession()
                 _result = run_globals["session"].run(_result)
     except KeyboardInterrupt:
-        sys.stderr.write("@ killed (ctrl+d to close cleanly)")
+        if not _quiet:
+            sys.stderr.write("@ killed (ctrl+d to close cleanly)")
         return fail
     except BaseException as e:
         import traceback
@@ -1225,7 +1233,7 @@ def run(statements, expression, run_globals, _shouldprint):
         return succeed
 
 
-def _run(_statements, _string, interactive, _shouldprint, _debug, print):
+def _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet):
     import os
     sys.path.append(os.path.abspath("."))
     old_globals = dict(globals())
@@ -1240,7 +1248,7 @@ def _run(_statements, _string, interactive, _shouldprint, _debug, print):
 
     if _string.strip() or _statements:
         try:
-            result = run(_statements, _string, run_globals, _shouldprint)
+            result = run(_statements, _string, run_globals, _shouldprint, _quiet)
         except SystemExit:
             if not interactive:
                 raise
@@ -1255,8 +1263,8 @@ def _run(_statements, _string, interactive, _shouldprint, _debug, print):
 def _main():
     global print
     _debuffer()
-    _statements, _string, interactive, _shouldprint, _debug, print = _parse_args()
-    _run(_statements, _string, interactive, _shouldprint, _debug, print)
+    _statements, _string, interactive, _shouldprint, _debug, print, _quiet = _parse_args()
+    _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
 
 if __name__ == "__main__":
     _main()

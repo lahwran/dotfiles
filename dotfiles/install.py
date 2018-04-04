@@ -281,7 +281,6 @@ def user_install():
             before=True)
     install_file("files/vimrc", "~/.vimrc_global")
     install_file("files/vimrc_newsession", "~/.vimrc_newsession")
-    install_file("files/plansmd.vim", "~/.vim/syntax/plansmd.vim")
 
     install_text("~/.bashrc", "DOTFILES_DIR=%s" % (quote(path(".")),),
             prev_existance=False, before=True)
@@ -289,6 +288,10 @@ def user_install():
     install_text("~/.bashrc", host_colors(hostname), before=True)
     install_text("~/.bashrc", "source ~/.bashrc_global")
     install_text("~/.bashrc", 'PATH="%s:$PATH"\n' % (path("bin/"),))
+    install_text("~/.bashrc", "trap '' INT TSTP", before=True)
+    install_text("~/.bashrc", "trap - INT TSTP")
+    install_text("~/.profile", "trap '' INT TSTP", before=True)
+    install_text("~/.profile", "trap - INT TSTP")
     install_file("files/bashrc", "~/.bashrc_global")
     delete_text("~/.bashrc",
         "# enable programmable completion features (you don't need to enable",
@@ -320,10 +323,14 @@ def user_install():
     install_file("submodules/YouCompleteMe/", "~/.vim/bundle/YouCompleteMe/")
     install_file("submodules/gundo/", "~/.vim/bundle/gundo/")
     install_file("submodules/vim-multiple-cursors/", "~/.vim/bundle/vim-multiple-cursors/")
+    install_file("submodules/vim-jsx/", "~/.vim/bundle/vim-jsx/")
+    install_file("submodules/vim-auto-save/", "~/.vim/bundle/vim-auto-save/")
 
     install_file("files/tmux.conf", "~/.tmux.conf")
 
     install_file("files/gitignore", "~/.gitignore")
+    for filename in os.listdir(path("files/syntax/")):
+        install_file("files/syntax/"+filename, "~/.vim/syntax/"+filename)
 
 
     # git configuration

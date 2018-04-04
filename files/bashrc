@@ -10,10 +10,14 @@ BASHRC_GLOBAL_WAS_RUN=yes
 # that automatically eventually, but watch out for failed bash
 # startups.
 shopt -s histappend
-HISTSIZE=10000000000000
-HISTFILESIZE=10000000000000
-HISTIGNORE=""
-HISTCONTROL=""
+export HISTSIZE=10000000000000
+export HISTFILESIZE=10000000000000
+if [ -e ~/.bash_history ] && ! [ -e ~/.bash_eternal_history ]; then
+    cp ~/.bash_history ~/.bash_eternal_history
+fi
+export HISTFILE=~/.bash_eternal_history
+export HISTIGNORE=""
+export HISTCONTROL=""
 export HISTTIMEFORMAT="%y-%m-%d %T "
 
 #   END history warning
@@ -69,6 +73,10 @@ if [ "$NVIM_LISTEN_ADDRESS" != "" ]; then
     export GIT_EDITOR="nvim-inner"
     function vimcd {
         vimcd_ "$@"
+        cd "$@"
+    }
+else
+    function vimcd {
         cd "$@"
     }
 fi
@@ -137,11 +145,11 @@ case "$TERM" in
 esac
 
 # For ssh agent forwarding through tmux. Doesn't work very well :(
-if [ ! -z "$SSH_AUTH_SOCK" -a "$SSH_AUTH_SOCK" != "$HOME/.ssh/agent_sock" ] ; then
-    unlink "$HOME/.ssh/agent_sock" 2>/dev/null
-    ln -s "$SSH_AUTH_SOCK" "$HOME/.ssh/agent_sock"
-    export SSH_AUTH_SOCK="$HOME/.ssh/agent_sock"
-fi
+#if [ ! -z "$SSH_AUTH_SOCK" -a "$SSH_AUTH_SOCK" != "$HOME/.ssh/agent_sock" ] ; then
+#    unlink "$HOME/.ssh/agent_sock" 2>/dev/null
+#    ln -s "$SSH_AUTH_SOCK" "$HOME/.ssh/agent_sock"
+#    export SSH_AUTH_SOCK="$HOME/.ssh/agent_sock"
+#fi
 
 if [[ $- == *i* ]]; then
 
@@ -195,19 +203,25 @@ if [[ $- == *i* ]]; then
         echo -n "loading completion... "
         . /etc/bash_completion
         echo "done"
-    elif [ -f $(brew --prefix)/etc/bash_completion ]; then
+    elif [ -f /usr/local/etc/bash_completion ]; then
         echo -n "loading completion... "
-        . $(brew --prefix)/etc/bash_completion
+        . /usr/local/etc/bash_completion
         echo "done"
     fi
 
     export PYTHONIOENCODING="utf-8"
+    set -o ignoreeof
 fi
 
 # ~/.local/bin is where pip puts --user installed commands on mac. I think
 # it's the same on linux?
 pathprepend "$HOME/.local/bin"
 pathprepend "$DOTFILES_DIR/bin"
+
+function bash_shortcuts() {
+    MANWIDTH=150 command man -P cat bash | col -b | @ 'l=list(lines);  start,end=[index for index, line in enumerate(l) if "Commands for Moving" in line or line.endswith("Programmable Completion")]; qq=[line.replace("\t", " "*8)[3:] for line in l[start:end]]; sections = [(index, label) for index, label in enumerate(qq) if len(label.strip()) and label[0] != " "] + [(len(qq), u"")]; f="Sections (usage: bash_shortcuts <section search>): \n" + "\n".join("    {}".format(label.strip()) for index, label in sections if label); sec = ([index for index, sect in enumerate(sections[:-1]) if section_search.strip().lower().replace(" ", "") in sect[1].lower().replace(" ", "")] + [0])[0]; start,end = [sections[idx][0] for idx in [sec, sec+1]]; "{}\n\n{}".format("\n".join(qq[start:end]), f)' -v section_search="$*"
+    #MANWIDTH=150 command man -P cat bash | col -b | @ 'l=list(lines);  start,end=[index for index, line in enumerate(l) if "Commands for Moving" in line or line.endswith("Programmable Completion")]; "".join(line + "\n" for line in l[start:end]) '
+}
 
 function timestamped () {
     @ '"%s - %s" % (terminal.bold(str(datetime.datetime.now())), line)' -plu

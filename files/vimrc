@@ -1,3 +1,4 @@
+set enc=utf-8
 " this if block from https://bitbucket.org/byronclark/settings
 if has("autocmd")
     " remove any previous autocmd settings
@@ -130,7 +131,7 @@ function! MyFoldText()
     let text = indenttext . foldtext() 
     return text
 endfunction
-set fillchars="fold:"
+set fillchars=vert:\│,fold:\ 
 highlight Folded ctermbg=none
 
 if has("syntax")
@@ -153,8 +154,9 @@ nnoremap <silent> <nowait> <F4> :set mouse=<CR>
 " color the normally confusing paren-highlight to a color that isn't too
 " horribly prominent so I can actually tell what's what
 highlight MatchParen cterm=NONE ctermbg=black ctermfg=darkblue
-
-highlight StatusLine ctermfg=blue
+highlight StatusLineNC cterm=underline
+highlight VertSplit cterm=NONE ctermfg=darkgrey ctermbg=none
+highlight StatusLine cterm=underline ctermfg=blue
 
 " this goes with my terminal colors better (I use a simple version of
 " solarized - no weird app customization, just terminal colors)
@@ -162,7 +164,7 @@ hi Search cterm=NONE ctermfg=grey ctermbg=darkblue
 hi Visual cterm=NONE ctermfg=black ctermbg=darkyellow
 
 " fix for vim oddness with multi-character actions
-set timeout timeoutlen=1000 ttimeoutlen=100
+set timeout timeoutlen=1000 ttimeoutlen=0
 
 " keep visual selection highlighted when indenting/deindenting
 vnoremap <silent> <nowait> < <gv
@@ -340,6 +342,9 @@ if exists(':tnoremap')
     set shada='10000000,f1,<25000,@10000000,:10000000,/10000000,h,s100000
     "tnoremap <silent> <nowait> <ESC><ESC> <C-\><C-n>G:call search(".", "b")<CR>$
     tnoremap <silent> <nowait> <C-W> <C-\><C-n><C-w>
+    nnoremap <c-z> <nop>
+    inoremap <c-z> <nop>
+    vnoremap <c-z> <nop>
 endif
 
 " ,m to join lines
@@ -397,7 +402,8 @@ set cedit=<S-Tab>
 set wildignore+=*.pyc,*.so,.git,.hg,htmlcov,__pycache__,.*.sw*
 let g:ctrlp_open_multiple_files='v'
 let g:ctrlp_open_new_file='v'
-let g:ctrlp_working_path_mode = 'ra'
+"let g:ctrlp_working_path_mode = 'ra'
+let g:ctrlp_working_path_mode = 0
 let g:ctrlp_lazy_update=50
 let g:ctrlp_follow_symlinks=1
 let g:ctrlp_max_files = 0
@@ -470,9 +476,20 @@ let g:gitgutter_realtime = 0
 let g:gitgutter_eager = 0
 let g:gitgutter_diff_args = '--patience'
 set updatetime=1000
+" 
+"
+let g:auto_save = 1
+let g:auto_save_no_updatetime = 1
+let g:auto_save_silent = 1
+let g:auto_save_in_insert_mode = 0
+augroup auto_save_2
+    autocmd!
+    au BufEnter,BufLeave,BufWinEnter,BufWinLeave,BufHidden,ShellFilterPost,ShellCmdPost,VimResized,WinEnter,WinLeave,TabEnter,TabLeave,CmdwinEnter,CmdwinLeave,InsertEnter,FocusGained,FocusLost,TextChanged * nested call AutoSave()
+augroup END
 
-set colorcolumn=80
-highlight ColorColumn ctermbg=0
+
+set colorcolumn=
+highlight ColorColumn ctermfg=none ctermbg=None
 
 let java_space_errors = 1
 
@@ -554,6 +571,8 @@ nnoremap U :GundoToggle<CR>
 
 autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * if expand('%') ==# '[Command Line]' | nmap <silent> <nowait> <buffer> <CR> <D-A-C-S-CR> | nmap <silent> <nowait> <buffer> <ESC> <D-A-C-S-ESC> | endif
 
+autocmd FileType html setlocal shiftwidth=2 tabstop=2
+autocmd FileType ruby setlocal shiftwidth=2 tabstop=2
 
 autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.md set filetype=markdown
 autocmd BufNewFile,BufFilePre,BufRead,BufWritePost * if &filetype == "" | set ft=markdown | endif
@@ -572,6 +591,7 @@ set wrap
 set showbreak=...\ 
 set linebreak
 
+
 "function! MapWinCmd()
 "    nnoremap ,w qW:call nnoremap ,w
 "endfunction
@@ -585,6 +605,65 @@ let g:ctrlp_cmd = 'CtrlPMixed'
 "nnoremap <nowait> <silent> <C-m> `
 
 set sidescrolloff=8
+
+inoremap <c-z> <esc><esc><c-z>
+inoremap <c-w> <esc><esc><c-w>
+
+augroup AutoDiffUpdate 
+  au! 
+  autocmd InsertLeave * if &diff | diffupdate | let b:old_changedtick = b:changedtick | endif 
+  autocmd CursorHold * 
+        \ if &diff && 
+        \    (!exists('b:old_changedtick') || b:old_changedtick != b:changedtick) | 
+        \   let b:old_changedtick = b:changedtick | diffupdate | 
+        \ endif 
+augroup END 
+
+highlight SearchCurrent ctermbg=green ctermfg=darkgray cterm=NONE
+highlight Search ctermbg=blue ctermfg=black
+fun! SearchHighlight()
+    silent! call matchdelete(b:ring)
+    let b:ring = matchadd('SearchCurrent', '\c\%#' . @/, 101)
+endfun
+
+fun! SearchNext()
+    try
+        execute 'normal! ' . 'Nn'[v:searchforward]
+    catch /E385:/
+        echohl ErrorMsg | echo "E385: search hit BOTTOM without match for: " . @/ | echohl None
+    catch /E486:/
+        echohl ErrorMsg | echo "E486: pattern not found: " . @/ | echohl None
+    endtry
+    call SearchHighlight()
+endfun
+
+fun! SearchPrev()
+    try
+        execute 'normal! ' . 'nN'[v:searchforward]
+    catch /E384:/
+        echohl ErrorMsg | echo "E384: search hit TOP without match for: " . @/ | echohl None
+    catch /E486:/
+        echohl ErrorMsg | echo "E486: pattern not found: " . @/ | echohl None
+    endtry
+    call SearchHighlight()
+endfun
+
+fun! OnSearch()
+    set hlsearch
+    call SearchHighlight()
+endfun
+
+" Highlight entry
+nnoremap <silent> n :call SearchNext()<CR>
+nnoremap <silent> N :call SearchPrev()<CR>
+nnoremap <silent> # #:call OnSearch()<CR>
+nnoremap <silent> * *:call OnSearch()<CR>
+
+" Use <C-L> to clear some highlighting
+nnoremap <silent> <C-L> :silent! call matchdelete(b:ring)<CR>:nohlsearch<CR>:set nolist nospell<CR><C-L>
+
+let g:jsx_ext_required = 0
+
 
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.
