@@ -474,6 +474,7 @@ highlight GitGutterChangeDelete term=bold ctermbg=darkyellow ctermfg=black
 let g:gitgutter_escape_grep = 1
 let g:gitgutter_realtime = 0
 let g:gitgutter_eager = 0
+let g:gitgutter_async = 1
 let g:gitgutter_diff_args = '--patience'
 set updatetime=1000
 " 
