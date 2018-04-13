@@ -573,6 +573,7 @@ nnoremap U :GundoToggle<CR>
 autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * if expand('%') ==# '[Command Line]' | nmap <silent> <nowait> <buffer> <CR> <D-A-C-S-CR> | nmap <silent> <nowait> <buffer> <ESC> <D-A-C-S-ESC> | endif
 
 autocmd FileType html setlocal shiftwidth=2 tabstop=2
+autocmd FileType jinja setlocal shiftwidth=2 tabstop=2
 autocmd FileType ruby setlocal shiftwidth=2 tabstop=2
 
 autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.md set filetype=markdown
