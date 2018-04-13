@@ -311,6 +311,7 @@ def user_install():
     wrap_process.call("git submodule", ["git", "submodule", "update"], wd=projectroot)
 
     install_file("submodules/pathogen/autoload/pathogen.vim", "~/.vim/autoload/pathogen.vim")
+    install_file("submodules/jinja2/", "~/.vim/bundle/jinja2/")
     install_file("submodules/nerdtree/", "~/.vim/bundle/nerdtree/")
     install_file("submodules/ctrlp/", "~/.vim/bundle/ctrlp/")
     install_file("submodules/fugitive/", "~/.vim/bundle/fugitive/")
