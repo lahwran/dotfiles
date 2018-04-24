@@ -24,22 +24,24 @@ def memoized_wrapline(line, strip_end):
         cache[line] = lines
     return lines
 
-def get_linecount(text_list):
+def get_linecount(text_list, soft):
     result = 0
     first_unclear = None
     for idx, buf in enumerate(text_list):
         if buf[-1] != "\n":
             first_unclear = idx
             break
-        result += len(memoized_wrapline(buf[:-1]))
+        result += len(memoized_wrapline(buf[:-1], True))
     if not first_unclear:
         return result
 
     remaining = "".join(text_list[first_unclear:]).split('\n')
-    text_list[first_unclear:] = [(s + "\n" if i < len(remaining) - 1 else s) for i, s in enumerate(remaining)]
-    for buf in text_list[first_unclear:-1]:
-        result += len(memoized_wrapline(buf[:-1]))
-    result += len(wrapline(text_list[-1]))
+    temp = [(s + "\n" if i < len(remaining) - 1 else s) for i, s in enumerate(remaining)]
+    if not soft:
+        text_list[first_unclear:] = temp
+    for buf in temp:
+        result += len(memoized_wrapline(buf, True))
+    result += len(wrapline(temp[-1]))
     return result
 
 
@@ -48,14 +50,14 @@ def chunks(seq, chunklen):
     return [seq[start:end] for start,end in g]
 
 def print_what_we_can(printed_so_far, print_queue):
-    if len("".join(printed_so_far) + "".join(print_queue)) > 1000: import pudb; pudb.set_trace()
+    if len("".join(printed_so_far) + "".join(print_queue)) > 18496: import pudb; pudb.set_trace()
     if not print_queue:
         return
     printed = False
     try:
         maxidx = 0
         for fragidx, frag in enumerate(print_queue):
-            if get_linecount("".join(printed_so_far + [frag])) < term.height:
+            if get_linecount(printed_so_far + [frag], soft=True) < term.height:
                 printed_so_far.append(frag)
                 printed = True
                 sys.stdout.write(frag)
