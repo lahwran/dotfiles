@@ -6,10 +6,16 @@ import signal
 import sys
 import time
 import blessed
+from blessed.sequences import SequenceTextWrapper
 term = blessed.Terminal()
 argv = sys.argv[1:]
 
 cache = {}
+
+def wrapline(line):
+    (_linewrap for _linewrap in SequenceTextWrapper(width=term.width, term=term, drop_whitespace=False, replace_whitespace=False).wrap(line))
+                if line.strip() else (u'',)
+    
 
 def memoized_wrapline(buf):
     lines = cache.get(buf, None)
@@ -20,8 +26,10 @@ def memoized_wrapline(buf):
 
 def get_linecount(text_list):
     result = 0
-    for buf in text_list:
+    first_unclear = None
+    for idx, buf in enumerate(text_list):
         if buf[-1] != "\n":
+            first_unclear = idx
             break
         result += len(memoized_wrapline(buf))
     
