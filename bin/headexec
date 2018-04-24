@@ -44,7 +44,7 @@ def track_linecount(text_list, tail, thresh):
     result += len(wrapline(temp[-1]))
     if result < thresh:
         text_list[first_unclear:] = temp
-    return result
+    return result < thresh
 
 
 def chunks(seq, chunklen):
@@ -59,7 +59,7 @@ def print_what_we_can(printed_so_far, print_queue):
     try:
         maxidx = 0
         for fragidx, frag in enumerate(print_queue):
-            if get_linecount(printed_so_far, frag, term.height):
+            if track_linecount(printed_so_far, frag, term.height):
                 printed = True
                 sys.stdout.write(frag)
                 maxidx = fragidx+1
@@ -75,8 +75,7 @@ def print_what_we_can(printed_so_far, print_queue):
             chunksize = 32
             for chunkrange, chunk in enumerate(chunks(print_queue[0], chunksize, enum=True)):
                 begin, end = chunkrange
-                if get_linecount(printed_so_far + [char]) < term.height:
-                    printed_so_far.append(chunk)
+                if track_linecount(printed_so_far, char, term.height):
                     printed = True
                     sys.stdout.write(chunk)
                     maxidx = end
