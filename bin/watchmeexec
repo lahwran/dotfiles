@@ -39,3 +39,14 @@ handler = ShellCommandTrick(shell_command=args.command,
                             drop_during_process=args.drop_during_process)
 observer = Observer(timeout=args.timeout)
 observe_with(observer, handler, args.directories, args.recursive)
+
+def observe_with(observer, event_handler, pathnames, recursive):
+    for pathname in set(pathnames):
+        observer.schedule(event_handler, pathname, recursive)
+    observer.start()
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
