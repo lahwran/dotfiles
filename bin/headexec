@@ -9,20 +9,6 @@ import blessed
 term = blessed.Terminal()
 argv = sys.argv[1:]
 
-def wrapline(line):
-    width = term.width
-    lines = []
-    for line in text.splitlines():
-        lines.extend(
-            (_linewrap for _linewrap in .wrap(line))
-            if line.strip() else (u'',))
-
-    return lines
-
-def get_linecount(string):
-    lines = term.wrap(string)
-    return len(lines)
-
 def chunks(seq, chunklen):
     g = ((a*q, (a+1)*q) for a in xrange((x+q-1)/q))
     for start, end in g:
@@ -45,7 +31,6 @@ def print_what_we_can(printed_so_far, print_queue):
         return
 
     maxidx = 0
-    for step in [256, 128, 64, 32, 16, 1]: 
     for idx, char in enumerate(print_queue[0]):
         if get_linecount("".join(printed_so_far + [char])) < term.height:
             printed_so_far.append(char)
