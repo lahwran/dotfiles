@@ -15,22 +15,25 @@ def get_linecount(string):
 def print_what_we_can(printed_so_far, print_queue):
     if not print_queue:
         return
-    skipped_lines = 
     for lineidx, line in enumerate(print_queue):
         if get_linecount("".join(printed_so_far + line)) < term.height:
+            printed_so_far.append(line)
+            sys.stdout.write(char)
+            sys.stdout.flush()
+        else:
+            print_queue[:] = print_queue[idx:]
+            break
+    if not print_queue:
+        return
+
+    for idx, char in enumerate(print_queue[0]):
+        if get_linecount("".join(printed_so_far + char)) < term.height:
             printed_so_far.append(char)
             sys.stdout.write(char)
             sys.stdout.flush()
         else:
             print_queue[:] = print_queue[idx:]
-        for idx, char in enumerate(print_queue):
-            if get_linecount("".join(printed_so_far + line)) < term.height:
-                printed_so_far.append(char)
-                sys.stdout.write(char)
-                sys.stdout.flush()
-            else:
-                print_queue[:] = print_queue[idx:]
-                break
+            break
 
 def execute(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -38,8 +41,8 @@ def execute(command):
     # Poll process for new output until finished
     now = time.time()
     last = 0
-    printed_so_far = ""
-    print_queue = ""
+    printed_so_far = []
+    print_queue = []
     print(term.height)
     try:
         while process.poll() is None:
@@ -52,9 +55,9 @@ def execute(command):
             content = process.stdout.read(size)
             now = time.time()
             print_queue += content
-            printed_so_far, print_queue = print_what_we_can(printed_so_far, print_queue)
+            print_what_we_can(printed_so_far, print_queue)
             if print_queue:
-                print("Printed line count:", get_linecount(printed_so_far))
+                print("Printed line count:", get_linecount("".join(printed_so_far)))
                 raise KeyboardInterrupt
         print_queue += process.stdout.read()
         print_what_we_can(printed_so_far, print_queue)
