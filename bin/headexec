@@ -15,19 +15,21 @@ def get_linecount(string):
 def print_what_we_can(printed_so_far, print_queue):
     if not print_queue:
         return
-    for lineidx, line in enumerate(print_queue):
-        if get_linecount("".join(printed_so_far + line)) < term.height:
-            printed_so_far.append(line)
-            sys.stdout.write(char)
+    maxidx = 0
+    for fragidx, frag in enumerate(print_queue):
+        if get_linecount("".join(printed_so_far + [frag])) < term.height:
+            printed_so_far.append(frag)
+            sys.stdout.write(frag)
             sys.stdout.flush()
+            maxidx = fragidx+1
         else:
-            print_queue[:] = print_queue[idx:]
             break
+    print_queue[:] = print_queue[maxidx:]
     if not print_queue:
         return
 
     for idx, char in enumerate(print_queue[0]):
-        if get_linecount("".join(printed_so_far + char)) < term.height:
+        if get_linecount("".join(printed_so_far + [char])) < term.height:
             printed_so_far.append(char)
             sys.stdout.write(char)
             sys.stdout.flush()
@@ -49,12 +51,12 @@ def execute(command):
             if now - last > 0.01:
                 size = 1
             else:
-                size *= 2
+                size = min(size*2, 1024)
 
             last = time.time()
             content = process.stdout.read(size)
             now = time.time()
-            print_queue += content
+            print_queue.append(content)
             print_what_we_can(printed_so_far, print_queue)
             if print_queue:
                 print("Printed line count:", get_linecount("".join(printed_so_far)))
