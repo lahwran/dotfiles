@@ -17,10 +17,10 @@ def wrapline(line):
                 if line.strip() else (u'',)
     
 
-def memoized_wrapline(buf):
-    lines = cache.get(buf, None)
+def memoized_wrapline(line):
+    lines = cache.get(line, None)
     if lines is None:
-        lines = term.wrap(buf)
+        lines = wrapline(line)
         cache[line] = lines
     return lines
 
@@ -31,7 +31,10 @@ def get_linecount(text_list):
         if buf[-1] != "\n":
             first_unclear = idx
             break
-        result += len(memoized_wrapline(buf))
+        result += len(memoized_wrapline(buf[:-1]))
+    remaining = "".join(text_list[first_unclear:]).split('\n')
+    text_list[first_unclear:] = [(s + "\n" if i < len(remaining) - 1 else s) for i, s in enumerate(remaining)]
+    
     
     lines = term.wrap(string)
     return len(lines)
