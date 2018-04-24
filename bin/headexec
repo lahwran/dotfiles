@@ -9,10 +9,28 @@ import blessed
 term = blessed.Terminal()
 argv = sys.argv[1:]
 
+cache = {}
+def wrapline(line):
+    width = term.width
+    lines = []
+    if not line.strip():
+        return [u""]
+    return SequenceTextWrapper(
+                width=width, term=self).wrap(line)
+def memoized_wrapline(line):
+    res = cache.get(line, None)
+    if res is None:
+        cache[line = wrapline(line)
+
+
+def get_linecount(seq):
+    lines = term.wrap(string)
+    return len(lines)
+
+
 def chunks(seq, chunklen):
     g = ((a*q, (a+1)*q) for a in xrange((x+q-1)/q))
-    for start, end in g:
-        yield seq[start:end]
+    return [seq[start:end] for start,end in g]
 
 def print_what_we_can(printed_so_far, print_queue):
     if not print_queue:
@@ -30,16 +48,18 @@ def print_what_we_can(printed_so_far, print_queue):
     if not print_queue:
         return
 
-    maxidx = 0
-    for idx, char in enumerate(print_queue[0]):
+    maxchunkidx = 0
+    chunksize = 32
+    for chunkidx, char in enumerate(chunks(print_queue[0])):
         if get_linecount("".join(printed_so_far + [char])) < term.height:
-            printed_so_far.append(char)
-            sys.stdout.write(char)
+            printed_so_far.append(chunk)
+            sys.stdout.write(chunk)
             sys.stdout.flush()
             maxidx = idx+1
         else:
-    print_queue[0] = print_queue[idx:]
+    print_queue[0] = print_queue[maxchunkidx*chunksize:]
             break
+            '''
 
 def execute(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
