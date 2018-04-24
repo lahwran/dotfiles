@@ -9,21 +9,8 @@ import blessed
 term = blessed.Terminal()
 argv = sys.argv[1:]
 
-cache = {}
-def wrapline(line):
-    width = term.width
-    lines = []
-    if not line.strip():
-        return [u""]
-    return SequenceTextWrapper(
-                width=width, term=self).wrap(line)
-def memoized_wrapline(line):
-    res = cache.get(line, None)
-    if res is None:
-        cache[line = wrapline(line)
-
-
-def get_linecount(seq):
+def get_linecount(text_list):
+    
     lines = term.wrap(string)
     return len(lines)
 
@@ -35,31 +22,40 @@ def chunks(seq, chunklen):
 def print_what_we_can(printed_so_far, print_queue):
     if not print_queue:
         return
-    maxidx = 0
-    for fragidx, frag in enumerate(print_queue):
-        if get_linecount("".join(printed_so_far + [frag])) < term.height:
-            printed_so_far.append(frag)
-            sys.stdout.write(frag)
-            sys.stdout.flush()
-            maxidx = fragidx+1
-        else:
-            break
-    print_queue[:] = print_queue[maxidx:]
-    if not print_queue:
-        return
-
-    for chunksize in [4096, 256, 64, 8, 1]:
-        maxchunkidx = 0
-        chunksize = 32
-        for chunkrange, char in enumerate(chunks(print_queue[0], chunksize, enum=True)):
-            if get_linecount(printed_so_far + [char]) < term.height:
-                printed_so_far.append(chunk)
-                sys.stdout.write(chunk)
-                sys.stdout.flush()
-                maxidx = idx+1
+    printed = False
+    try:
+        maxidx = 0
+        for fragidx, frag in enumerate(print_queue):
+            if get_linecount("".join(printed_so_far + [frag])) < term.height:
+                printed_so_far.append(frag)
+                printed = True
+                sys.stdout.write(frag)
+                maxidx = fragidx+1
             else:
                 break
-        print_queue[0] = print_queue[maxchunkidx*chunksize:]
+        print_queue[:] = print_queue[maxidx:]
+        if not print_queue:
+            return
+
+        for chunksize in [4096, 256, 64, 8, 1]:
+            if not print_queue: break
+            maxchunkidx = 0
+            chunksize = 32
+            for chunkrange, chunk in enumerate(chunks(print_queue[0], chunksize, enum=True)):
+                begin, end = chunkrange
+                if get_linecount(printed_so_far + [char]) < term.height:
+                    printed_so_far.append(chunk)
+                    printed = True
+                    sys.stdout.write(chunk)
+                    maxidx = end
+                else:
+                    break
+            print_queue[0] = print_queue[maxidx:]
+            if not print_queue[0]:
+                print_queue[:] = print_queue[1:]
+    finally:
+        if printed:
+            sys.stdout.flush()
 
 def execute(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
