@@ -1,4 +1,19 @@
-#!/bin/bash
+#!/usr/bin/python
+import sys
+import os
+import subprocess
+
+if "--" in sys.argv:
+    idx = sys.argv.index("--")
+    watch_patterns = sys.argv[1:idx]
+    cmd = sys.argv[idx+1:]
+else:
+    watch_patterns = []
+    cmd = sys.argv[1:]
+
+if not os.path.exists(cmd[0]):
+    cmd = 
+
 
 cmd="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
 bin="$1"
