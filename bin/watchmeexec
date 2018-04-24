@@ -6,6 +6,7 @@ import time
 import blessed
 from watchdog.observers import Observer
 from watchdog.tricks import Trick
+#import pudb; pudb.set_trace()
 term = blessed.Terminal()
 
 if "--" in sys.argv:
@@ -25,6 +26,14 @@ patterns = []
 
 #subprocess.call(["python", "-c", headexec] + cmd)
 
+def invoke():
+    sys.stdout.write(term.move(0,0)
+            + term.clear_eos
+            + term.move(0,0)
+            )
+    sys.stdout.flush()
+    subprocess.call(["headexec"] + cmd)
+
 class CommandTrick(Trick):
 
     """Executes shell commands in response to matched events."""
@@ -41,13 +50,13 @@ class CommandTrick(Trick):
     def on_any_event(self, event):
         #from string import Template
 
-        if self.drop_during_process and self.process and self.process.poll() is None:
-            return
+        #if self.drop_during_process and self.process and self.process.poll() is None:
+        #    return
 
-        if event.is_directory:
-            object_type = 'directory'
-        else:
-            object_type = 'file'
+        #if event.is_directory:
+        #    object_type = 'directory'
+        #else:
+        #    object_type = 'file'
 
         #context = {
         #    'watch_src_path': event.src_path,
@@ -58,17 +67,9 @@ class CommandTrick(Trick):
 
         #if has_attribute(event, 'dest_path'):
         #    context.update({'watch_dest_path': event.dest_path})
-        command = self.shell_command
 
         #command = Template(command).safe_substitute(**context)
-        sys.stdout.write(term.move(0,term.width - info_len)
-                + term.clear_eos
-                + term.move(0,term.width - info_len)
-                )
-        sys.stdout.flush()
-        self.process = subprocess.Popen(["headexec"] + cmd)
-        if self.wait_for_process:
-            self.process.wait()
+        invoke()
 
 # todo: this is actually cartesian product between patterns and dirs but WHATEVER
 patterns = []
@@ -92,7 +93,7 @@ handler = CommandTrick(
                             ignore_directories=[], #args.ignore_directories,
                             wait_for_process=True,
                             drop_during_process=False)
-observer = Observer(timeout=)
+observer = Observer(timeout=30)
 
 
 #cmd="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
@@ -104,8 +105,9 @@ observer = Observer(timeout=)
 
 
 with term.fullscreen():
+    invoke()
     for dirname, recursive in dirnames.items():
-        observer.schedule(event_handler, dirname, recursive)
+        observer.schedule(handler, dirname, recursive)
 
     try:
         observer.start()
@@ -113,7 +115,10 @@ with term.fullscreen():
             while True:
                 time.sleep(1)
         except KeyboardInterrupt:
+            print("Stopping")
             observer.stop()
-        observer.join()
+            print("Done stopping")
     except KeyboardInterrupt:
+        print("Shutting down forcefully?")
         pass
+        print("Stuff may or may not actually happen")
