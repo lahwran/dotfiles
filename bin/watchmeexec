@@ -26,11 +26,13 @@ dir="$(dirname $bin)"
 "$@"
 #watchmedo shell-command -c "clear; $command" 
 
-from watchdog.observers import Observer
-from watchdog.tricks import ShellCommandTrick
 #patterns, ignore_patterns = parse_patterns(args.patterns,
 #                                            args.ignore_patterns)
 patterns = []
+from watchdog.observers import Observer
+from watchdog.tricks import ShellCommandTrick
+for pathname in set(pathnames):
+    observer.schedule(event_handler, pathname, recursive)
 handler = ShellCommandTrick(shell_command=args.command,
                             patterns=patterns,
                             ignore_patterns=[], #ignore_patterns,
@@ -38,11 +40,9 @@ handler = ShellCommandTrick(shell_command=args.command,
                             wait_for_process=args.wait_for_process,
                             drop_during_process=args.drop_during_process)
 observer = Observer(timeout=args.timeout)
-observe_with(observer, handler, args.directories, args.recursive)
+observe_with(observer, handler, directories, recursive)
 
-def observe_with(observer, event_handler, pathnames, recursive):
-    for pathname in set(pathnames):
-        observer.schedule(event_handler, pathname, recursive)
+def observe_with(observer, handler, pathnames, recursive):
     observer.start()
     try:
         while True:
