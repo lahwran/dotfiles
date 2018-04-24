@@ -5,15 +5,19 @@ import subprocess
 
 if "--" in sys.argv:
     idx = sys.argv.index("--")
-    watch_patterns = sys.argv[1:idx]
+    path_patterns = sys.argv[1:idx]
     cmd = sys.argv[idx+1:]
 else:
-    watch_patterns = []
+    path_patterns = []
     cmd = sys.argv[1:]
 
 if not os.path.exists(cmd[0]):
     cmd = 
 
+# todo: this is actually cartesian product between patterns and dirs but WHATEVER
+patterns = []
+directories = []
+for 
 
 cmd="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
 bin="$1"
@@ -21,3 +25,17 @@ dir="$(dirname $bin)"
 #clear
 "$@"
 #watchmedo shell-command -c "clear; $command" 
+
+from watchdog.observers import Observer
+from watchdog.tricks import ShellCommandTrick
+#patterns, ignore_patterns = parse_patterns(args.patterns,
+#                                            args.ignore_patterns)
+patterns = []
+handler = ShellCommandTrick(shell_command=args.command,
+                            patterns=patterns,
+                            ignore_patterns=[], #ignore_patterns,
+                            ignore_directories=[], #args.ignore_directories,
+                            wait_for_process=args.wait_for_process,
+                            drop_during_process=args.drop_during_process)
+observer = Observer(timeout=args.timeout)
+observe_with(observer, handler, args.directories, args.recursive)
