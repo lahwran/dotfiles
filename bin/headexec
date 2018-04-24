@@ -24,7 +24,7 @@ def memoized_wrapline(line, strip_end):
         cache[line] = lines
     return lines
 
-def get_linecount(text_list, soft):
+def track_linecount(text_list, tail, thresh):
     result = 0
     first_unclear = None
     for idx, buf in enumerate(text_list):
@@ -34,14 +34,16 @@ def get_linecount(text_list, soft):
         result += len(memoized_wrapline(buf[:-1], True))
     if not first_unclear:
         return result
+    joined = "".join(text_list[first_unclear:])
+    joined += tail
 
-    remaining = "".join(text_list[first_unclear:]).split('\n')
+    remaining = joined.split('\n')
     temp = [(s + "\n" if i < len(remaining) - 1 else s) for i, s in enumerate(remaining)]
-    if not soft:
-        text_list[first_unclear:] = temp
     for buf in temp:
         result += len(memoized_wrapline(buf, True))
     result += len(wrapline(temp[-1]))
+    if result < thresh:
+        text_list[first_unclear:] = temp
     return result
 
 
@@ -57,8 +59,7 @@ def print_what_we_can(printed_so_far, print_queue):
     try:
         maxidx = 0
         for fragidx, frag in enumerate(print_queue):
-            if get_linecount(printed_so_far + [frag], soft=True) < term.height:
-                printed_so_far.append(frag)
+            if get_linecount(printed_so_far, frag, term.height):
                 printed = True
                 sys.stdout.write(frag)
                 maxidx = fragidx+1
@@ -112,7 +113,7 @@ def execute(command):
             if print_queue:
                 print("Printed line count:", get_linecount("".join(printed_so_far)))
                 raise KeyboardInterrupt
-        print_queue += process.stdout.read()
+        print_queue.append(process.stdout.read())
         print_what_we_can(printed_so_far, print_queue)
     except KeyboardInterrupt:
         try:
