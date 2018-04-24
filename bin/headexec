@@ -13,7 +13,9 @@ def get_linecount(string):
     return len(lines)
 
 def chunks(seq, chunklen):
-    for x in range((len(seq)/chunklen)
+    g = ((a*q, (a+1)*q) for a in xrange((x+q-1)/q))
+    for start, end in g:
+        yield seq[start:end]
 
 def print_what_we_can(printed_so_far, print_queue):
     if not print_queue:
