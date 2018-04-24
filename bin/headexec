@@ -68,6 +68,9 @@ def print_what_we_can(printed_so_far, print_queue):
     try:
         maxidx = 0
         for fragidx, frag in enumerate(print_queue):
+            if len(frag) > 4096:
+                # yikes let's chunk it pls
+                break
             if track_linecount(printed_so_far, frag, term.height):
                 printed = True
                 sys.stdout.write(frag)
