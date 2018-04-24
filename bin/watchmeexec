@@ -3,6 +3,9 @@ import sys
 import os
 import time
 import blessed
+from watchdog.observers import Observer
+from watchdog.tricks import Trick
+term = blessed.Terminal()
 
 if "--" in sys.argv:
     idx = sys.argv.index("--")
@@ -12,26 +15,11 @@ else:
     path_patterns = []
     cmd = sys.argv[1:]
 
-if not os.path.exists(cmd[0]):
-    cmd = 
-
-# todo: this is actually cartesian product between patterns and dirs but WHATEVER
-patterns = []
-directories = []
-for 
-
-cmd="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
-bin="$1"
-dir="$(dirname $bin)"
-#clear
-"$@"
 #watchmedo shell-command -c "clear; $command" 
 
 #patterns, ignore_patterns = parse_patterns(args.patterns,
 #                                            args.ignore_patterns)
 patterns = []
-from watchdog.observers import Observer
-from watchdog.tricks import Trick
 class ShellCommandTrick(Trick):
 
     """Executes shell commands in response to matched events."""
@@ -47,7 +35,7 @@ class ShellCommandTrick(Trick):
         self.process = None
 
     def on_any_event(self, event):
-        from string import Template
+        #from string import Template
 
         if self.drop_during_process and self.process and self.process.poll() is None:
             return
@@ -57,18 +45,18 @@ class ShellCommandTrick(Trick):
         else:
             object_type = 'file'
 
-        context = {
-            'watch_src_path': event.src_path,
-            'watch_dest_path': '',
-            'watch_event_type': event.event_type,
-            'watch_object': object_type,
-        }
+        #context = {
+        #    'watch_src_path': event.src_path,
+        #    'watch_dest_path': '',
+        #    'watch_event_type': event.event_type,
+        #    'watch_object': object_type,
+        #}
 
-        if has_attribute(event, 'dest_path'):
-            context.update({'watch_dest_path': event.dest_path})
+        #if has_attribute(event, 'dest_path'):
+        #    context.update({'watch_dest_path': event.dest_path})
         command = self.shell_command
 
-        command = Template(command).safe_substitute(**context)
+        #command = Template(command).safe_substitute(**context)
         self.process = subprocess.Popen(command)
         if self.wait_for_process:
             self.process.wait()
@@ -80,16 +68,28 @@ handler = ShellCommandTrick(shell_command=args.command,
                             drop_during_process=args.drop_during_process)
 observer = Observer(timeout=args.timeout)
 
-for pathname in set(pathnames):
-    observer.schedule(event_handler, pathname, recursive)
+# todo: this is actually cartesian product between patterns and dirs but WHATEVER
+patterns = []
+directories = []
+for 
 
-try:
-    observer.start()
+cmd="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
+bin="$1"
+dir="$(dirname $bin)"
+#clear
+"$@"
+
+with term.fullscreen():
+    for pathname in set(pathnames):
+        observer.schedule(event_handler, pathname, recursive)
+
     try:
-        while True:
-            time.sleep(1)
+        observer.start()
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            observer.stop()
+        observer.join()
     except KeyboardInterrupt:
-        observer.stop()
-    observer.join()
-except KeyboardInterrupt:
-    pass
+        pass
