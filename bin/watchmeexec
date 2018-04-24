@@ -74,7 +74,11 @@ class CommandTrick(Trick):
 # todo: this is actually cartesian product between patterns and dirs but WHATEVER
 patterns = []
 dirnames = {}
-for pathpattern in path_patterns + [cmd[0]]:
+executable = cmd[0]
+if os.path.basename(executable) in ["python", "python3", "python2", "bash", "ruby", "node", "nodejs"]:
+    # todo make less naive
+    executable = cmd[1]
+for pathpattern in path_patterns + [executable]:
     if "**" in pathpattern:
         before, stars, after = pathpattern.partition("**")
         dirname = os.path.dirname(before)
