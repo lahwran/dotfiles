@@ -25,16 +25,15 @@ patterns = []
 
 #subprocess.call(["python", "-c", headexec] + cmd)
 
-class ShellCommandTrick(Trick):
+class CommandTrick(Trick):
 
     """Executes shell commands in response to matched events."""
 
-    def __init__(self, shell_command=None, patterns=None, ignore_patterns=None,
+    def __init__(self, patterns=None, ignore_patterns=None,
                  ignore_directories=False, wait_for_process=False,
                  drop_during_process=False):
-        super(ShellCommandTrick, self).__init__(patterns, ignore_patterns,
+        super(CommandTrick, self).__init__(patterns, ignore_patterns,
                                                 ignore_directories)
-        self.shell_command = shell_command
         self.wait_for_process = wait_for_process
         self.drop_during_process = drop_during_process
         self.process = None
@@ -62,33 +61,38 @@ class ShellCommandTrick(Trick):
         command = self.shell_command
 
         #command = Template(command).safe_substitute(**context)
-        self.process = subprocess.Popen(["headexec"] + command)
+        sys.stdout.write(term.move(0,term.width - info_len)
+                + term.clear_eos
+                + term.move(0,term.width - info_len)
+                )
+        sys.stdout.flush()
+        self.process = subprocess.Popen(["headexec"] + cmd)
         if self.wait_for_process:
             self.process.wait()
-handler = ShellCommandTrick(shell_command=args.command,
-                            patterns=patterns,
-                            ignore_patterns=[], #ignore_patterns,
-                            ignore_directories=[], #args.ignore_directories,
-                            wait_for_process=args.wait_for_process,
-                            drop_during_process=args.drop_during_process)
-observer = Observer(timeout=args.timeout)
 
 # todo: this is actually cartesian product between patterns and dirs but WHATEVER
 patterns = []
 dirnames = {}
-for pathpattern in path_patterns + cmd[0]:
+for pathpattern in path_patterns + [cmd[0]]:
     if "**" in pathpattern:
         before, stars, after = pathpattern.partition("**")
         dirname = os.path.dirname(before)
         base = os.path.basename(before)
         dirnames[dirname] = True
-        patterns.append((dirname, base+stars+after, True))
+        patterns.append(base+stars+after)
     else:
         dirname = os.path.dirname(pathpattern)
         basename = os.path.dirname(pathpattern)
         assert "*" not in dirname
         dirnames.setdefault(dirname, False)
-        patterns.append((dirname, bsename, False))
+        patterns.append(basename)
+handler = CommandTrick(
+                            patterns=patterns,
+                            ignore_patterns=[], #ignore_patterns,
+                            ignore_directories=[], #args.ignore_directories,
+                            wait_for_process=True,
+                            drop_during_process=False)
+observer = Observer(timeout=)
 
 
 #cmd="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
