@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from __future__ import print_function
+import errno
 import subprocess
 import signal
 #import pudb; pudb.set_trace()
@@ -13,8 +14,7 @@ argv = sys.argv[1:]
 cache = {}
 
 def wrapline(line):
-    (_linewrap for _linewrap in SequenceTextWrapper(width=term.width, term=term, drop_whitespace=False, replace_whitespace=False).wrap(line))
-                if line.strip() else (u'',)
+    return [_linewrap for _linewrap in SequenceTextWrapper(width=term.width, term=term, drop_whitespace=False, replace_whitespace=False).wrap(line)] if line.strip() else (u'',)
     
 
 def memoized_wrapline(line, strip_end):
@@ -32,14 +32,15 @@ def get_linecount(text_list):
             first_unclear = idx
             break
         result += len(memoized_wrapline(buf[:-1]))
+    if not first_unclear:
+        return result
+
     remaining = "".join(text_list[first_unclear:]).split('\n')
     text_list[first_unclear:] = [(s + "\n" if i < len(remaining) - 1 else s) for i, s in enumerate(remaining)]
     for buf in text_list[first_unclear:-1]:
         result += len(memoized_wrapline(buf[:-1]))
-        
-    
-    lines = term.wrap(string)
-    return len(lines)
+    result += len(wrapline(text_list[-1]))
+    return result
 
 
 def chunks(seq, chunklen):
@@ -111,18 +112,22 @@ def execute(command):
         print_queue += process.stdout.read()
         print_what_we_can(printed_so_far, print_queue)
     except KeyboardInterrupt:
-        process.send_signal(signal.SIGINT)
-        for x in range(30):
-            time.sleep(0.002)
-            if process.poll(): return process.poll()
-        process.terminate()
-        for x in range(60):
-            time.sleep(0.002)
-            if process.poll(): return process.poll()
-        process.kill()
-        for x in range(100):
-            time.sleep(0.01)
-            if process.poll(): return process.poll()
+        try:
+            process.send_signal(signal.SIGINT)
+            for x in range(30):
+                time.sleep(0.002)
+                if process.poll(): return process.poll()
+            process.terminate()
+            for x in range(60):
+                time.sleep(0.002)
+                if process.poll(): return process.poll()
+            process.kill()
+            for x in range(100):
+                time.sleep(0.01)
+                if process.poll(): return process.poll()
+        except OSError as e:
+            if e.errno == errno.ESRCH:
+                
         print("Process somehow still alive after kill... This shouldn't happen but is imaginable, your kernel may be fucked up or something")
     return process.poll()
 
