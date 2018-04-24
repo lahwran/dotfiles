@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import sys
+import subprocess
 import os
 import time
 import blessed
@@ -22,21 +23,37 @@ else:
 patterns = []
 
 headexec = """
-import subprocess, sys
+import subprocess, sys, time
 argv = sys.argv[1:]
 def execute(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     # Poll process for new output until finished
-    while True:
-        nextline = process.stdout.read(1)
-        if nextline == '' and process.poll() is not None:
-            break
-        sys.stdout.write(nextline)
-        sys.stdout.flush()
+    now = time.time()
+    last = 0
+    try:
+        while process.poll() is not None:
+            if now - last > 0.001:
+                size = 1
+            else:
+                size = 32
+
+            last = time.time()
+            content = process.stdout.read(size)
+            now = time.time()
+
+            sys.stdout.write(content)
+            sys.stdout.flush()
+    except KeyboardInterrupt:
+    
+        
 
     sys.exit(process.returncode)
 """
+
+subprocess.
+
+'''
 class ShellCommandTrick(Trick):
 
     """Executes shell commands in response to matched events."""
@@ -110,3 +127,4 @@ with term.fullscreen():
         observer.join()
     except KeyboardInterrupt:
         pass
+        '''
