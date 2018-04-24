@@ -1,9 +1,8 @@
 #!/bin/bash
 
 cmd="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
-bin="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
-dir="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
+bin="$1"
+dir="$(dirname $bin)"
 #clear
 "$@"
-echo "$cmd"
 #watchmedo shell-command -c "clear; $command" 
