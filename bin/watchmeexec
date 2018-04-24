@@ -75,22 +75,33 @@ observer = Observer(timeout=args.timeout)
 
 # todo: this is actually cartesian product between patterns and dirs but WHATEVER
 patterns = []
+dirnames = {}
 for pathpattern in path_patterns + cmd[0]:
     if "**" in pathpattern:
-        before, stars, after = pathpattern.partition()
-        patterns.append()
-    dirname = 
+        before, stars, after = pathpattern.partition("**")
+        dirname = os.path.dirname(before)
+        base = os.path.basename(before)
+        dirnames[dirname] = True
+        patterns.append((dirname, base+stars+after, True))
+    else:
+        dirname = os.path.dirname(pathpattern)
+        basename = os.path.dirname(pathpattern)
+        assert "*" not in dirname
+        dirnames.setdefault(dirname, False)
+        patterns.append((dirname, bsename, False))
 
 
-cmd="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
-bin="$1"
-dir="$(dirname $bin)"
-#clear
-"$@"
+#cmd="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
+#bin="$1"
+#dir="$(dirname $bin)"
+##clear
+#"$@"
+
+
 
 with term.fullscreen():
-    for pathname in set(pathnames):
-        observer.schedule(event_handler, pathname, recursive)
+    for dirname, recursive in dirnames.items():
+        observer.schedule(event_handler, dirname, recursive)
 
     try:
         observer.start()
