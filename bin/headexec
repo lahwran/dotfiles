@@ -1,5 +1,8 @@
 #!/usr/bin/python
-import subprocess, sys, time, blessed
+import subprocess
+import sys
+import time
+import blessed
 term = blessed.Terminal()
 argv = sys.argv[1:]
 def get_linecount(string):
@@ -9,13 +12,17 @@ def get_linecount(string):
 def print_what_we_can(printed_so_far, print_queue):
     if not print_queue:
         return
-    for line in print_queue.split("\n"):
-            if get_linecount(printed_so_far + print_queue) < term.height:
-                printed_so_far += print_queue
-                print_queue = ""
-        sys.stdout.write(print_queue)
-        sys.stdout.flush()
-    return printed_so_far, print_queue
+    stopped = False
+    skipped_lines = []
+    for index, line in enumerate(print_queue.split("\n")):
+        if index > 0:
+            line = "\n" + line
+        if not stopped and get_linecount(printed_so_far + line) < term.height:
+            printed_so_far += line
+        else:
+            stopped = True
+            skipped_lines.append(line)
+    return printed_so_far, "".join(skipped_lines)
 
 def execute(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -36,12 +43,12 @@ def execute(command):
             content = process.stdout.read(size)
             now = time.time()
             print_queue += content
-            if get_linecount(printed_so_far + print_queue) < term.height:
-                printed_so_far += print_queue
-                print_queue = ""
-            else:
+            
+            printed_so_far, print_queue = print_what_we_can(printed_so_far, print_queue)
+            if print_queue:
                 raise KeyboardInterrupt
         print_queue += process.stdout.read()
+        print_what_we_can(printed_so_far, print_queue)
     except KeyboardInterrupt:
         process.interrupt(signal.SIGINT)
         for x in range(30):
@@ -59,6 +66,4 @@ def execute(command):
     return process.poll()
 
 
-
-        
 sys.exit(execute(argv))
