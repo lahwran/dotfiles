@@ -49,17 +49,16 @@ def print_what_we_can(printed_so_far, print_queue):
         return
 
     maxchunkidx = 0
+    for x
     chunksize = 32
     for chunkidx, char in enumerate(chunks(print_queue[0])):
-        if get_linecount("".join(printed_so_far + [char])) < term.height:
+        if get_linecount(printed_so_far + [char]) < term.height:
             printed_so_far.append(chunk)
             sys.stdout.write(chunk)
             sys.stdout.flush()
             maxidx = idx+1
         else:
     print_queue[0] = print_queue[maxchunkidx*chunksize:]
-            break
-            '''
 
 def execute(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
