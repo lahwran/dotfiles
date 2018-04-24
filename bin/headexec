@@ -24,7 +24,7 @@ def memoized_wrapline(line, strip_end):
         cache[line] = lines
     return lines
 
-def track_linecount(text_list, tail, thresh):
+def seq_splitlines(text_list, tail):
     result = 0
     first_unclear = None
     for idx, buf in enumerate(text_list):
@@ -33,7 +33,7 @@ def track_linecount(text_list, tail, thresh):
             break
         result += len(memoized_wrapline(buf[:-1], True))
     if not first_unclear:
-        return result
+        return result, None, None
     joined = "".join(text_list[first_unclear:])
     joined += tail
 
@@ -42,14 +42,25 @@ def track_linecount(text_list, tail, thresh):
     for buf in temp:
         result += len(memoized_wrapline(buf, True))
     result += len(wrapline(temp[-1]))
-    if result < thresh:
-        text_list[first_unclear:] = temp
+    return result, temp, first_unclear
+
+def track_linecount(text_list, tail, thresh):
+    result, temp, first_unclear = seq_splitlines(text_list, tail)
+    if temp is not None and result < thresh:
+        text_list[:] = text_list[:first_unclear] + temp
     return result < thresh
 
+def get_linecount(text_list):
+    return seq_splitlines(text_list, "")[0]
 
-def chunks(seq, chunklen):
+
+def chunks(seq, chunklen, enum=False):
+    x = len(seq)
+    q = chunklen
     g = ((a*q, (a+1)*q) for a in xrange((x+q-1)/q))
-    return [seq[start:end] for start,end in g]
+    if not enum:
+        return [seq[start:end] for start,end in g]
+    return [((start, end), seq[start:end]) for start,end in g]
 
 def print_what_we_can(printed_so_far, print_queue):
     if len("".join(printed_so_far) + "".join(print_queue)) > 18496: import pudb; pudb.set_trace()
@@ -73,9 +84,9 @@ def print_what_we_can(printed_so_far, print_queue):
             if not print_queue: break
             maxchunkidx = 0
             chunksize = 32
-            for chunkrange, chunk in enumerate(chunks(print_queue[0], chunksize, enum=True)):
+            for chunkrange, chunk in chunks(print_queue[0], chunksize, enum=True):
                 begin, end = chunkrange
-                if track_linecount(printed_so_far, char, term.height):
+                if track_linecount(printed_so_far, chunk, term.height):
                     printed = True
                     sys.stdout.write(chunk)
                     maxidx = end
