@@ -9,7 +9,21 @@ import blessed
 term = blessed.Terminal()
 argv = sys.argv[1:]
 
+cache = {}
+
+def memoized_wrapline(buf):
+    lines = cache.get(buf, None)
+    if lines is None:
+        lines = term.wrap(buf)
+        cache[line] = lines
+    return lines
+
 def get_linecount(text_list):
+    result = 0
+    for buf in text_list:
+        if buf[-1] != "\n":
+            break
+        result += len(memoized_wrapline(buf))
     
     lines = term.wrap(string)
     return len(lines)
