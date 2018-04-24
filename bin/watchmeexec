@@ -23,14 +23,20 @@ else:
 patterns = []
 
 headexec = """
-import subprocess, sys, time
+import subprocess, sys, time, blessed
+term = blessed.Terminal()
 argv = sys.argv[1:]
+def get_linecount(string):
+    lines = term.wrap(string)
+    return len(lines)
 def execute(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     # Poll process for new output until finished
     now = time.time()
     last = 0
+    printed_so_far = ""
+    print_queue = ""
     try:
         while process.poll() is not None:
             if now - last > 0.001:
@@ -41,14 +47,22 @@ def execute(command):
             last = time.time()
             content = process.stdout.read(size)
             now = time.time()
-
-            sys.stdout.write(content)
+            print_queue += content
+            if get_linecount(printed_so_far 
+            sys.stdout.write(print_queue)
+            
+            print_queue = ""
             sys.stdout.flush()
     except KeyboardInterrupt:
-    
-        
+        process.interrupt(signal.SIGINT)
+        for x in range(30):
+            time.sleep(0.001)
+            if process.poll(): return process.poll()
 
-    sys.exit(process.returncode)
+
+
+        
+sys.exit(execute(argv))
 """
 
 subprocess.
