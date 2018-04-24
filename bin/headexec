@@ -1,5 +1,8 @@
 #!/usr/bin/python
+from __future__ import print_function
 import subprocess
+import signal
+#import pudb; pudb.set_trace()
 import sys
 import time
 import blessed
@@ -19,6 +22,8 @@ def print_what_we_can(printed_so_far, print_queue):
             line = "\n" + line
         if not stopped and get_linecount(printed_so_far + line) < term.height:
             printed_so_far += line
+            sys.stdout.write(line)
+            sys.stdout.flush()
         else:
             stopped = True
             skipped_lines.append(line)
@@ -32,25 +37,26 @@ def execute(command):
     last = 0
     printed_so_far = ""
     print_queue = ""
+    print(term.height)
     try:
         while process.poll() is None:
-            if now - last > 0.001:
+            if now - last > 0.01:
                 size = 1
             else:
-                size = 32
+                size *= 2
 
             last = time.time()
             content = process.stdout.read(size)
             now = time.time()
             print_queue += content
-            
             printed_so_far, print_queue = print_what_we_can(printed_so_far, print_queue)
             if print_queue:
+                print("Printed line count:", get_linecount(printed_so_far))
                 raise KeyboardInterrupt
         print_queue += process.stdout.read()
         print_what_we_can(printed_so_far, print_queue)
     except KeyboardInterrupt:
-        process.interrupt(signal.SIGINT)
+        process.send_signal(signal.SIGINT)
         for x in range(30):
             time.sleep(0.002)
             if process.poll(): return process.poll()
