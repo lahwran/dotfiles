@@ -28,7 +28,7 @@ def seq_splitlines(text_list, tail):
     result = 0
     first_unclear = len(text_list)
     for idx, buf in enumerate(text_list):
-        if buf[-1] != "\n":
+        if not buf or buf[-1] != "\n":
             first_unclear = idx
             break
         result += len(memoized_wrapline(buf[:-1], True))
@@ -82,12 +82,11 @@ def print_what_we_can(printed_so_far, print_queue):
         if not print_queue:
             return
 
-        for chunksize in [4096, 256, 64, 8, 1]:
+        for chunksize in [256, 64, 8, 1]:
             if not print_queue: break
             maxchunkidx = 0
             for chunkrange, chunk in chunks(print_queue[0], chunksize, enum=True):
                 begin, end = chunkrange
-                import pudb; pudb.set_trace()
                 if track_linecount(printed_so_far, chunk, term.height):
                     printed = True
                     sys.stdout.write(chunk)
@@ -109,7 +108,6 @@ def execute(command):
     last = 0
     printed_so_far = []
     print_queue = []
-    print(term.height)
     try:
         while process.poll() is None:
             if now - last > 0.1:
@@ -123,10 +121,11 @@ def execute(command):
             print_queue.append(content)
             print_what_we_can(printed_so_far, print_queue)
             if print_queue:
-                print("Printed line count:", get_linecount("".join(printed_so_far)))
                 raise KeyboardInterrupt
         print_queue.append(process.stdout.read())
         print_what_we_can(printed_so_far, print_queue)
+        sys.stdout.write("\n")
+        sys.stdout.flush()
     except KeyboardInterrupt:
         try:
             process.send_signal(signal.SIGINT)

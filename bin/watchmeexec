@@ -22,12 +22,9 @@ else:
 #                                            args.ignore_patterns)
 patterns = []
 
-headexec = """
-"""
 
-subprocess.call(["python", "-c", headexec] + cmd)
+#subprocess.call(["python", "-c", headexec] + cmd)
 
-'''
 class ShellCommandTrick(Trick):
 
     """Executes shell commands in response to matched events."""
@@ -65,7 +62,7 @@ class ShellCommandTrick(Trick):
         command = self.shell_command
 
         #command = Template(command).safe_substitute(**context)
-        self.process = subprocess.Popen(["python", "-c", headexec] + command)
+        self.process = subprocess.Popen(["headexec"] + command)
         if self.wait_for_process:
             self.process.wait()
 handler = ShellCommandTrick(shell_command=args.command,
@@ -78,8 +75,12 @@ observer = Observer(timeout=args.timeout)
 
 # todo: this is actually cartesian product between patterns and dirs but WHATEVER
 patterns = []
-directories = []
-for 
+for pathpattern in path_patterns + cmd[0]:
+    if "**" in pathpattern:
+        before, stars, after = pathpattern.partition()
+        patterns.append()
+    dirname = 
+
 
 cmd="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
 bin="$1"
@@ -101,4 +102,3 @@ with term.fullscreen():
         observer.join()
     except KeyboardInterrupt:
         pass
-        '''
