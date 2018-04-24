@@ -23,58 +23,6 @@ else:
 patterns = []
 
 headexec = """
-import subprocess, sys, time, blessed
-term = blessed.Terminal()
-argv = sys.argv[1:]
-def get_linecount(string):
-    lines = term.wrap(string)
-    return len(lines)
-def execute(command):
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-    # Poll process for new output until finished
-    now = time.time()
-    last = 0
-    printed_so_far = ""
-    print_queue = ""
-    try:
-        while process.poll() is None:
-            if now - last > 0.001:
-                size = 1
-            else:
-                size = 32
-
-            last = time.time()
-            content = process.stdout.read(size)
-            now = time.time()
-            print_queue += content
-            if get_linecount(printed_so_far + print_queue) < term.height:
-                sys.stdout.write(print_queue)
-                sys.stdout.flush()
-                printed_so_far += print_queue
-                print_queue = ""
-            else:
-                raise KeyboardInterrupt
-    except KeyboardInterrupt:
-        process.interrupt(signal.SIGINT)
-        for x in range(30):
-            time.sleep(0.002)
-            if process.poll(): return process.poll()
-        process.terminate()
-        for x in range(60):
-            time.sleep(0.002)
-            if process.poll(): return process.poll()
-        process.kill()
-        for x in range(100):
-            time.sleep(0.01)
-            if process.poll(): return process.poll()
-        print("Process somehow still alive after kill... This shouldn't happen but is imaginable, your kernel may be fucked up or something")
-    return process.poll()
-
-
-
-        
-sys.exit(execute(argv))
 """
 
 subprocess.call(["python", "-c", headexec] + cmd)
