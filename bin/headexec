@@ -15,19 +15,22 @@ def get_linecount(string):
 def print_what_we_can(printed_so_far, print_queue):
     if not print_queue:
         return
-    stopped = False
-    skipped_lines = []
-    for index, line in enumerate(print_queue.split("\n")):
-        if index > 0:
-            line = "\n" + line
-        if not stopped and get_linecount(printed_so_far + line) < term.height:
-            printed_so_far += line
-            sys.stdout.write(line)
+    skipped_lines = 
+    for lineidx, line in enumerate(print_queue):
+        if get_linecount("".join(printed_so_far + line)) < term.height:
+            printed_so_far.append(char)
+            sys.stdout.write(char)
             sys.stdout.flush()
         else:
-            stopped = True
-            skipped_lines.append(line)
-    return printed_so_far, "".join(skipped_lines)
+            print_queue[:] = print_queue[idx:]
+        for idx, char in enumerate(print_queue):
+            if get_linecount("".join(printed_so_far + line)) < term.height:
+                printed_so_far.append(char)
+                sys.stdout.write(char)
+                sys.stdout.flush()
+            else:
+                print_queue[:] = print_queue[idx:]
+                break
 
 def execute(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
