@@ -1,8 +1,8 @@
 #!/bin/bash
 
-cmd="$(python -c 'import sys,pipes;print(pipes.quote(sys.argv[1:]))' "$@")"
-bin="$(python -c 'import sys,pipes;print(pipes.quote(sys.argv[1:]))' "$@")"
-dir="$(python -c 'import sys,pipes;print(pipes.quote(sys.argv[1:]))' "$@")"
+cmd="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
+bin="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
+dir="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
 #clear
 "$@"
 echo "$cmd"
