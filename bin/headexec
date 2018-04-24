@@ -61,16 +61,17 @@ def chunks(seq, chunklen, enum=False):
     return [((start, end), seq[start:end]) for start,end in g]
 
 def print_what_we_can(printed_so_far, print_queue):
-    if len("".join(printed_so_far) + "".join(print_queue)) > 18496: import pudb; pudb.set_trace()
+    #if len("".join(printed_so_far) + "".join(print_queue)) > 18496: import pudb; pudb.set_trace()
     if not print_queue:
         return
     printed = False
     try:
         maxidx = 0
         for fragidx, frag in enumerate(print_queue):
-            if len(frag) > 4096:
-                # yikes let's chunk it pls
+            if len(frag) > term.height * term.width * 2:
+                # geez let's chunk this
                 break
+                
             if track_linecount(printed_so_far, frag, term.height):
                 printed = True
                 sys.stdout.write(frag)
@@ -84,16 +85,16 @@ def print_what_we_can(printed_so_far, print_queue):
         for chunksize in [4096, 256, 64, 8, 1]:
             if not print_queue: break
             maxchunkidx = 0
-            chunksize = 32
             for chunkrange, chunk in chunks(print_queue[0], chunksize, enum=True):
                 begin, end = chunkrange
+                import pudb; pudb.set_trace()
                 if track_linecount(printed_so_far, chunk, term.height):
                     printed = True
                     sys.stdout.write(chunk)
                     maxidx = end
                 else:
                     break
-            print_queue[0] = print_queue[maxidx:]
+            print_queue[0] = print_queue[0][maxidx:]
             if not print_queue[0]:
                 print_queue[:] = print_queue[1:]
     finally:
