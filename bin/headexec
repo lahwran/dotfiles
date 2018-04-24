@@ -12,6 +12,9 @@ def get_linecount(string):
     lines = term.wrap(string)
     return len(lines)
 
+def chunks(seq, chunklen):
+    for x in range((len(seq)/chunklen)
+
 def print_what_we_can(printed_so_far, print_queue):
     if not print_queue:
         return
