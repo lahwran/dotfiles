@@ -272,14 +272,14 @@ def user_install():
         wrap_process.call("python2", [python2, path("get-pip.py"), "--user", "--upgrade"])
         # install pip packages
         logger.info("Installing pip packages...")
-        wrap_process.call("pip2", ["pip", "install", "--user", "--upgrade", "pip"])
+        wrap_process.call("pip2", ["pip", "install", "--user", "--upgrade", "pip", "setuptools"])
         wrap_process.call("pip2", ["pip", "install", "--user", "--upgrade"] + pip_dependencies + py2_pip_dependencies)
         wrap_process.call("pip2", ["pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
     if python3 is not None:
         wrap_process.call("python3", [python3, path("get-pip.py"), "--user", "--upgrade"])
         # install pip packages
         logger.info("Installing pip packages...")
-        wrap_process.call("pip3", ["pip3", "install", "--user", "--upgrade", "pip"])
+        wrap_process.call("pip3", ["pip3", "install", "--user", "--upgrade", "pip", "setuptools"])
         wrap_process.call("pip3", ["pip3", "install", "--user", "--upgrade"] + pip_dependencies)
         wrap_process.call("pip3", ["pip3", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
 
