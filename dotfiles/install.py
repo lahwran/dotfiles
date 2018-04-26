@@ -249,12 +249,13 @@ def user_install():
     else:
         python2 = None
 
-    if which("pip") is None or which("pip").startswith("/usr"):
-        wrap_process.call("python2", ["python2", path("get-pip.py"), "--user"])
-    # install pip packages
-    logger.info("Installing pip packages...")
-    wrap_process.call("pip2", ["pip2", "install", "--user", "--upgrade"] + pip_dependencies)
-    wrap_process.call("pip2", ["pip2", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
+    if python2 is not None:
+        if which("pip") is None or which("pip").startswith("/usr"):
+            wrap_process.call("python2", [python2, path("get-pip.py"), "--user"])
+        # install pip packages
+        logger.info("Installing pip packages...")
+        wrap_process.call("pip2", ["pip2", "install", "--user", "--upgrade"] + pip_dependencies)
+        wrap_process.call("pip2", ["pip2", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
 
     logger = logging.getLogger("u")
     logger.info("Doing user install...")
