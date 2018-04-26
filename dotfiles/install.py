@@ -63,6 +63,7 @@ pip_dependencies = [
     "hsluv",
     "ipython[notebook]",
     "lxml",
+    "incremental",
 ]
 
 ensure_nonexistant = [
