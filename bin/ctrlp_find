@@ -10,5 +10,5 @@ function derp {
         cat
     fi;
 }
-find "$MYPATH" | grep -v "^$MYPATH"'$' | egrep -v "__pycache__|\.pyc$|\.so|htmlcov|\.git|\.class|\.sw.$" | derp
+timeout 3 find "$MYPATH" | grep -v "^$MYPATH"'$' | egrep -v "__pycache__|\.pyc$|\.so|htmlcov|\.git|\.class|\.sw.$" | derp
 # | egrep -v "^.*(path1|path2|...).*$"
