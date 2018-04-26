@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 from __future__ import print_function
 import errno
 import subprocess
@@ -10,6 +10,12 @@ import blessed
 from blessed.sequences import SequenceTextWrapper
 term = blessed.Terminal()
 argv = sys.argv[1:]
+do_clear = False
+if argv[0] == "__do_clear":
+    do_clear = True
+    argv = argv[1:]
+
+
 
 cache = {}
 
@@ -60,7 +66,7 @@ def chunks(seq, chunklen, enum=False):
         return [seq[start:end] for start,end in g]
     return [((start, end), seq[start:end]) for start,end in g]
 
-def print_what_we_can(printed_so_far, print_queue):
+def print_what_we_can(printed_so_far, print_queue, flush):
     #if len("".join(printed_so_far) + "".join(print_queue)) > 18496: import pudb; pudb.set_trace()
     if not print_queue:
         return
@@ -97,7 +103,7 @@ def print_what_we_can(printed_so_far, print_queue):
             if not print_queue[0]:
                 print_queue[:] = print_queue[1:]
     finally:
-        if printed:
+        if printed and flush:
             sys.stdout.flush()
 
 def execute(command):
@@ -108,6 +114,10 @@ def execute(command):
     last = 0
     printed_so_far = []
     print_queue = []
+    if do_clear:
+        print_queue.append(term.move(0,0)
+                + term.clear_eos
+                + term.move(0,0))
     try:
         while process.poll() is None:
             if now - last > 0.1:
@@ -119,11 +129,11 @@ def execute(command):
             content = process.stdout.read(size)
             now = time.time()
             print_queue.append(content)
-            print_what_we_can(printed_so_far, print_queue)
+            print_what_we_can(printed_so_far, print_queue, flush=(not do_clear))
             if print_queue:
                 raise KeyboardInterrupt
         print_queue.append(process.stdout.read())
-        print_what_we_can(printed_so_far, print_queue)
+        print_what_we_can(printed_so_far, print_queue, flush=True)
         sys.stdout.write("\n")
         sys.stdout.flush()
     except KeyboardInterrupt:

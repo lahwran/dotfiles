@@ -27,12 +27,7 @@ patterns = []
 #subprocess.call(["python", "-c", headexec] + cmd)
 
 def invoke():
-    sys.stdout.write(term.move(0,0)
-            + term.clear_eos
-            + term.move(0,0)
-            )
-    sys.stdout.flush()
-    subprocess.call(["headexec"] + cmd)
+    subprocess.call(["headexec __do_clear"] + cmd)
 
 class CommandTrick(Trick):
 
