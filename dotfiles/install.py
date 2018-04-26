@@ -250,7 +250,7 @@ def user_install():
         python2 = None
 
     if python2 is not None:
-        if which("pip") is None or which("pip").startswith("/usr"):
+        if which("pip2") is None or which("pip2").startswith("/usr"):
             wrap_process.call("python2", [python2, path("get-pip.py"), "--user"])
         # install pip packages
         logger.info("Installing pip packages...")
