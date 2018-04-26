@@ -256,6 +256,7 @@ def user_install():
         logger.info("Installing pip packages...")
         wrap_process.call("pip2", ["pip2", "install", "--user", "--upgrade"] + pip_dependencies)
         wrap_process.call("pip2", ["pip2", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
+        
 
     logger = logging.getLogger("u")
     logger.info("Doing user install...")
