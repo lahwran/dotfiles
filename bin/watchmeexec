@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 import sys
 import subprocess
 import os
@@ -27,7 +27,7 @@ patterns = []
 #subprocess.call(["python", "-c", headexec] + cmd)
 
 def invoke():
-    subprocess.call(["headexec __do_clear"] + cmd)
+    subprocess.call(["headexec", "__do_clear"] + cmd)
 
 class CommandTrick(Trick):
 

@@ -26,7 +26,12 @@ def wrapline(line):
 def memoized_wrapline(line, strip_end):
     lines = cache.get(line, None)
     if lines is None:
-        lines = wrapline(line[:-1] if strip_end else line)
+        l = (line[:-1] if strip_end else line)
+        try:
+            decoded = 
+        except:
+            decoded = l.
+        lines = wrapline((line[:-1] if strip_end else line).decode("utf-8"))
         cache[line] = lines
     return lines
 
@@ -34,15 +39,15 @@ def seq_splitlines(text_list, tail):
     result = 0
     first_unclear = len(text_list)
     for idx, buf in enumerate(text_list):
-        if not buf or buf[-1] != "\n":
+        if not buf or buf[-1] != b"\n":
             first_unclear = idx
             break
         result += len(memoized_wrapline(buf[:-1], True))
-    joined = "".join(text_list[first_unclear:])
+    joined = b"".join(text_list[first_unclear:])
     joined += tail
 
-    remaining = joined.split('\n')
-    temp = [(s + "\n" if i < len(remaining) - 1 else s) for i, s in enumerate(remaining)]
+    remaining = joined.split(b'\n')
+    temp = [(s + b"\n" if i < len(remaining) - 1 else s) for i, s in enumerate(remaining)]
     for buf in temp:
         result += len(memoized_wrapline(buf, True))
     result += len(wrapline(temp[-1]))
@@ -55,7 +60,7 @@ def track_linecount(text_list, tail, thresh):
     return result < thresh
 
 def get_linecount(text_list):
-    return seq_splitlines(text_list, "")[0]
+    return seq_splitlines(text_list, b"")[0]
 
 
 def chunks(seq, chunklen, enum=False):
@@ -115,9 +120,10 @@ def execute(command):
     printed_so_far = []
     print_queue = []
     if do_clear:
-        print_queue.append(term.move(0,0)
+        print_queue.append(
+                (term.move(0,0)
                 + term.clear_eos
-                + term.move(0,0))
+                + term.move(0,0)).encode("utf-8"))
     try:
         while process.poll() is None:
             if now - last > 0.1:
