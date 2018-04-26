@@ -60,6 +60,9 @@ pip_dependencies = [
     "numpy",
     "urwid",
     "bpython",
+    "hsluv",
+    "ipython[notebook]",
+    "lxml",
 ]
 
 ensure_nonexistant = [
