@@ -254,14 +254,14 @@ def user_install():
     global logger
     if which('python2'):
         python2 = which('python2')
-    elif (which('python') and subprocess.check_output(['python', '--version']).startswith("Python 2")):
+    elif which('python') and subprocess.check_output(['python', '--version'], stderr=subprocess.STDOUT).startswith("Python 2"):
         python2 = which('python')
     else:
         python2 = None
 
     if which('python3'):
         python3 = which('python3')
-    elif (which('python') and subprocess.check_output(['python', '--version']).startswith("Python 3")):
+    elif (which('python') and subprocess.check_output(['python', '--version'], stderr=subprocess.STDOUT).startswith("Python 3")):
         python3 = which('python')
     else:
         python3 = None
