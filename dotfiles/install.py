@@ -242,13 +242,19 @@ def which(program):
 
 def user_install():
     global logger
+    if which('python2'):
+        python2 = which('python2')
+    elif (which('python') and subprocess.check_output(['python', '--version']).startswith("Python 2")):
+        python2 = which('python')
+    else:
+        python2 = None
 
     if which("pip") is None or which("pip").startswith("/usr"):
-        wrap_process.call("python", ["python", path("get-pip.py"), "--user"])
+        wrap_process.call("python2", ["python2", path("get-pip.py"), "--user"])
     # install pip packages
     logger.info("Installing pip packages...")
-    wrap_process.call("pip", ["pip", "install", "--user"] + pip_dependencies)
-    wrap_process.call("pip", ["pip", "install", "--user", "--editable", path("packages/at/")])
+    wrap_process.call("pip2", ["pip2", "install", "--user", "--upgrade"] + pip_dependencies)
+    wrap_process.call("pip2", ["pip2", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
 
     logger = logging.getLogger("u")
     logger.info("Doing user install...")
