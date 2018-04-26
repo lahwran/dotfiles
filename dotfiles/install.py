@@ -263,11 +263,13 @@ def user_install():
     else:
         python3 = None
 
+    wrap_process.call("wget", ["wget", "https://bootstrap.pypa.io/get-pip.py", "-O", path("get-pip.py")])
+
     if python2 is not None:
-        if which("pip") is None or which("pip").startswith("/usr"):
-            wrap_process.call("python2", [python2, path("get-pip.py"), "--user"])
+        wrap_process.call("python2", [python2, path("get-pip.py"), "--user"])
         # install pip packages
         logger.info("Installing pip packages...")
+        wrap_process.call("pip2", ["pip", "install", "--user", "--upgrade", "pip"])
         wrap_process.call("pip2", ["pip", "install", "--user", "--upgrade"] + pip_dependencies)
         wrap_process.call("pip2", ["pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
     if python3 is not None:
@@ -275,6 +277,7 @@ def user_install():
             wrap_process.call("python3", [python3, path("get-pip.py"), "--user"])
         # install pip packages
         logger.info("Installing pip packages...")
+        wrap_process.call("pip3", ["pip3", "install", "--user", "--upgrade", "pip"])
         wrap_process.call("pip3", ["pip3", "install", "--user", "--upgrade"] + pip_dependencies)
         wrap_process.call("pip3", ["pip3", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
 
