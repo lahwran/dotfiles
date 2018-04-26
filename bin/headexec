@@ -15,7 +15,7 @@ if argv[0] == "__do_clear":
     do_clear = True
     argv = argv[1:]
 
-
+stdout = getattr(sys.stdout, "buffer", sys.stdout)
 
 cache = {}
 
@@ -26,11 +26,6 @@ def wrapline(line):
 def memoized_wrapline(line, strip_end):
     lines = cache.get(line, None)
     if lines is None:
-        l = (line[:-1] if strip_end else line)
-        try:
-            decoded = 
-        except:
-            decoded = l.
         lines = wrapline((line[:-1] if strip_end else line).decode("utf-8"))
         cache[line] = lines
     return lines
@@ -50,7 +45,7 @@ def seq_splitlines(text_list, tail):
     temp = [(s + b"\n" if i < len(remaining) - 1 else s) for i, s in enumerate(remaining)]
     for buf in temp:
         result += len(memoized_wrapline(buf, True))
-    result += len(wrapline(temp[-1]))
+    result += len(wrapline(temp[-1].decode("utf-8")))
     return result, temp, first_unclear
 
 def track_linecount(text_list, tail, thresh):
@@ -85,7 +80,7 @@ def print_what_we_can(printed_so_far, print_queue, flush):
                 
             if track_linecount(printed_so_far, frag, term.height):
                 printed = True
-                sys.stdout.write(frag)
+                stdout.write(frag)
                 maxidx = fragidx+1
             else:
                 break
@@ -100,7 +95,7 @@ def print_what_we_can(printed_so_far, print_queue, flush):
                 begin, end = chunkrange
                 if track_linecount(printed_so_far, chunk, term.height):
                     printed = True
-                    sys.stdout.write(chunk)
+                    stdout.write(chunk)
                     maxidx = end
                 else:
                     break
