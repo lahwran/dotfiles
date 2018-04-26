@@ -2,6 +2,7 @@
 unset COLORFGBG
 
 pathappend $HOME/Library/Python/2.7/bin
+pathappend $HOME/Library/Python/3.5/bin
 export ANDROID_HOME="$HOME/adt/sdk"
 export ANDROID_SDK="$ANDROID_HOME"
 #export ANDROID_NDK="$HOME/adt/android-ndk-r10d"
