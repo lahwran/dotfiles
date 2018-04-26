@@ -50,7 +50,6 @@ pip_dependencies = [
     "flask",
     "husl",
     "ptpython",
-    "progressbar",
     "prompt_toolkit",
     "pudb",
     "py",
@@ -64,6 +63,9 @@ pip_dependencies = [
     "ipython[notebook]",
     "lxml",
     "incremental",
+]
+py2_pip_dependencies = [
+    "progressbar",
 ]
 
 ensure_nonexistant = [
@@ -271,7 +273,7 @@ def user_install():
         # install pip packages
         logger.info("Installing pip packages...")
         wrap_process.call("pip2", ["pip", "install", "--user", "--upgrade", "pip"])
-        wrap_process.call("pip2", ["pip", "install", "--user", "--upgrade"] + pip_dependencies)
+        wrap_process.call("pip2", ["pip", "install", "--user", "--upgrade"] + pip_dependencies + py2_pip_dependencies)
         wrap_process.call("pip2", ["pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
     if python3 is not None:
         wrap_process.call("python3", [python3, path("get-pip.py"), "--user", "--upgrade"])
