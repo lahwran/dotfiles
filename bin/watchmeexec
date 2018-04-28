@@ -76,6 +76,7 @@ if os.path.basename(executable) in ["python", "python3", "python2", "bash", "rub
     executable = cmd[1]
 executable = os.path.abspath(executable)
 for pathpattern in path_patterns + [executable]:
+    pathpattern=os.path.abspath(pathpattern)
     if "**" in pathpattern:
         before, stars, after = pathpattern.partition("**")
         dirname = os.path.dirname(before)
