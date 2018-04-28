@@ -61,7 +61,7 @@ def get_linecount(text_list):
 def chunks(seq, chunklen, enum=False):
     x = len(seq)
     q = chunklen
-    g = ((a*q, (a+1)*q) for a in xrange((x+q-1)/q))
+    g = ((a*q, (a+1)*q) for a in range((x+q-1)//q))
     if not enum:
         return [seq[start:end] for start,end in g]
     return [((start, end), seq[start:end]) for start,end in g]
