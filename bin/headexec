@@ -26,7 +26,7 @@ def wrapline(line):
 def memoized_wrapline(line, strip_end):
     lines = cache.get(line, None)
     if lines is None:
-        lines = wrapline((line[:-1] if strip_end else line).decode("utf-8"))
+        lines = wrapline((line[:-1] if strip_end else line))
         cache[line] = lines
     return lines
 
@@ -45,7 +45,7 @@ def seq_splitlines(text_list, tail):
     temp = [(s + b"\n" if i < len(remaining) - 1 else s) for i, s in enumerate(remaining)]
     for buf in temp:
         result += len(memoized_wrapline(buf, True))
-    result += len(wrapline(temp[-1].decode("utf-8")))
+    result += len(wrapline(temp[-1]))
     return result, temp, first_unclear
 
 def track_linecount(text_list, tail, thresh):
