@@ -8,7 +8,7 @@ import signal
 import sys
 import time
 import blessed
-from blessed.sequences import Sequence, iter_parse
+from blessed.sequences import Sequence
 term = blessed.Terminal()
 argv = sys.argv[1:]
 do_clear = False
@@ -26,10 +26,10 @@ def iter_parse(term, text):
     from
     https://github.com/jquast/blessed/blob/34216d1bc6c22397416fa721a9a0957f672a9ff1/blessed/sequences.py#L404
     """
-    for match in re.finditer(term._caps_compiled_any, text):
+    for match in re.finditer(term._caps_compiled_any.pattern.encode("utf-8"), text):
         name = match.lastgroup
         value = match.group(name)
-        if name == b'MISMATCH':
+        if name == 'MISMATCH':
             yield (value, None)
         else:
             yield value, term.caps[name]
