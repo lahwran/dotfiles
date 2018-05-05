@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import print_function
+import re
 import errno
 import subprocess
 import signal
@@ -7,7 +8,7 @@ import signal
 import sys
 import time
 import blessed
-from blessed.sequences import SequenceTextWrapper
+from blessed.sequences import Sequence, iter_parse
 term = blessed.Terminal()
 argv = sys.argv[1:]
 do_clear = False
@@ -18,8 +19,20 @@ if argv[0] == "__do_clear":
 stdout = getattr(sys.stdout, "buffer", sys.stdout)
 
 cache = {}
-_whitespace = '\t\n\x0b\x0c\r '
+_whitespace = '\t\n\x0b\x0c\r '.encode("utf-8")
 
+def iter_parse(term, text):
+    """
+    from
+    https://github.com/jquast/blessed/blob/34216d1bc6c22397416fa721a9a0957f672a9ff1/blessed/sequences.py#L404
+    """
+    for match in re.finditer(term._caps_compiled_any, text):
+        name = match.lastgroup
+        value = match.group(name)
+        if name == b'MISMATCH':
+            yield (value, None)
+        else:
+            yield value, term.caps[name]
 class TextWrapper:
     """
     this class copied from python 3.5 textwrap.py and changed to use bytes
@@ -28,7 +41,7 @@ class TextWrapper:
     unicode_whitespace_trans = {}
     uspace = ord(' ')
     for x in _whitespace:
-        unicode_whitespace_trans[ord(x)] = uspace
+        unicode_whitespace_trans[x] = uspace
 
     # This funky little regex is just the trick for splitting
     # text up into word-wrappable chunks.  E.g.
@@ -260,29 +273,17 @@ class TextWrapper:
         return b"\n".join(self.wrap(text))
 
 
-class SequenceTextWrapper(textwrap.TextWrapper):
+class SequenceTextWrapper(TextWrapper):
     """
     copied from https://github.com/jquast/blessed/blob/34216d1bc6c22397416fa721a9a0957f672a9ff1/blessed/sequences.py#L138
     this class only is licensed same as blessed
     """
 
     def __init__(self, width, term, **kwargs):
-        """
-        Class initializer.
-        This class supports the :meth:`~.Terminal.wrap` method.
-        """
         self.term = term
-        textwrap.TextWrapper.__init__(self, width, **kwargs)
+        TextWrapper.__init__(self, width, **kwargs)
 
     def _wrap_chunks(self, chunks):
-        """
-        Sequence-aware variant of :meth:`textwrap.TextWrapper._wrap_chunks`.
-        This simply ensures that word boundaries are not broken mid-sequence,
-        as standard python textwrap would incorrectly determine the length
-        of a string containing sequences, and may also break consider sequences
-        part of a "word" that may be broken by hyphen (``-``), where this
-        implementation corrects both.
-        """
         lines = []
         if self.width <= 0 or not isinstance(self.width, int):
             raise ValueError(
@@ -302,7 +303,7 @@ class SequenceTextWrapper(textwrap.TextWrapper):
                 indent = self.initial_indent
             width = self.width - len(indent)
             if drop_whitespace and (
-                    Sequence(chunks[-1], term).strip() == '' and lines):
+                    Sequence(chunks[-1], term).strip() == b'' and lines):
                 del chunks[-1]
             while chunks:
                 chunk_len = Sequence(chunks[-1], term).length()
@@ -314,20 +315,13 @@ class SequenceTextWrapper(textwrap.TextWrapper):
             if chunks and Sequence(chunks[-1], term).length() > width:
                 self._handle_long_word(chunks, cur_line, cur_len, width)
             if drop_whitespace and (
-                    cur_line and Sequence(cur_line[-1], term).strip() == ''):
+                    cur_line and Sequence(cur_line[-1], term).strip() == b''):
                 del cur_line[-1]
             if cur_line:
-                lines.append(indent + u''.join(cur_line))
+                lines.append(indent + b''.join(cur_line))
         return lines
 
     def _handle_long_word(self, reversed_chunks, cur_line, cur_len, width):
-        """Sequence-aware :meth:`textwrap.TextWrapper._handle_long_word`.
-        This simply ensures that word boundaries are not broken mid-sequence,
-        as standard python textwrap would incorrectly determine the length
-        of a string containing sequences, and may also break consider sequences
-        part of a "word" that may be broken by hyphen (``-``), where this
-        implementation corrects both.
-        """
         # Figure out when indent is larger than the specified width, and make
         # sure at least one character is stripped off on every pass
         if width < 1:
@@ -363,7 +357,7 @@ class SequenceTextWrapper(textwrap.TextWrapper):
         # devoted to the long word that we can't handle right now.
 
 def wrapline(line):
-    return [_linewrap for _linewrap in SequenceTextWrapper(width=term.width, term=term, drop_whitespace=False, replace_whitespace=False).wrap(line)] if line.strip() else (u'',)
+    return [_linewrap for _linewrap in SequenceTextWrapper(width=term.width, term=term, drop_whitespace=False, replace_whitespace=False).wrap(line)] if line.strip() else (b'',)
     
 
 def memoized_wrapline(line, strip_end):
