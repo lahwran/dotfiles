@@ -325,8 +325,7 @@ def shell(name="detect"):
         def wrap_embed(globs):
             orig = repl.Interpreter.runsource.im_func
             def runsource(self, source, *a, **kw):
-                orig(self, passthrough(globs, source), *a, **kw)
-                
+                return orig(self, passthrough(globs, source), *a, **kw)
                 
             repl.Interpreter.runsource = runsource
             return embed(globs)
