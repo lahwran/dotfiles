@@ -269,13 +269,6 @@ read_until = readfor
 def shell(name="detect"):
     if name == "detect":
         try:
-            import ptpython
-            name = "ptpython"
-        except ImportError:
-            print("You should totally install ptpython, it's super awesome.")
-            print("Specify `-i builtin` to shut this suggestion up.")
-    if name == "detect":
-        try:
             import bpython
             name = "bpython"
         except ImportError:
@@ -286,6 +279,13 @@ def shell(name="detect"):
             name = "ipython"
         except ImportError:
             pass
+    if name == "detect":
+        try:
+            import ptpython
+            name = "ptpython"
+        except ImportError:
+            print("You should totally install ptpython, it's super awesome.")
+            print("Specify `-i builtin` to shut this suggestion up.")
     if name == "detect":
         name = "builtin"
 
@@ -325,7 +325,9 @@ def shell(name="detect"):
         def wrap_embed(globs):
             orig = repl.Interpreter.runsource.im_func
             def runsource(self, source, *a, **kw):
-                return orig(self, passthrough(globs, source), *a, **kw)
+                orig(self, passthrough(globs, source), *a, **kw)
+                
+                
             repl.Interpreter.runsource = runsource
             return embed(globs)
         return wrap_embed
