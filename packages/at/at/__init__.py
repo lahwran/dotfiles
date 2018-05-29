@@ -245,6 +245,7 @@ def readall(file_like, max=None):
 
 
 def paste():
+    import subprocess
     return subprocess.check_output(["pbpaste"])
 
 
