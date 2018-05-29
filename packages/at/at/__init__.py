@@ -244,6 +244,11 @@ def readall(file_like, max=None):
     return read
 
 
+def paste():
+    return subprocess.check_output(["pbpaste"])
+
+
+
 def readfor(file_like, duration, use_select=True):
     import select
     import time
