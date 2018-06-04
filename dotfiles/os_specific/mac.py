@@ -37,6 +37,7 @@ brew_install = [
     "socat",
     "pypy",
     "ceylon",
+    "findutils",
 ]
 cask_install = [
     "google-chrome",
