@@ -4,36 +4,40 @@ cat << END
 
 Filename:
 
-    <ssh address>:<path>   - connect to and transfer to/from this ssh addr
-    <local path>           - transfer to/from this local addr
-    <rsync addr>::<module> - rsync daemon; confusing
+<ssh address>:<path>   - connect to and transfer to/from this ssh addr
+<local path>           - transfer to/from this local addr
+<rsync addr>::<module> - rsync daemon; confusing
 
-basic options:
+Basic options:
 
-    -v  verbose mode, show files as they're transferred
-    -q  quiet
+-v  verbose mode, show files as they're transferred
+-q  quiet
 
-archive options:
+Archive & data options:
 
-    -a  archive mode. implies all of:
-        -r  recursive
-        -l  preserve symlinks
-        -p  preserve permissions
-        -t  preserve times
-        -g  preserve group
-        -o  preserve owner (superuser only)
-        -D  preserve devices and specials
-    -H  preserve hard links
-    -R  use relative path names
-    -L k
+-a  archive mode. implies all of:
+  -r  recursive
+  -l  preserve symlinks
+  -p  preserve permissions
+  -t  preserve times
+  -g  preserve group
+  -o  preserve owner (superuser only)
+  -D  preserve devices and specials
+
+-H  preserve hard links
+-R  use relative path names
+
+-L --copy-links  copy links by resolving them and sending their contents
+   --copy-unsafe-links  copy links that may not resolve on the
+                            remote end by resolving them before copying
 
 diff efficiency options:
 
-       --inplace   update destination files in-place
-       --append    append data onto shorter destination files
-    -c --checksum  skip based on checksum, not mod-time & size
-    -u --update    skip files that are newer on the remote
-    -
+   --inplace   update destination files in-place
+   --append    append data onto shorter destination files
+-c --checksum  skip based on checksum, not mod-time & size
+-u --update    skip files that are newer on the remote
+-
     
 
 reasonable normal-copy usage (skip based on mod-time & size):
