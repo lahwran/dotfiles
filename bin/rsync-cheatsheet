@@ -37,18 +37,19 @@ diff efficiency options:
    --append    append data onto shorter destination files
 -c --checksum  skip based on checksum, not mod-time & size
 -u --update    skip files that are newer on the remote
--
+   --partial   don't delete transferred files if the transfer fails
+   --size-only
     
 
 reasonable normal-copy usage (skip based on mod-time & size):
 
-    rsync <filename> <filename>
+    rsync --partial <filename> <filename>
 
 paranoid archive-mode usage:
 
-    rsync -aHc <filename> <filename>
+    rsync --partial -aHc <filename> <filename>
 
 efficient transfer of large files usage:
 
-    rsync -aHc <filename> <filename>
+    rsync --partial <filename> <filename>
 END
