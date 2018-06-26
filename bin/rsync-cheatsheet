@@ -10,9 +10,10 @@ Filename:
 
 Basic options:
 
--v          verbose mode, show files as they're transferred
--q          quiet
-   --stats  give some stats at the end
+-v             verbose mode, show files as they're transferred
+-q             quiet
+   --stats     give some stats at the end
+   --progress  give stats in the middle
 
 Archive & data options:
 
@@ -46,7 +47,7 @@ diff efficiency options:
 reasonable normal-copy usage (skip based on mod-time & size):
 
     rsync <filename> <filename>
-    rsync --partial --stats <filename> <filename>
+    rsync --partial --progress <filename> <filename>
 
 paranoid archive-mode usage:
 
@@ -54,5 +55,5 @@ paranoid archive-mode usage:
 
 efficient transfer of large files usage:
 
-    rsync --partial --stats <filename> <filename>
+    rsync --progress --partial --stats <filename> <filename>
 END
