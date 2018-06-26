@@ -10,8 +10,9 @@ Filename:
 
 Basic options:
 
--v  verbose mode, show files as they're transferred
--q  quiet
+-v          verbose mode, show files as they're transferred
+-q          quiet
+   --stats  give some stats at the end
 
 Archive & data options:
 
@@ -38,12 +39,14 @@ diff efficiency options:
 -c --checksum  skip based on checksum, not mod-time & size
 -u --update    skip files that are newer on the remote
    --partial   don't delete transferred files if the transfer fails
-   --size-only
+   --size-only skip files that match in size
+-z             compress in flight
     
 
 reasonable normal-copy usage (skip based on mod-time & size):
 
-    rsync --partial <filename> <filename>
+    rsync <filename> <filename>
+    rsync --partial --stats <filename> <filename>
 
 paranoid archive-mode usage:
 
@@ -51,5 +54,5 @@ paranoid archive-mode usage:
 
 efficient transfer of large files usage:
 
-    rsync --partial <filename> <filename>
+    rsync --partial --stats <filename> <filename>
 END
