@@ -1,8 +1,40 @@
 #!/bin/bash
 
 cat << END
+reasonable normal-copy usage:
 
+    rsync <filename> <filename>
+
+reasonable archive-mode usage:
+
+    rsync -aH <filename> <filename>
+
+
+
+Filename:
+
+    <ssh address>:<path>   - connect to and transfer to/from this ssh addr
+    <local path>           - transfer to/from this local addr
+    <rsync addr>::<module> - rsync daemon; confusing
+
+options:
 
 -v  verbose mode, show files as they're transferred
+-q  quiet
+
+-a  archive mode. implies all of:
+-r  recursive
+-l  preserve symlinks
+-p  preserve permissions
+-t  preserve times
+-g
+-o
+-D
+
+does not imply:
+-H
+
+
+
 
 END
