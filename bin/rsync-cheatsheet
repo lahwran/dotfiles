@@ -1,15 +1,6 @@
 #!/bin/bash
 
 cat << END
-reasonable normal-copy usage:
-
-    rsync <filename> <filename>
-
-reasonable archive-mode usage:
-
-    rsync -aH <filename> <filename>
-
-
 
 Filename:
 
@@ -17,24 +8,43 @@ Filename:
     <local path>           - transfer to/from this local addr
     <rsync addr>::<module> - rsync daemon; confusing
 
-options:
+basic options:
 
--v  verbose mode, show files as they're transferred
--q  quiet
+    -v  verbose mode, show files as they're transferred
+    -q  quiet
 
--a  archive mode. implies all of:
--r  recursive
--l  preserve symlinks
--p  preserve permissions
--t  preserve times
--g
--o
--D
+archive options:
 
-does not imply:
--H
+    -a  archive mode. implies all of:
+        -r  recursive
+        -l  preserve symlinks
+        -p  preserve permissions
+        -t  preserve times
+        -g  preserve group
+        -o  preserve owner (superuser only)
+        -D  preserve devices and specials
+    -H  preserve hard links
+    -R  use relative path names
+    -L k
 
+diff efficiency options:
 
+       --inplace   update destination files in-place
+       --append    append data onto shorter destination files
+    -c --checksum  skip based on checksum, not mod-time & size
+    -u --update    skip files that are newer on the remote
+    -
+    
 
+reasonable normal-copy usage (skip based on mod-time & size):
 
+    rsync <filename> <filename>
+
+paranoid archive-mode usage:
+
+    rsync -aHc <filename> <filename>
+
+efficient transfer of large files usage:
+
+    rsync -aHc <filename> <filename>
 END
