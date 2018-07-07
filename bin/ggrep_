@@ -50,20 +50,21 @@ cmd.extend(args.args)
 #commands = [cmd]
 #for filter in args.f:
 #    commands.append(["grep", "-C", "10",)
+e_cmd = cmd_base + cmd
 print("####", " ".join([pipes.quote(x) for x in e_cmd]))
 sys.stdout.flush()
 sys.stderr.flush()
-e_cmd = cmd_base + cmd
-process = subprocess.Popen(gg_cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+process = subprocess.Popen(e_cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 output = process.communicate()
 
 if output == ('fatal: Not a git repository (or any of the parent directories): .git\n', None):
+    import pudb; pudb.set_trace()
     print(output[0])
-    print("####", " ".join([pipes.quote(x) for x in e_cmd]))
     if not any((not x.startswith("-")) for x in args.args):
         cmd.append(".")
-    print(
-    process = subprocess.Popen(["grep", "-R"] + cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    e_cmd = ["grep", "-R"] + cmd
+    print("####", " ".join([pipes.quote(x) for x in e_cmd]))
+    process = subprocess.Popen( cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     output = process.communicate()
 
 existant_files = set()
