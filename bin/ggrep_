@@ -9,7 +9,8 @@ import argparse
 import pipes
 parser = argparse.ArgumentParser(prefix_chars="-")
 parser.add_argument("--args", dest="ignored", action="store_true")
-parser.add_argument("args", nargs="+")
+parser.add_argument("search")
+parser.add_argument("args", nargs="*")
 parser.add_argument("-a")
 parser.add_argument("-b")
 parser.add_argument("-c")
@@ -23,9 +24,9 @@ parser.add_argument("-e", help="extended regex", action="store_true")
 parser.add_argument("-p", help="extended regex", action="store_true")
 args = parser.parse_args()
 
-print("####", "Grep for %r" % args.args[0])
-if len(args.args[1:]):
-    print("####", "in %r" % args.args[1:])
+print("####", "Grep for %r" % args.search)
+if len(args.args):
+    print("####", "in %r" % args.args)
 cmd_base = ["git", "grep"]
 cmd = []
 special = []
@@ -45,6 +46,7 @@ if args.p:
 if args.e:
     special.extend(["-E"])
 cmd.extend(special)
+cmd.append(args.search)
 cmd.extend(args.args)
 #processes = []
 #commands = [cmd]
@@ -58,7 +60,7 @@ process = subprocess.Popen(e_cmd, stderr=subprocess.STDOUT, stdout=subprocess.PI
 output = process.communicate()
 
 if output == ('fatal: Not a git repository (or any of the parent directories): .git\n', None):
-    import pudb; pudb.set_trace()
+    #import pudb; pudb.set_trace()
     print(output[0])
     derp = [(not x.startswith("-")) for x in args.args]
     if not any(derp):
