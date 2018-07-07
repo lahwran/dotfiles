@@ -55,6 +55,9 @@ sys.stderr.flush()
 
 process = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 output = process.communicate()
+
+if output == ('fatal: Not a git repository (or any of the parent directories): .git\n', None):
+
 existant_files = set()
 def exists(filename):
     if filename in existant_files:
@@ -87,6 +90,7 @@ def splitline(orig):
         if exists(path_candidate):
             return path_candidate, match_candidate
     return path_candidate, match_candidate
+
 
 if not args.r:
     # not in raw mode, fancify it
