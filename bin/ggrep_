@@ -26,7 +26,8 @@ args = parser.parse_args()
 print("####", "Grep for %r" % args.args[0])
 if len(args.args[1:]):
     print("####", "in %r" % args.args[1:])
-cmd = ["git", "grep"]
+cmd_base = ["git", "grep"]
+cmd = []
 special = []
 if args.c:
     special.extend(["-C", args.c])
@@ -45,18 +46,25 @@ if args.e:
     special.extend(["-E"])
 cmd.extend(special)
 cmd.extend(args.args)
-print("####", " ".join([pipes.quote(x) for x in cmd]))
-sys.stdout.flush()
-sys.stderr.flush()
 #processes = []
 #commands = [cmd]
 #for filter in args.f:
 #    commands.append(["grep", "-C", "10",)
-
-process = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+print("####", " ".join([pipes.quote(x) for x in e_cmd]))
+sys.stdout.flush()
+sys.stderr.flush()
+e_cmd = cmd_base + cmd
+process = subprocess.Popen(gg_cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 output = process.communicate()
 
 if output == ('fatal: Not a git repository (or any of the parent directories): .git\n', None):
+    print(output[0])
+    print("####", " ".join([pipes.quote(x) for x in e_cmd]))
+    if not any((not x.startswith("-")) for x in args.args):
+        cmd.append(".")
+    print(
+    process = subprocess.Popen(["grep", "-R"] + cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    output = process.communicate()
 
 existant_files = set()
 def exists(filename):
