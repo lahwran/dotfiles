@@ -69,6 +69,7 @@ import ast
 import token
 import tokenize
 import contextlib
+import six
 
 _debug = False
 
@@ -78,7 +79,7 @@ class _Unbuffered(object):
         self._unbuffered = True
 
     def write(self, data):
-        if type(data) == unicode:
+        if isinstance(data, six.text_type) and not getattr(self.stream, "buffer", None):
             data = data.encode("utf-8")
         self.stream.write(data)
         if self._unbuffered:
@@ -89,6 +90,7 @@ class _Unbuffered(object):
 
 
 def _debuffer():
+    pass
     sys.stdout = _Unbuffered(sys.stdout)
     sys.stdout._unbuffered = sys.stdout.isatty()
 
@@ -184,6 +186,15 @@ def delays(delta, iterable=None):
         time.sleep(float(deltafunc()))
         yield x
 
+def noexc(lamb, *a, **kw):
+    default = kw.get("default", None)
+    try:
+        return lamb(*a)
+    except Exception as e:
+        res = default
+        if type(default) in [str, unicode]:
+            return default.format(e=e)
+
 
 lines = lines()
 
@@ -191,7 +202,7 @@ class bytes(object):
     def __init__(self):
         self.__doc__ = "Standard in, byte by byte, as an iterator"
         self.iterator = self._go()
-        assert self.iterator.next() is None
+        assert six.next(self.iterator) is None
 
     def __iter__(self):
         return self.iterator
@@ -227,7 +238,9 @@ def _split_statements(string):
         return [], ""
 
     operations = [[]]
-    for type, tokenstring, start, end, line in tokenize.generate_tokens(iter(string.split("\n")).next):
+    i = iter(string.split("\n"))
+    nextop = lambda: six.next(i)
+    for type, tokenstring, start, end, line in tokenize.generate_tokens(nextop):
         if tokenstring.strip() == ";":
             operations.append([])
             continue
@@ -451,6 +464,7 @@ class _Importable(object):
 
 
 _optional_modules = [
+    "six",
     "abc",
     "aifc",
     "argparse",
@@ -745,7 +759,7 @@ def _mute_all():
 def _add_modules(globbles, strings):
     def _import(_mod):
         try:
-            exec "import %s" % _mod in globbles
+            globbles[_mod] = __import__(_mod)
         except ImportError as e:
             print(e)
             return None
@@ -805,7 +819,8 @@ def _add_modules(globbles, strings):
 
     for _itertool_func in _itertools_values:
         if _wanted(_itertool_func):
-            exec "from itertools import %s" % _itertool_func in globbles
+            _itertools = __import__("itertools")
+            globbles[_itertools_func] = getattr(_itertools, _itertools_func)
             _reset_vars()
         del _itertool_func
 
@@ -993,7 +1008,7 @@ def _format_var(name, value, f=None):
     def truncate_to_line(v, length=100):
         s = v.split("\n")
         if len(s) > 1 or len(s[0]) >= length:
-            v = s[0][:length/2 - 5] + "   ...   " + s[0][-(length/2 - 6):]
+            v = s[0][:length//2 - 5] + "   ...   " + s[0][-(length//2 - 6):]
         return v
 
     if f is None:
@@ -1013,7 +1028,7 @@ def _format_var(name, value, f=None):
         simpledesc = "method"
     elif type(value) == type("".join) or type(value) == type(object().__str__) or type(value) == type(bytes.__str__):
         simpledesc = "bound method"
-    elif type(value) == str or type(value) == unicode:
+    elif isinstance(type(value), six.string_types):
         simpledesc = repr(value)
     else:
         simpledesc = str(value)
@@ -1140,7 +1155,7 @@ def _add_environment_vars(glob, outer_dir):
 def run(statements, expression, run_globals, _shouldprint, _quiet):
     try:
         for statement in statements:
-            exec statement in run_globals
+            six.exec_(statement, globals=run_globals)
         if not expression.strip():
             _result = None
         else:
@@ -1168,7 +1183,7 @@ def run(statements, expression, run_globals, _shouldprint, _quiet):
     if _result is None:
         _result = True
 
-    if not (isinstance(_result, basestring) or isinstance(_result, _LazyString)):
+    if not (isinstance(_result, six.string_types) or isinstance(_result, _LazyString)):
         try:
             iterator = iter(_result)
         except TypeError as e:
@@ -1264,7 +1279,6 @@ def _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
 
     if interactive:
         interactive(run_globals)
-
 
 def _main():
     global print

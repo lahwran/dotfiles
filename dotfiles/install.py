@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import json
 import subprocess
 import sys
 import logging
@@ -60,12 +61,16 @@ pip_dependencies = [
     "urwid",
     "bpython",
     "hsluv",
-    "ipython[notebook]",
+    "jupyter",
     "lxml",
     "incremental",
+    "six",
+    "pytest-regtest",
+    "neovim",
 ]
 py2_pip_dependencies = [
     "progressbar",
+    "ipython<=6"
 ]
 
 ensure_nonexistant = [
@@ -249,39 +254,61 @@ def which(program):
 
     return None
 
+def check_py(name, found, sites, check_version=None):
+    binary = which(name)
+    if not binary:
+        return
+    if check_version is not None:
+        out = json.loads(subprocess.check_output([binary, '-c', 'import sys, json; json.dump(list(sys.version_info), sys.stdout)']))
+        if out[:len(check_version)] != check_version:
+            return
+    out = subprocess.check_output([binary, '-m', 'site', '--user-site']).strip()
+    if out in sites:
+        found.remove(sites[out])
+    sites[out] = binary
+    found.append(binary)
+
+def fix_pypy(packages, is_pypy):
+    if not is_pypy:
+        return packages
+    mapping = {
+        "numpy": "git+https://bitbucket.org/pypy/numpy.git"
+    }
+    return [mapping.get(x, x) for x in packages]
 
 def user_install():
     global logger
-    if which('python2'):
-        python2 = which('python2')
-    elif which('python') and subprocess.check_output(['python', '--version'], stderr=subprocess.STDOUT).startswith("Python 2"):
-        python2 = which('python')
-    else:
-        python2 = None
+    sites2 = {}
+    python2s = []
+    check_py("python2.7", python2s, sites2)
+    check_py("python2", python2s, sites2)
+    check_py("python", python2s, sites2, check_version=[2, 7])
+    check_py("pypy", python2s, sites2, check_version=[2, 7])
 
-    if which('python3'):
-        python3 = which('python3')
-    elif (which('python') and subprocess.check_output(['python', '--version'], stderr=subprocess.STDOUT).startswith("Python 3")):
-        python3 = which('python')
-    else:
-        python3 = None
+    sites3 = {}
+    python3s = []
+    for x in range(5, 10):
+        check_py("python3.{}".format(x), python3s, sites3)
+    check_py("python3", python3s, sites3)
+    check_py("python", python3s, sites3, check_version=[3])
+    check_py("pypy3", python3s, sites3)
 
     wrap_process.call("wget", ["wget", "https://bootstrap.pypa.io/get-pip.py", "-O", path("get-pip.py")])
 
-    if python2 is not None:
-        wrap_process.call("python2", [python2, path("get-pip.py"), "--user", "--upgrade"])
+    for python2 in python2s:
+        wrap_process.call(python2, [python2, path("get-pip.py"), "--user", "--upgrade"])
         # install pip packages
         logger.info("Installing pip packages...")
-        wrap_process.call("pip2", ["pip", "install", "--user", "--upgrade", "pip", "setuptools"])
-        wrap_process.call("pip2", ["pip", "install", "--user", "--upgrade"] + pip_dependencies + py2_pip_dependencies)
-        wrap_process.call("pip2", ["pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
-    if python3 is not None:
-        wrap_process.call("python3", [python3, path("get-pip.py"), "--user", "--upgrade"])
+        wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user", "--upgrade", "pip", "setuptools"])
+        wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user", "--upgrade"] + fix_pypy(pip_dependencies + py2_pip_dependencies, is_pypy="pypy" in python2))
+        wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
+    for python3 in python3s:
+        wrap_process.call(python3, [python3, path("get-pip.py"), "--user", "--upgrade"])
         # install pip packages
         logger.info("Installing pip packages...")
-        wrap_process.call("pip3", ["pip3", "install", "--user", "--upgrade", "pip", "setuptools"])
-        wrap_process.call("pip3", ["pip3", "install", "--user", "--upgrade"] + pip_dependencies)
-        wrap_process.call("pip3", ["pip3", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
+        wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade", "pip", "setuptools"])
+        wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade"] + fix_pypy(pip_dependencies, is_pypy="pypy" in python3))
+        wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
 
 
     logger = logging.getLogger("u")
@@ -430,19 +457,24 @@ def root_install():
 def init_logging(mode):
     rootlogger = logging.getLogger()
     prefix = "\033[32m"
-    formatter = logging.Formatter('[%(relativeCreated)6dms ' + highlight(mode) + ' %(levelname)s] ' +
-                                        highlight('%(name)s') + ': %(message)s')
     rootlogger.setLevel(logging.DEBUG)
     today = datetime.date.today()
     today_str = today.strftime("%Y-%m-%d")
-    logfile = open(".install_%s.log" % today_str, "a")
-    handlers = [
-        logging.StreamHandler(sys.stdout),
-        logging.StreamHandler(logfile)
-    ]
-    for handler in handlers:
-        handler.setFormatter(formatter)
-        rootlogger.addHandler(handler)
+    logfile = open(path(".install_%s.log" % today_str), "a")
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(
+        logging.Formatter(highlight(mode) + ' %(levelname)s ' +
+                                highlight('%(name)s') + ': %(message)s'))
+    rootlogger.addHandler(handler)
+
+    handler = logging.StreamHandler(logfile)
+    handler.setFormatter(
+        logging.Formatter('[%(relativeCreated)6dms ' + highlight(mode) + ' %(levelname)s] ' +
+                                        highlight('%(name)s') + ': %(message)s'))
+
+    rootlogger.addHandler(handler)
+
     logger.info("Logging initialized")
 
 def main(mode="user", *args):

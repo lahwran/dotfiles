@@ -19663,9 +19663,9 @@
 	<key>NSWindow Frame SUAutomaticUpdateAlert</key>
 	<string>652 753 616 174 0 0 1920 1177 </string>
 	<key>NSWindow Frame SessionsPreferences</key>
-	<string>269 57 599 501 0 0 1920 1177 </string>
+	<string>269 57 606 469 0 0 1920 1177 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>676 779 928 394 0 0 1920 1177 </string>
+	<string>888 677 958 451 0 0 1920 1177 </string>
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>155 594 592 584 0 0 1920 1178 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
@@ -19892,9 +19892,9 @@
 			<key>Blinking Cursor</key>
 			<false/>
 			<key>Blur</key>
-			<true/>
+			<false/>
 			<key>Blur Radius</key>
-			<real>5.1673243193835168</real>
+			<real>2.8634022049492383</real>
 			<key>Bold Color</key>
 			<dict>
 				<key>Blue Component</key>
@@ -20257,7 +20257,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Transparency</key>
-			<real>0.031979695431472083</real>
+			<real>0.066332883883248733</real>
 			<key>Triggers</key>
 			<array/>
 			<key>Unicode Normalization</key>
@@ -20553,9 +20553,9 @@
 			<key>Blinking Cursor</key>
 			<false/>
 			<key>Blur</key>
-			<true/>
+			<false/>
 			<key>Blur Radius</key>
-			<real>5.1673243193835168</real>
+			<real>0.10000000000000001</real>
 			<key>Bold Color</key>
 			<dict>
 				<key>Alpha Component</key>
@@ -20641,13 +20641,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.43850564956665039</real>
+				<real>0.287567138671875</real>
 				<key>Color Space</key>
-				<string>Calibrated</string>
+				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.40717673301696777</real>
+				<real>0.27638438061918597</real>
 				<key>Red Component</key>
-				<real>0.32436618208885193</real>
+				<real>0.24563172692433</real>
 			</dict>
 			<key>Guid</key>
 			<string>86D88569-76D2-42E1-9576-1F06124692A3</string>
@@ -20944,7 +20944,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Transparency</key>
-			<real>0.031979695431472083</real>
+			<real>0.054643876903553296</real>
 			<key>Triggers</key>
 			<array/>
 			<key>Unicode Normalization</key>
@@ -21708,7 +21708,9 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2018-05-17T21:18:11Z</date>
+	<date>2018-08-16T22:54:00Z</date>
+	<key>SUSkippedVersion</key>
+	<string>3.1.7</string>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>Secure Input</key>
@@ -21728,9 +21730,9 @@
 	<key>StretchTabsToFillBar</key>
 	<true/>
 	<key>SwitchTabModifier</key>
-	<integer>5</integer>
+	<integer>9</integer>
 	<key>SwitchWindowModifier</key>
-	<integer>6</integer>
+	<integer>9</integer>
 	<key>TabStyle</key>
 	<integer>2</integer>
 	<key>TabViewType</key>

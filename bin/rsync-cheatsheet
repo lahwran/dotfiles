@@ -47,6 +47,7 @@ diff efficiency options:
 reasonable normal-copy usage (skip based on mod-time & size):
 
     rsync <filename> <filename>
+    rsync -r <dir> <dir>
     rsync --partial --progress <filename> <filename>
 
 paranoid archive-mode usage:
@@ -56,4 +57,12 @@ paranoid archive-mode usage:
 efficient transfer of large files usage:
 
     rsync --progress --partial --stats <filename> <filename>
+
+
+directories - to copy /x/y/1/2 => /a/b/1/2:
+
+    rsync -aH /x/y/ /a/b/ # also updates /a/b/'s metadata
+    rsync -aH /x/y/1 /a/b/
+    rsync -aH /x/y/1/ /a/b/1/
+    
 END

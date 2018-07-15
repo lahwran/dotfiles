@@ -9,6 +9,12 @@ from watchdog.tricks import Trick
 #import pudb; pudb.set_trace()
 term = blessed.Terminal()
 
+if len(sys.argv) == 1 or sys.argv[1].replace("--", "") in ["help", "h"]:
+    print("Usage:")
+    print()
+    print("watchmeexec [[pattern...] --] binary [args ...]")
+    sys.exit(1)
+
 if "--" in sys.argv:
     idx = sys.argv.index("--")
     path_patterns = sys.argv[1:idx]
@@ -71,7 +77,7 @@ class CommandTrick(Trick):
 patterns = []
 dirnames = {}
 executable = cmd[0]
-if os.path.basename(executable) in ["python", "python3", "python2", "bash", "ruby", "node", "nodejs"]:
+if os.path.basename(executable) in ["python", "python3", "python2", "bash", "ruby", "node", "nodejs", "python3.6", "python3.5", "python3.7"]:
     # todo make less naive
     executable = cmd[1]
 executable = os.path.abspath(executable)
