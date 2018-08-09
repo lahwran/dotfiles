@@ -145,10 +145,22 @@ def sha256(text):
     import hashlib
     return _hash(hashlib.sha256, text).hexdigest()
 
-
-def pairs(iterable):
+def pairs(iterable, **kwargs):
     "pairs(iterable) -> (s0, s1), (s1,s2), (s2, s3), etc"
-    from itertools import tee, izip
+    from itertools import tee, izip, izip_longest, chain
+    iterables = []
+    for key, value in kwargs.items():
+        if any(x in key for x in ["pre", "head", "begin", "start", "lead", "before", "open", "front", "first", "prepare", "embark", "launch", "create", "go", "push"]):
+            iterables.append([value])
+            break
+    iterables.append(iterable)
+    for key, value in kwargs.items():
+        if any(x in key for x in ["post", "tail", "end",  "stop", "conclude", "after", "close", "back", "last", "destroy", "halt", "off", "termin", "pop"]):
+            iterables.append([value])
+            break
+
+    if len(iterables) > 1:
+        iterable = chain(*iterables)
     a, b = tee(iterable)
     next(b, None)
     return izip(a, b)

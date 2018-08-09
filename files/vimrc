@@ -582,9 +582,9 @@ autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.plans.md set filetype=plans
 autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.cuh,*.cu set filetype=cpp syntax=nested_py_cuda_cpp
 autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.h,*.hpp,*.hxx,*.hh set filetype=cpp syntax=nested_py_cpp
 autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.c,*.cpp,*.cxx,*.cc set filetype=cpp syntax=nested_py_cpp
-"autocmd FileType cpp setlocal nosmarttab shiftwidth=4 tabstop=4 noexpandtab
-"autocmd FileType c setlocal nosmarttab shiftwidth=4 tabstop=4 noexpandtab
-"autocmd FileType cuda setlocal nosmarttab shiftwidth=4 tabstop=4 noexpandtab
+autocmd FileType cpp setlocal nosmarttab shiftwidth=4 tabstop=4 noexpandtab
+autocmd FileType c setlocal nosmarttab shiftwidth=4 tabstop=4 noexpandtab
+autocmd FileType cuda setlocal nosmarttab shiftwidth=4 tabstop=4 noexpandtab
 autocmd BufWritePost * filetype detect
 
 set nolazyredraw                  " don't update screen inside macros, etc
@@ -603,7 +603,7 @@ set linebreak
 
 nnoremap <C-i> :CtrlPChange<CR>
 nnoremap <C-I> :CtrlPChangeAll<CR>
-let g:ctrlp_cmd = 'CtrlPMixed'
+let g:ctrlp_cmd = 'CtrlP'
 "nnoremap <nowait> <silent> <C-m> `
 
 set sidescrolloff=8

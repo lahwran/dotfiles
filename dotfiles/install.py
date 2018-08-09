@@ -67,6 +67,7 @@ pip_dependencies = [
     "six",
     "pytest-regtest",
     "neovim",
+    "python-pcre",
 ]
 py2_pip_dependencies = [
     "progressbar",
