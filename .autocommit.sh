@@ -3,6 +3,7 @@
 cd "$(dirname "$0")"
 git add -A .
 git commit -m "autocommit"
+git push
 git config merge.ff only
 bin/check_run
 
