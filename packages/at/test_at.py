@@ -4,9 +4,7 @@
 #function @ {
 #    $at "$@"
 #}
-
-
-def run():
+def test_at():
     pass
 
 #@ 'derp' -p 3>&1 | tail -n 10
