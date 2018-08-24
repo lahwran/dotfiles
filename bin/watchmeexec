@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import argparse
 import subprocess
 import os
 import time
@@ -9,11 +10,6 @@ from watchdog.tricks import Trick
 #import pudb; pudb.set_trace()
 term = blessed.Terminal()
 
-if len(sys.argv) == 1 or sys.argv[1].replace("--", "") in ["help", "h"]:
-    print("Usage:")
-    print()
-    print("watchmeexec [[pattern...] --] binary [args ...]")
-    sys.exit(1)
 
 original_argv = sys.argv
 
@@ -25,11 +21,16 @@ else:
     prefix_args = []
     cmd = sys.argv[1:]
 
-parser = argparse.ArgumentParser()
-parser.add_argument("patterns")
-if cmd[0].startswith("-"):
+parser = argparse.ArgumentParser(
+    usage="watchmeexec [[pattern...] --] binary [args ...]"
+)
+parser.add_argument("patterns", nargs="*")
+if not cmd or cmd[0].startswith("-"):
     parser.print_help()
     sys.exit(1)
+args = parser.parse_args(prefix_args)
+print(vars(args))
+sys.exit(1)
 
 #watchmedo shell-command -c "clear; $command" 
 
