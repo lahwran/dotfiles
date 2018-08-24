@@ -22,7 +22,10 @@ else:
     cmd = sys.argv[1:]
 
 parser = argparse.ArgumentParser(
-    usage="watchmeexec [[pattern...] --] binary [args ...]"
+    usage=term.bold(
+        "\n  watchmeexec binary [args for binary ...]"
+      + "\n  watchmeexec [-h] [pattern...] -- binary [args for binary ...]"
+    )
 )
 parser.add_argument("patterns", nargs="*")
 if not cmd or cmd[0].startswith("-"):
