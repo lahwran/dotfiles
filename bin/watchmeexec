@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import sys
 import argparse
-
+import signal
 import subprocess
 import os
 import time
+
 import blessed
 from watchdog.observers import Observer
 from watchdog.tricks import Trick
@@ -44,8 +45,7 @@ patterns = []
 #subprocess.call(["python", "-c", headexec] + cmd)
 
 def invoke():
-    pass
-    #subprocess.call(["headexec", "__do_clear"] + cmd)
+    subprocess.call(["headexec", "__do_clear"] + cmd)
 
 watchmeexec_internals = [
     os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "**"),
@@ -71,7 +71,6 @@ class CommandTrick(Trick):
         global stopping
         global restarting
         sp = getattr(event, "src_path", None)
-        print(repr(event))
 
         if sp is not None and os.path.abspath(sp) == os.path.abspath(__file__):
             os.kill(os.getpid(), signal.SIGINT)
@@ -141,7 +140,8 @@ observer = Observer(timeout=30)
 
 
 
-if 1:#with term.fullscreen():
+with term.fullscreen():
+    sys.stdout.write(" \b")
     invoke()
     for dirname, recursive in dirnames.items():
         observer.schedule(handler, dirname, recursive)
@@ -152,12 +152,14 @@ if 1:#with term.fullscreen():
             while not stopping:
                 time.sleep(1)
         except KeyboardInterrupt:
-            print("Stopping")
+            pass
+        print("Stopping")
         observer.stop()
         print("Done stopping")
     except KeyboardInterrupt:
         print("Shutting down forcefully?")
         pass
         print("Stuff may or may not actually happen")
+
 if restarting:
     os.execv(sys.executable, [sys.executable, __file__] + sys.argv[1:])

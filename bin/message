@@ -4,6 +4,5 @@
 if [ "$#"  != "0" ]; then
     cat >> ~/.messages
 else
-    
 
 fi
