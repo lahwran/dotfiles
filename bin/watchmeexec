@@ -35,6 +35,10 @@ patterns = []
 def invoke():
     subprocess.call(["headexec", "__do_clear"] + cmd)
 
+watchmeexec_internals = [
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "**"),
+]
+
 class CommandTrick(Trick):
 
     """Executes shell commands in response to matched events."""
@@ -81,7 +85,7 @@ if os.path.basename(executable) in ["python", "python3", "python2", "bash", "rub
     # todo make less naive
     executable = cmd[1]
 executable = os.path.abspath(executable)
-for pathpattern in path_patterns + [executable]:
+for pathpattern in path_patterns + [executable] + watchmeexec_internals:
     pathpattern=os.path.abspath(pathpattern)
     if "**" in pathpattern:
         before, stars, after = pathpattern.partition("**")
