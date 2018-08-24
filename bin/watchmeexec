@@ -32,8 +32,6 @@ if not cmd or cmd[0].startswith("-"):
     parser.print_help()
     sys.exit(1)
 args = parser.parse_args(prefix_args)
-print(vars(args))
-sys.exit(1)
 
 #watchmedo shell-command -c "clear; $command" 
 
@@ -45,7 +43,8 @@ patterns = []
 #subprocess.call(["python", "-c", headexec] + cmd)
 
 def invoke():
-    subprocess.call(["headexec", "__do_clear"] + cmd)
+    pass
+    #subprocess.call(["headexec", "__do_clear"] + cmd)
 
 watchmeexec_internals = [
     os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "**"),
@@ -65,6 +64,9 @@ class CommandTrick(Trick):
         self.process = None
 
     def on_any_event(self, event):
+        sp = getattr(event, "src_path", None)
+        if os.path.abspath(sp) == os.path.abspath(__file__):
+            restart()
         #from string import Template
 
         #if self.drop_during_process and self.process and self.process.poll() is None:
@@ -97,7 +99,7 @@ if os.path.basename(executable) in ["python", "python3", "python2", "bash", "rub
     # todo make less naive
     executable = cmd[1]
 executable = os.path.abspath(executable)
-for pathpattern in path_patterns + [executable] + watchmeexec_internals:
+for pathpattern in args.patterns + [executable] + watchmeexec_internals:
     pathpattern=os.path.abspath(pathpattern)
     if "**" in pathpattern:
         before, stars, after = pathpattern.partition("**")
@@ -128,7 +130,7 @@ observer = Observer(timeout=30)
 
 
 
-with term.fullscreen():
+if 1:#with term.fullscreen():
     invoke()
     for dirname, recursive in dirnames.items():
         observer.schedule(handler, dirname, recursive)
@@ -136,12 +138,12 @@ with term.fullscreen():
     try:
         observer.start()
         try:
-            while True:
+            while not stopping:
                 time.sleep(1)
         except KeyboardInterrupt:
             print("Stopping")
-            observer.stop()
-            print("Done stopping")
+        observer.stop()
+        print("Done stopping")
     except KeyboardInterrupt:
         print("Shutting down forcefully?")
         pass
