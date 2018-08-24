@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import argparse
+
 import subprocess
 import os
 import time
@@ -50,6 +51,9 @@ watchmeexec_internals = [
     os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "**"),
 ]
 
+stopping = False
+restarting = False
+
 class CommandTrick(Trick):
 
     """Executes shell commands in response to matched events."""
@@ -64,9 +68,16 @@ class CommandTrick(Trick):
         self.process = None
 
     def on_any_event(self, event):
+        global stopping
+        global restarting
         sp = getattr(event, "src_path", None)
-        if os.path.abspath(sp) == os.path.abspath(__file__):
-            restart()
+        print(repr(event))
+
+        if sp is not None and os.path.abspath(sp) == os.path.abspath(__file__):
+            os.kill(os.getpid(), signal.SIGINT)
+            restarting = True
+            stopping = True
+            return
         #from string import Template
 
         #if self.drop_during_process and self.process and self.process.poll() is None:
@@ -148,3 +159,5 @@ if 1:#with term.fullscreen():
         print("Shutting down forcefully?")
         pass
         print("Stuff may or may not actually happen")
+if restarting:
+    os.execv(sys.executable, [sys.executable, __file__] + sys.argv[1:])
