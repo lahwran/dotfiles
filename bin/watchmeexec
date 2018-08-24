@@ -25,8 +25,11 @@ else:
     prefix_args = []
     cmd = sys.argv[1:]
 
+parser = argparse.ArgumentParser()
+parser.add_argument("patterns")
 if cmd[0].startswith("-"):
     parser.print_help()
+    sys.exit(1)
 
 #watchmedo shell-command -c "clear; $command" 
 
