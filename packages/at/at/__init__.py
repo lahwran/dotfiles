@@ -439,6 +439,9 @@ def _parse_args():
     statements, string = _split_statements(string)
     if _debug:
         print("=> statements: ", args.interactive)
+        for statement in statements:
+            print("   ", statement)
+        print(" <<", string)
     if args.print_joined:
         args.print_each = True
 
@@ -464,13 +467,19 @@ def _parse_args():
 
     if args.bool:
         string = "bool(%s)" % string
+    if _debug:
+        print("=> processed final str:")
+        print(" << {}".format(string))
 
     if not args.variables:
         args.variables = []
     for var in args.variables:
         name, equals, value = var.partition("=")
         assert equals, "please put an equals sign in variable defitions"
+        if _debug:
+            print("=> add var {!r} = {!r}".format(name, value))
         globals()[name] = value
+
 
     return (statements, string, args.interactive, args.print_each, args.debug,
             sys.stdout.write if args.print_joined else print, args.quiet)
