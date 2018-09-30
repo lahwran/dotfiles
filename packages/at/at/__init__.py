@@ -796,6 +796,8 @@ def _mute_all():
         #os.write(2, "unmuting fd 2 (this was written to fd 2)\n")
 
 def _add_modules(globbles, strings):
+    if _debug:
+        print("=> _add_modules")
     def _import(_mod):
         try:
             globbles[_mod] = __import__(_mod)
@@ -1296,6 +1298,8 @@ def run(statements, expression, run_globals, _shouldprint, _quiet):
 
 def _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet):
     import os
+    if _debug:
+        print("in _run")
     sys.path.append(os.path.abspath("."))
     old_globals = dict(globals())
 
@@ -1325,7 +1329,7 @@ def _main():
     _debuffer()
     _statements, _string, interactive, _shouldprint, _debug, print, _quiet = _parse_args()
     if _debug:
-        print("_parse_args done. _shouldprint={}".format(_shouldprint, _quiet))
+        print("_parse_args done. _shouldprint={}, _quiet={}".format(_shouldprint, _quiet))
     _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
 
 if _debug:
