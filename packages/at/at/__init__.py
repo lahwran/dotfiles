@@ -71,7 +71,7 @@ import tokenize
 import contextlib
 import six
 
-_debug = False
+_debug = "-d" in sys.argv
 
 class _Unbuffered(object):
     def __init__(self, stream):
@@ -90,12 +90,15 @@ class _Unbuffered(object):
 
 
 def _debuffer():
-    pass
+    if _debug:
+        print("_debuffer()")
     sys.stdout = _Unbuffered(sys.stdout)
     sys.stdout._unbuffered = sys.stdout.isatty()
 
     sys.stderr = _Unbuffered(sys.stderr)
     sys.stderr._unbuffered = sys.stderr.isatty()
+    if _debug:
+        print("done in _debuffer()")
 
 def succeed():
     "Function that exits with a success return code (0)."
@@ -366,6 +369,8 @@ def shell(name="detect"):
 
 
 def _parse_args():
+    if _debug:
+        print("in _parse_args()")
     import argparse
     class Thingy(argparse.RawDescriptionHelpFormatter,
             argparse.ArgumentDefaultsHelpFormatter):
@@ -403,10 +408,14 @@ def _parse_args():
             const="detect", nargs="?",
             help='launch interactive mode')
     args = parser.parse_args()
+    if _debug:
+        print("did initial parse, args:", args)
 
     if args.unbuffered:
         sys.stdout._unbuffered = True
         sys.stderr._unbuffered = True
+        if _debug:
+            print("", args)
     if not args.string and not args.interactive:
         args.interactive = 'detect'
     if args.interactive:
@@ -1290,6 +1299,8 @@ def _main():
     _statements, _string, interactive, _shouldprint, _debug, print, _quiet = _parse_args()
     _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
 
+if _debug:
+    print("before _main(); __name__ =", __name__)
 if __name__ == "__main__":
     _main()
 
