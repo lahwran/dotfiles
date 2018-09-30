@@ -381,6 +381,7 @@ def shell(name="detect"):
 
 
 def _parse_args():
+    global _debug
     if _debug:
         print("in _parse_args()")
     import argparse
@@ -420,6 +421,7 @@ def _parse_args():
             const="detect", nargs="?",
             help='launch interactive mode')
     args = parser.parse_args()
+    _debug = args.debug
     if _debug:
         print("did initial parse, args:", args)
 
@@ -1322,6 +1324,8 @@ def _main():
     global print
     _debuffer()
     _statements, _string, interactive, _shouldprint, _debug, print, _quiet = _parse_args()
+    if _debug:
+        print("_parse_args done. _shouldprint={}".format(_shouldprint, _quiet))
     _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
 
 if _debug:
