@@ -797,7 +797,7 @@ def _mute_all():
 
 def _add_modules(globbles, strings):
     if _debug:
-        print("=> _add_modules")
+        print("=> in _add_modules()")
     def _import(_mod):
         try:
             globbles[_mod] = __import__(_mod)
@@ -823,8 +823,12 @@ def _add_modules(globbles, strings):
         import re
         return _mod not in globbles and any(re.search(mod_re, _s) for _s in strings)
 
+    if _debug:
+        print("=> checking optional_modules")
     for _mod in _optional_modules:
         if _wanted(_mod, "module"):
+            if _debug:
+                print")
             _import(_mod)
 
 
