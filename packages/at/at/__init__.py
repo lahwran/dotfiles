@@ -287,6 +287,8 @@ read_until = readfor
 
 
 def shell(name="detect"):
+    if _debug:
+        print("    => shell(name={!r})".format(name))
     if name == "detect":
         try:
             import bpython
@@ -308,12 +310,16 @@ def shell(name="detect"):
             print("Specify `-i builtin` to shut this suggestion up.")
     if name == "detect":
         name = "builtin"
+    if _debug:
+        print("    => after detect: shell(name={!r})".format(name))
 
     def passthrough(globs, string):
         _add_modules(globs, [string])
         return string
 
     if name == "ipython":
+        if _debug:
+            print("    => loading ipython")
         from IPython import embed
         from IPython.terminal.embed import InteractiveShellEmbed
 
@@ -329,6 +335,8 @@ def shell(name="detect"):
         # write with self.push(dict)
         return e
     elif name == "ptpython":
+        if _debug:
+            print("    => loading ptpython")
         from ptpython.repl import embed, PythonRepl
         def wrap_embed(globs):
             orig = PythonRepl._execute.im_func
@@ -340,6 +348,8 @@ def shell(name="detect"):
         # write to actual external globals dict
         return wrap_embed
     elif name == "bpython":
+        if _debug:
+            print("    => loading bpython")
         from bpython import embed
         from bpython import repl
         def wrap_embed(globs):
@@ -351,6 +361,8 @@ def shell(name="detect"):
             return embed(globs)
         return wrap_embed
     else:
+        if _debug:
+            print("    => loading builtin")
         if name != "builtin":
             print("warning: don't have interpreter %s, using builtin" % name)
         import code
@@ -415,14 +427,18 @@ def _parse_args():
         sys.stdout._unbuffered = True
         sys.stderr._unbuffered = True
         if _debug:
-            print("", args)
+            print("=> mark unbuffered")
     if not args.string and not args.interactive:
         args.interactive = 'detect'
     if args.interactive:
         args.interactive = shell(args.interactive)
+    if _debug:
+        print("=> args.interactive: ", args.interactive)
 
     string = " ".join(args.string) if args.string else None
     statements, string = _split_statements(string)
+    if _debug:
+        print("=> statements: ", args.interactive)
     if args.print_joined:
         args.print_each = True
 
