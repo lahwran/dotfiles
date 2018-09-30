@@ -828,16 +828,19 @@ def _add_modules(globbles, strings):
     for _mod in _optional_modules:
         if _wanted(_mod, "module"):
             if _debug:
-                print")
+                print("importing module found in code:", _mod)
             _import(_mod)
 
 
-    if _wanted("terminal", "pre-initialized blessings instance") or _wanted("blessings", "blessings module"):
+    if _wanted("terminal", "pre-initialized blessings instance") or _wanted("blessings", "blessings module") or _wanted("term", "same as `terminal`"):
+        if _debug:
+            print("adding terminal/blessings")
         blessings = _import("blessings")
         globbles["blessings"] = blessings
         if blessings and "terminal" not in globbles:
             terminal = blessings.Terminal(force_styling=True)
             globbles["terminal"] = terminal
+            globbles["term"] = terminal
 
     # force non-short-circuit evaluation
     #a = _wanted("session", "pre-initialized tensorflow session")
@@ -858,12 +861,16 @@ def _add_modules(globbles, strings):
     #            _reset_vars()
 
     if _wanted("np", "numpy module short-name"):
+        if _debug:
+            print("adding numpy as np")
         numpy = _import("numpy")
         if numpy:
             globbles["np"] = numpy
 
     for _itertool_func in _itertools_values:
         if _wanted(_itertool_func):
+            if _debug:
+                print("adding itertools func", _itertool_func)
             _itertools = __import__("itertools")
             globbles[_itertool_func] = getattr(_itertools, _itertool_func)
             _reset_vars()
