@@ -128,7 +128,10 @@ class lines(object):
 
 def inp():
     "Returns entire standard in as one string."
-    return sys.stdin.read().decode("utf-8")
+    res = sys.stdin.read()
+    if type(res) == bytes:
+        return res.decode("utf-8")
+    return res
 
 def _hash(hasher, text):
     instance = hasher()
@@ -820,12 +823,13 @@ def _add_modules(globbles, strings):
     for _itertool_func in _itertools_values:
         if _wanted(_itertool_func):
             _itertools = __import__("itertools")
-            globbles[_itertools_func] = getattr(_itertools, _itertools_func)
+            globbles[_itertool_func] = getattr(_itertools, _itertool_func)
             _reset_vars()
         del _itertool_func
 
 _available_itertools = []
 _itertools_values = [
+    "accumulate",
     "count",
     "cycle",
     "repeat",
