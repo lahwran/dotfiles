@@ -1212,7 +1212,7 @@ def run(statements, expression, run_globals, _shouldprint, _quiet):
         for statement in statements:
             if _debug:
                 print("exec statement:", statement)
-            six.exec_(statement, globals=run_globals)
+            six.exec_(statement, run_globals)
         if not expression.strip():
             if _debug:
                 print("no expression to run")
@@ -1277,6 +1277,8 @@ def run(statements, expression, run_globals, _shouldprint, _quiet):
                 print("Tried to run as iterator, but it failed with typeerror, despite having an __iter__:")
                 print(repr(_result.__iter__))
                 raise
+            if _debug:
+                print("result doesn't seem iterable")
         else:
             if _shouldprint:
                 for x in iterator:
