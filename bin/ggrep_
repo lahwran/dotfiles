@@ -15,13 +15,16 @@ parser.add_argument("-a")
 parser.add_argument("-b")
 parser.add_argument("-c")
 parser.add_argument("-i", action="store_true")
+parser.add_argument("-I", action="store_true", dest="i")
 parser.add_argument("-A", dest="a")
 parser.add_argument("-B", dest="b")
 parser.add_argument("-C", dest="c")
 parser.add_argument("-f", action="append", default=[])
-parser.add_argument("-r", action="store_true")
+parser.add_argument("-r", "--raw", action="store_true")
 parser.add_argument("-e", help="extended regex", action="store_true")
+parser.add_argument("-E", help="extended regex", action="store_true", dest="e")
 parser.add_argument("-p", help="extended regex", action="store_true")
+parser.add_argument("-P", help="extended regex", action="store_true", dest="p")
 args = parser.parse_args()
 
 print("####", "Grep for %r" % args.search)
@@ -103,8 +106,7 @@ def splitline(orig):
             return path_candidate, match_candidate
     return path_candidate, match_candidate
 
-
-if not args.r:
+if not args.raw:
     # not in raw mode, fancify it
     lastpath = None
     for line in output[0].replace("\r\n", "\n").split("\n"):
