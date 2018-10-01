@@ -1239,30 +1239,42 @@ def run(statements, expression, run_globals, _shouldprint, _quiet):
                     print("tensorflow result detected")
                 if "session" not in run_globals:
                     if _debug:
-                        print("no session detected, creating interactive")
+                        print("no session detected, creating interactivesession as 'session'")
                     run_globals["session"] = tensorflow.InteractiveSession()
+                if _debug:
+                    print("run tf _result with", run_globals["session"])
                 _result = run_globals["session"].run(_result)
+                if _debug:
+                    print("tf result", _result)
     except KeyboardInterrupt:
         if not _quiet:
             sys.stderr.write("@ killed (ctrl+d to close cleanly)")
         return fail
     except BaseException as e:
         import traceback
-        x = traceback.format_exc().split("\n")
-        y = "\n".join(x[4:])
-        sys.stderr.write(y)
+        if _debug:
+            traceback.print_exc()
+        else:
+            x = traceback.format_exc().split("\n")
+            y = "\n".join(x[4:])
+            sys.stderr.write(y)
         sys.stderr.flush()
         return fail
 
 
     if _result is None:
+        if _debug:
+            print("converting result of None to result of True")
         _result = True
 
     if not (isinstance(_result, six.string_types) or isinstance(_result, _LazyString)):
+        if _debug:
+            print("result is not a string, attempting iteration")
         try:
             iterator = iter(_result)
         except TypeError as e:
             if getattr(_result, "__iter__", None):
+                print("Tried to run as iterator, but it failed with typeerror, despite having an __iter__:")
                 print(repr(_result.__iter__))
                 raise
         else:
