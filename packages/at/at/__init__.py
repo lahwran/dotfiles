@@ -1206,18 +1206,40 @@ def _add_environment_vars(glob, outer_dir):
 
 
 def run(statements, expression, run_globals, _shouldprint, _quiet):
+    if _debug:
+        print("in run()")
     try:
         for statement in statements:
+            if _debug:
+                print("exec statement:", statement)
             six.exec_(statement, globals=run_globals)
         if not expression.strip():
+            if _debug:
+                print("no expression to run")
             _result = None
         else:
+            if _debug:
+                print("running expression:", expression)
             _result = eval("(%s)" % expression, run_globals)
+        if _debug:
+            try:
+                print("result: repr={!r} str={}".format(_result, _result))
+            except:
+                import traceback
+                print("error printing result:")
+                traceback.print_exc()
+                print("----------------")
 
         if "tensorflow" in sys.modules:
             import tensorflow
+            if _debug:
+                print("tensorflow was imported, checking if tf result")
             if isinstance(_result, tensorflow.python.framework.ops.Tensor):
+                if _debug:
+                    print("tensorflow result detected")
                 if "session" not in run_globals:
+                    if _debug:
+                        print("no session detected, creating interactive")
                     run_globals["session"] = tensorflow.InteractiveSession()
                 _result = run_globals["session"].run(_result)
     except KeyboardInterrupt:
@@ -1319,10 +1341,16 @@ def _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
 
 
     _add_modules(old_globals, _statements + [_string])
+    if _debug:
+        print("freezing globals")
     run_globals = dict(old_globals)
+    if _debug:
+        print("adding env vars")
     _add_environment_vars(run_globals, list(old_globals.keys()))
 
     if _string.strip() or _statements:
+        if _debug:
+            print("main run...")
         try:
             result = run(_statements, _string, run_globals, _shouldprint, _quiet)
         except SystemExit:
@@ -1333,6 +1361,8 @@ def _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
                 result()
 
     if interactive:
+        if _debug:
+            print("running interpreter with globals")
         interactive(run_globals)
 
 def _main():
