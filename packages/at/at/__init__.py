@@ -132,7 +132,7 @@ class lines(object):
 def inp():
     "Returns entire standard in as one string."
     res = sys.stdin.read()
-    if type(res) == bytes:
+    if type(res) == type(b""):
         return res.decode("utf-8")
     return res
 
@@ -204,9 +204,9 @@ def noexc(lamb, *a, **kw):
 
 lines = lines()
 
-class bytes(object):
+class chars(object):
     def __init__(self):
-        self.__doc__ = "Standard in, byte by byte, as an iterator"
+        self.__doc__ = "Standard in, char by char, as an iterator"
         self.iterator = self._go()
         assert six.next(self.iterator) is None
 
@@ -217,10 +217,10 @@ class bytes(object):
         return self.iterator.next()
 
     def __repr__(self):
-        return "<bytes - standard in, byte by byte, as an iterator>"
+        return "<chars - standard in, char by char, as an iterator>"
 
     def __str__(self):
-        return "iterable"
+        return "".join(self)
 
     def _go(self):
         yield None
@@ -235,7 +235,7 @@ class bytes(object):
                 break
             for char in s:
                 yield char
-bytes = bytes()
+chars = chars()
 
 
 def _split_statements(string):
@@ -1079,7 +1079,7 @@ def _format_var(name, value, f=None):
         simpledesc = "module"
     elif type(value) == type(str.join):
         simpledesc = "method"
-    elif type(value) == type("".join) or type(value) == type(object().__str__) or type(value) == type(bytes.__str__):
+    elif type(value) == type("".join) or type(value) == type(object().__str__) or type(value) == type(chars.__str__):
         simpledesc = "bound method"
     elif isinstance(type(value), six.string_types):
         simpledesc = repr(value)
