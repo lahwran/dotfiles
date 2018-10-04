@@ -19665,7 +19665,7 @@
 	<key>NSWindow Frame SessionsPreferences</key>
 	<string>269 57 606 469 0 0 1920 1177 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>888 677 958 451 0 0 1920 1177 </string>
+	<string>888 777 928 394 0 0 1920 1177 </string>
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>155 594 592 584 0 0 1920 1178 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
@@ -19963,12 +19963,16 @@
 			<false/>
 			<key>Foreground Color</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.51685798168182373</real>
+				<real>0.8843231201171875</real>
+				<key>Color Space</key>
+				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.50962930917739868</real>
+				<real>0.87253223478889796</real>
 				<key>Red Component</key>
-				<real>0.44058024883270264</real>
+				<real>0.77230903744889023</real>
 			</dict>
 			<key>Guid</key>
 			<string>73EF429D-80CA-46EB-9A11-4C6F04AFB8CC</string>
@@ -20083,7 +20087,7 @@
 			<key>Log Directory</key>
 			<string></string>
 			<key>Minimum Contrast</key>
-			<real>0.0</real>
+			<real>0.41508345170454547</real>
 			<key>Mouse Reporting</key>
 			<true/>
 			<key>Name</key>
@@ -20257,7 +20261,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Transparency</key>
-			<real>0.066332883883248733</real>
+			<real>0.0</real>
 			<key>Triggers</key>
 			<array/>
 			<key>Unicode Normalization</key>
@@ -20944,7 +20948,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Transparency</key>
-			<real>0.054643876903553296</real>
+			<real>0.0</real>
 			<key>Triggers</key>
 			<array/>
 			<key>Unicode Normalization</key>
@@ -21708,7 +21712,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2018-08-16T22:54:00Z</date>
+	<date>2018-09-21T03:29:40Z</date>
 	<key>SUSkippedVersion</key>
 	<string>3.1.7</string>
 	<key>SavePasteHistory</key>
@@ -21774,7 +21778,7 @@
 	<key>iTerm Version</key>
 	<string>3.1.6beta4</string>
 	<key>kCPKSelectionViewPreferredModeKey</key>
-	<integer>0</integer>
+	<integer>1</integer>
 	<key>kCPKSelectionViewShowHSBTextFieldsKey</key>
 	<false/>
 	<key>moveToApplicationsFolderAlertSuppress</key>
