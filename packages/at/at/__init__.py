@@ -127,6 +127,7 @@ class lines(object):
         if line.endswith("\n"):
             line = line[:-1]
         return line
+    __next__ = next
 
 def inp():
     "Returns entire standard in as one string."
