@@ -63,6 +63,7 @@ another great one:
 
 from __future__ import print_function
 
+import builtins
 import sys
 import codecs
 import ast
@@ -107,6 +108,8 @@ def fail():
     "Function that exits with a failure return code (1)."
     sys.exit(1)
 
+long = getattr(builtins, 'long', int)
+
 class lines(object):
     def __init__(self):
         self.__doc__ = "Iterable of lines coming in from standard in."
@@ -121,7 +124,9 @@ class lines(object):
         return "iterable"
 
     def next(self):
-        line = sys.stdin.readline().decode("utf-8")
+        line = sys.stdin.readline()
+        if type(line) == type(b""):
+            line = line.decode("utf-8")
         if not line:
             raise StopIteration
         if line.endswith("\n"):
