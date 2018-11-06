@@ -11,6 +11,8 @@ import blessed
 parser = argparse.ArgumentParser()
 parser.add_argument("-w", "--watch", nargs="?", default=None, const=60, type=float)
 
+timeprec = 2
+
 def getprocs():
     return list(psutil.process_iter(attrs=["cpu_times", "create_time", "username", "terminal", "status", "pid", "nice", "name", "memory_percent", "memory_info", "cmdline"]))
 def pinfo(procs, delta_from=()):
@@ -42,7 +44,7 @@ def pinfo(procs, delta_from=()):
         info["cpu_times_user_eff"] = info["cpu_times_user"] - lastproc.get("cpu_times_user", 0)
         info["cpu_times_sys_eff"]  = info["cpu_times_sys"]  - lastproc.get("cpu_times_sys", 0)
         info["dur_eff"]            = info["dur"]            - lastproc.get("dur", 0)
-        info["td"]                  = timedelta(seconds=round(info["dur_eff"],1))
+        info["td"]                  = timedelta(seconds=round(info["dur_eff"],timeprec))
 
         if info["cpu_times"] is None:
             info["percent_user"] = -1
@@ -57,7 +59,7 @@ def pinfo(procs, delta_from=()):
                 chrome_total["cpu_times_sys_eff"] += info["cpu_times_sys_eff"]
                 chrome_total["dur_eff"] += info["dur_eff"]
         res.append(info)
-    chrome_total["td"] = timedelta(seconds=round(chrome_total["dur_eff"],1))
+    chrome_total["td"] = timedelta(seconds=round(chrome_total["dur_eff"],timeprec))
     chrome_total["percent_user"]  = chrome_total["cpu_times_user_eff"] / chrome_total["dur_eff"]
     chrome_total["percent_sys"]   = chrome_total["cpu_times_sys_eff"]  / chrome_total["dur_eff"]
     chrome_total["percent_total"] = chrome_total["percent_user"]   + chrome_total["percent_sys"]
@@ -73,6 +75,16 @@ def format_info(info, sort="percent_total", limit=0):
         res.append(f"{info['name'].rjust(30)[-30:]} ({info['pid']:6d}): {100*(info['percent_total']):6.3f}% total, {100*(info['percent_user']):6.3f}% user, {100*(info['percent_sys']):6.3f}% sys, over {info['td']}")
     return "\n".join(res)+"\n"
 
+lasttime = None
+def rollavg(val):
+    global lasttime
+    update = 0.1
+    if lasttime is None:
+        lasttime = val
+    else:
+        lasttime = lattime * (1-update) + val * update
+    return lasttime
+
 def main(watch):
     a = time.time()
     procs = getprocs()
@@ -85,12 +97,14 @@ def main(watch):
         return
     sys.stdout.write("\n")
     try:
-        c = time.time()
         while True:
             sys.stdout.flush()
-            time.sleep(watch-(b-a))
+            c = time.time()
+            time.sleep(watch-rollavg(c-a))
             a = time.time()
-            info = pinfo(info)
+            procs = getprocs()
+            b = time.time()
+            info = pinfo(procs, info)
             sys.stdout.write(term.clear+format_info(info, limit=term.height//2)+"\n")
     except KeyboardInterrupt:
         return
