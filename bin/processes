@@ -72,7 +72,7 @@ def format_info(info, sort="percent_total", limit=0):
     for info in sorted(info, key=lambda x: x[sort] or 0)[-limit:]:
         if "chrome" in info["name"] and info["pid"] != -1:
             continue
-        res.append(f"{info['name'].rjust(30)[-30:]} ({info['pid']:6d}): {100*(info['percent_total']):6.3f}% total, {100*(info['percent_user']):6.3f}% user, {100*(info['percent_sys']):6.3f}% sys, over {info['td']}")
+        res.append(f"{info['name'].rjust(30)[-30:]} ({info['pid']:6d}): {100*(info['percent_total']):6.3f}% total, {100*(info['percent_user']):6.3f}% user, {100*(info['percent_sys']):6.3f}% sys, over {str(info['td']).rstrip('0')}")
     return "\n".join(res)+"\n"
 
 lasttime = None
@@ -82,7 +82,7 @@ def rollavg(val):
     if lasttime is None:
         lasttime = val
     else:
-        lasttime = lattime * (1-update) + val * update
+        lasttime = lasttime * (1-update) + val * update
     return lasttime
 
 def main(watch):
@@ -105,7 +105,7 @@ def main(watch):
             procs = getprocs()
             b = time.time()
             info = pinfo(procs, info)
-            sys.stdout.write(term.clear+format_info(info, limit=term.height//2)+"\n")
+            sys.stdout.write(term.clear+format_info(info, limit=term.height-2)+"\n")
     except KeyboardInterrupt:
         return
 
