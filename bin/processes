@@ -26,25 +26,31 @@ def pinfo(delta_from=()):
         "pid": -1,
     }
     res = []
-    last = {}
+    last = {x["pid"]: x for x in delta_from}
     for process in psutil.process_iter(attrs=["cpu_times", "create_time", "username", "terminal", "status", "pid", "nice", "name", "memory_percent", "memory_info", "cmdline"]):
         if process.pid in exclude: continue
         info = dict(process.info)
         info["dur"] = time.time() - process.info["create_time"]
-        info["td"] = timedelta(seconds=info["dur"])
+        if info["cpu_times"]:
+            info["cpu_times_user"] = info["cpu_times"].user
+            info["cpu_times_sys"] = info["cpu_times"].system
+        lastproc = last.get(info["pid"], {})
+        info["cpu_times_user"] -= lastproc.get("cpu_times_user", 0)
+        info["cpu_times_sys"]  -= lastproc.get("cpu_times_sys", 0)
+        info["dur"]            -= lastproc.get("dur", 0)
+        info["td"]              = timedelta(seconds=info["dur"])
+
         if info["cpu_times"] is None:
             info["percent_user"] = None
             info["percent_sys"] = None
             info["percent_total"] = None
         else:
-            info["cpu_times_user"] = info["cpu_times"].user
-            info["cpu_times_sys"] = info["cpu_times"].system
             info["percent_user"]  =   / info["dur"]
-            info["percent_sys"]   = info["cpu_times"].system / info["dur"]
+            info["percent_sys"]   =  info["cpu_times"].system / info["dur"]
             info["percent_total"] = info["percent_user"] + info["percent_sys"]
             if "chrome" in info["name"].lower():
-                chrome_total["cpu_times_user"] += info["cpu_times"].user
-                chrome_total["cpu_times_sys"] += info["cpu_times"].system
+                chrome_total["cpu_times_user"] += info["cpu_times_user"]
+                chrome_total["cpu_times_sys"] += info["cpu_times_sys"]
                 chrome_total["dur"] += info["dur"]
                 continue
         res.append(info)
@@ -63,6 +69,14 @@ def print_info(info, sort="percent_total"):
 def main(watch):
     info = list(pinfo())
     print_info()
+    if watch is None:
+        return
+    try:
+        while True:
+            time.sleep(watch)
+
+    except KeyboardInterrupt:
+        return
 
 
 if __name__ == "__main__":
