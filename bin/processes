@@ -40,7 +40,7 @@ def pinfo(delta_from=()):
         info["cpu_times_user_eff"] = info["cpu_times_user"] - lastproc.get("cpu_times_user", 0)
         info["cpu_times_sys_eff"]  = info["cpu_times_sys"]  - lastproc.get("cpu_times_sys", 0)
         info["dur_eff"]            = info["dur"]            - lastproc.get("dur", 0)
-        info["td"]                  = timedelta(seconds=round(info["dur_eff"],2))
+        info["td"]                  = timedelta(seconds=round(info["dur_eff"],1))
 
         if info["cpu_times"] is None:
             info["percent_user"] = -1
@@ -86,7 +86,7 @@ def main(watch):
             time.sleep(watch-(b-a))
             a = time.time()
             info = pinfo(info)
-            sys.stdout.write(term.clear+format_info(info, limit=term.height-2)+"\n")
+            sys.stdout.write(term.clear+format_info(info, limit=term.height//2)+"\n")
     except KeyboardInterrupt:
         return
 
