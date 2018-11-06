@@ -8,9 +8,9 @@ import argparse
 import blessed
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-w", "--watch", nargs="?", default, 
+parser.add_argument("-w", "--watch", nargs="?", default=None, const=60, type=float)
 
-def pinfo(delta_from):
+def pinfo(delta_from=()):
     thisproc = psutil.Process()
     parent = thisproc.parent()
     exclude = {thisproc.pid}
@@ -25,7 +25,8 @@ def pinfo(delta_from):
         "dur": 0.0,
         "pid": -1,
     }
-    last = {
+    res = []
+    last = {}
     for process in psutil.process_iter(attrs=["cpu_times", "create_time", "username", "terminal", "status", "pid", "nice", "name", "memory_percent", "memory_info", "cmdline"]):
         if process.pid in exclude: continue
         info = dict(process.info)
@@ -36,27 +37,34 @@ def pinfo(delta_from):
             info["percent_sys"] = None
             info["percent_total"] = None
         else:
-            info["percent_user"] = info["cpu_times"].user  / info["dur"]
-            info["percent_sys"] = info["cpu_times"].system / info["dur"]
+            info["cpu_times_user"] = info["cpu_times"].user
+            info["cpu_times_sys"] = info["cpu_times"].system
+            info["percent_user"]  =   / info["dur"]
+            info["percent_sys"]   = info["cpu_times"].system / info["dur"]
             info["percent_total"] = info["percent_user"] + info["percent_sys"]
             if "chrome" in info["name"].lower():
                 chrome_total["cpu_times_user"] += info["cpu_times"].user
                 chrome_total["cpu_times_sys"] += info["cpu_times"].system
                 chrome_total["dur"] += info["dur"]
                 continue
-        yield info
+        res.append(info)
     chrome_total["td"] = timedelta(seconds=chrome_total["dur"])
     chrome_total["percent_user"]  = chrome_total["cpu_times_user"] / chrome_total["dur"]
     chrome_total["percent_sys"]   = chrome_total["cpu_times_sys"]  / chrome_total["dur"]
     chrome_total["percent_total"] = chrome_total["percent_user"]   + chrome_total["percent_sys"]
-    yield chrome_total
+    res.append(chrome_total)
+    return res
 
 
-
-def main():
-    for info in sorted(list(pinfo()), key=lambda x: x["percent_total"] or 0):
+def print_info(info, sort="percent_total"):
+    for info in sorted(info, key=lambda x: x[sort] or 0):
         print(f"{info['name'].rjust(30)[-30:]} ({info['pid']:6d}): {100*(info['percent_total'] or -1):6.3f}% total, {100*(info['percent_user'] or -1):6.3f}% user, {100*(info['percent_sys'] or -1):6.3f}% sys, over {info['td']}")
+
+def main(watch):
+    info = list(pinfo())
+    print_info()
+
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    main()
+    main(**vars(args))
