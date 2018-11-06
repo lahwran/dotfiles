@@ -44,9 +44,9 @@ def pinfo(delta_from=()):
         info["td"]                  = timedelta(seconds=info["dur_eff"])
 
         if info["cpu_times"] is None:
-            info["percent_user"] = None
-            info["percent_sys"] = None
-            info["percent_total"] = None
+            info["percent_user"] = -1
+            info["percent_sys"] = -1
+            info["percent_total"] = -1
         else:
             info["percent_user"]  =  info["cpu_times_user_eff"] / info["dur_eff"]
             info["percent_sys"]   =  info["cpu_times_sys_eff"] / info["dur_eff"]
@@ -58,8 +58,8 @@ def pinfo(delta_from=()):
                 continue
         res.append(info)
     chrome_total["td"] = timedelta(seconds=chrome_total["dur_eff"])
-    chrome_total["percent_user"]  = chrome_total["cpu_times_user-eff"] / chrome_total["dur"]
-    chrome_total["percent_sys"]   = chrome_total["cpu_times_sys"]  / chrome_total["dur"]
+    chrome_total["percent_user"]  = chrome_total["cpu_times_user_eff"] / chrome_total["dur_eff"]
+    chrome_total["percent_sys"]   = chrome_total["cpu_times_sys_eff"]  / chrome_total["dur_eff"]
     chrome_total["percent_total"] = chrome_total["percent_user"]   + chrome_total["percent_sys"]
     res.append(chrome_total)
     return res
@@ -69,20 +69,22 @@ def format_info(info, sort="percent_total", limit=0):
     res = []
     for info in sorted(info, key=lambda x: x[sort] or 0)[-limit:]:
         res.append(f"{info['name'].rjust(30)[-30:]} ({info['pid']:6d}): {100*(info['percent_total'] or -1):6.3f}% total, {100*(info['percent_user'] or -1):6.3f}% user, {100*(info['percent_sys'] or -1):6.3f}% sys, over {info['td']}")
-    return "\n".join(res)
+    return "\n".join(res)+"\n"
 
 def main(watch):
     info = pinfo()
     term = blessed.Terminal()
-    print_info(info, limit=(term.height - 1) if watch else None)
+    sys.stdout.write(format_info(info, limit=(term.height - 1) if watch else None))
     if watch is None:
+        sys.stdout.flush()
         return
+    sys.stdout.write("\n")
     try:
         while True:
+            sys.stdout.flush()
             time.sleep(watch)
             info = pinfo(info)
-            sys.stdout.write(term.clear+print_info(info, limit=term.height-1))
-            sys.stdout.flush()
+            sys.stdout.write(term.clear+format_info(info, limit=term.height-2)+"\n")
     except KeyboardInterrupt:
         return
 
