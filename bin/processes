@@ -60,9 +60,6 @@ def pinfo(procs, delta_from=()):
                 chrome_total["dur_eff"] += info["dur_eff"]
         res.append(info)
     chrome_total["td"] = timedelta(seconds=round(chrome_total["dur_eff"],timeprec))
-    chrome_total["percent_user"]  = chrome_total["cpu_times_user_eff"] / chrome_total["dur_eff"]
-    chrome_total["percent_sys"]   = chrome_total["cpu_times_sys_eff"]  / chrome_total["dur_eff"]
-    chrome_total["percent_total"] = chrome_total["percent_user"]   + chrome_total["percent_sys"]
     res.append(chrome_total)
     return res
 
