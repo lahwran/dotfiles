@@ -26,6 +26,9 @@ def pinfo(procs, delta_from=()):
         "cmdline": ["[Chrome Total]"],
         "cpu_times_user_eff": 0.0,
         "cpu_times_sys_eff": 0.0,
+        "percent_user": 0.0,
+        "percent_sys": 0.0,
+        "percent_total": 0.0,
         "dur_eff": 0.0,
         "pid": -1,
     }
@@ -58,6 +61,9 @@ def pinfo(procs, delta_from=()):
                 chrome_total["cpu_times_user_eff"] += info["cpu_times_user_eff"]
                 chrome_total["cpu_times_sys_eff"] += info["cpu_times_sys_eff"]
                 chrome_total["dur_eff"] += info["dur_eff"]
+                chrome_total["percent_user"] += info["percent_user"]
+                chrome_total["percent_sys"] += info["percent_sys"]
+                chrome_total["percent_total"] += info["percent_total"]
         res.append(info)
     chrome_total["td"] = timedelta(seconds=round(chrome_total["dur_eff"],timeprec))
     res.append(chrome_total)
