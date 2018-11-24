@@ -158,7 +158,7 @@ def sha256(text):
 
 def pairs(iterable, **kwargs):
     "pairs(iterable) -> (s0, s1), (s1,s2), (s2, s3), etc"
-    from itertools import tee, izip, izip_longest, chain
+    from itertools import tee, zip_longest, chain
     iterables = []
     for key, value in kwargs.items():
         if any(x in key for x in ["pre", "head", "begin", "start", "lead", "before", "open", "front", "first", "prepare", "embark", "launch", "create", "go", "push"]):
@@ -174,7 +174,7 @@ def pairs(iterable, **kwargs):
         iterable = chain(*iterables)
     a, b = tee(iterable)
     next(b, None)
-    return izip(a, b)
+    return zip(a, b)
 
 def write(contents, value):
     sys.stdout.write(contents)
@@ -189,7 +189,7 @@ def chunks(generator, size, pad=_chunks_guard):
     fills the last one with pad if provided.
     """
     import itertools
-    q = itertools.izip_longest(*[iter(generator)]*size, fillvalue=pad)
+    q = itertools.zip_longest(*[iter(generator)]*size, fillvalue=pad)
     return ([a for a in b if a is not _chunks_guard] for b in q)
 
 
