@@ -94,7 +94,7 @@ def main(watch):
     b = time.time()
     info = pinfo(procs)
     term = blessed.Terminal()
-    sys.stdout.write(format_info(info, limit=(term.height - 1) if watch else None))
+    sys.stdout.write(format_info(info, limit=(term.height - 1) if watch else 0))
     if watch is None:
         sys.stdout.flush()
         return
