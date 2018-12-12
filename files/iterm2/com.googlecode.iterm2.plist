@@ -19665,11 +19665,11 @@
 	<key>NSWindow Frame SessionsPreferences</key>
 	<string>269 57 606 469 0 0 1920 1177 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>888 777 928 394 0 0 1920 1177 </string>
+	<string>888 698 796 473 0 0 1920 1177 </string>
 	<key>NSWindow Frame UKCrashReporter</key>
-	<string>155 594 592 584 0 0 1920 1178 </string>
+	<string>155 593 592 584 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>247 132 1330 718 0 0 1920 1177 </string>
+	<string>0 4 1920 1173 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>562 886 1046 284 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
@@ -21712,7 +21712,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2018-09-21T03:29:40Z</date>
+	<date>2018-12-04T07:16:34Z</date>
 	<key>SUSkippedVersion</key>
 	<string>3.1.7</string>
 	<key>SavePasteHistory</key>
@@ -21724,7 +21724,7 @@
 	<key>ShowBookmarkName</key>
 	<false/>
 	<key>ShowFullScreenTabBar</key>
-	<true/>
+	<false/>
 	<key>ShowPaneTitles</key>
 	<false/>
 	<key>SmartPlacement</key>
@@ -21748,7 +21748,7 @@
 	<key>TripleClickSelectsFullWrappedLines</key>
 	<false/>
 	<key>UKCrashReporterLastCrashReportDate</key>
-	<real>1431533056</real>
+	<real>1543178496</real>
 	<key>URLHandlersByGuid</key>
 	<dict/>
 	<key>Use background pattern indicator</key>
@@ -21772,7 +21772,7 @@
 	<key>findIgnoreCase_iTerm</key>
 	<true/>
 	<key>findMode_iTerm</key>
-	<integer>0</integer>
+	<integer>3</integer>
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>iTerm Version</key>
