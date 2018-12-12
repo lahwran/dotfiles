@@ -388,6 +388,7 @@ def user_install():
     install_file("submodules/vim-multiple-cursors/", "~/.vim/bundle/vim-multiple-cursors/")
     install_file("submodules/vim-jsx/", "~/.vim/bundle/vim-jsx/")
     install_file("submodules/vim-auto-save/", "~/.vim/bundle/vim-auto-save/")
+    install_file("submodules/vim-markology/", "~/.vim/bundle/vim-markology/")
 
     install_file("files/tmux.conf", "~/.tmux.conf")
 

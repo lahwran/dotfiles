@@ -188,7 +188,7 @@ if [[ $- == *i* ]]; then
     # from ubuntu, not enabled by default
     shopt -s globstar >& /dev/null
 
-    PS1="$(color user)\u$(color at_host)@$(color host)\h$(color at_path):$(color path)\w$(color symbol)\$ $(color)"
+    PS1="$(color user)\u$(color at_host)@$(color host)\h$(color at_path):$(color path)\W$(color symbol)\$ $(color)"
 
     # don't do dangerous moves or copies without asking!!
     alias mv="mv -i"
