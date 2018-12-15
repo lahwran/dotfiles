@@ -19665,11 +19665,11 @@
 	<key>NSWindow Frame SessionsPreferences</key>
 	<string>269 57 606 469 0 0 1920 1177 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>888 698 796 473 0 0 1920 1177 </string>
+	<string>1394 1094 796 473 0 0 2560 1577 </string>
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>155 593 592 584 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>0 4 1920 1173 0 0 1920 1177 </string>
+	<string>322 237 1330 718 0 0 2560 1577 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>562 886 1046 284 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
@@ -20087,7 +20087,7 @@
 			<key>Log Directory</key>
 			<string></string>
 			<key>Minimum Contrast</key>
-			<real>0.41508345170454547</real>
+			<real>0.37222567471590912</real>
 			<key>Mouse Reporting</key>
 			<true/>
 			<key>Name</key>
@@ -21712,7 +21712,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2018-12-04T07:16:34Z</date>
+	<date>2018-12-13T18:50:24Z</date>
 	<key>SUSkippedVersion</key>
 	<string>3.1.7</string>
 	<key>SavePasteHistory</key>
