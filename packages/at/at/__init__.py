@@ -68,7 +68,11 @@ from datetime import timedelta as td
 from random import *
 r=random
 import random
-import builtins
+try:
+    import builtins
+except ImportError:
+    import __builtin__ as builtins
+
 import sys
 import codecs
 import ast

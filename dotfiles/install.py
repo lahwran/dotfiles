@@ -389,6 +389,7 @@ def user_install():
     install_file("submodules/vim-jsx/", "~/.vim/bundle/vim-jsx/")
     install_file("submodules/vim-auto-save/", "~/.vim/bundle/vim-auto-save/")
     install_file("submodules/vim-markology/", "~/.vim/bundle/vim-markology/")
+    install_file("submodules/vim-terraform/", "~/.vim/bundle/vim-terraform/")
 
     install_file("files/tmux.conf", "~/.tmux.conf")
 

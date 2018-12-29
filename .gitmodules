@@ -58,3 +58,6 @@
 [submodule "submodules/vim-markology"]
 	path = submodules/vim-markology
 	url = https://github.com/jeetsukumaran/vim-markology.git
+[submodule "submodules/vim-terraform"]
+	path = submodules/vim-terraform
+	url = https://github.com/hashivim/vim-terraform.git
