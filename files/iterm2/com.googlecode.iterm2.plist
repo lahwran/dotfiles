@@ -20766,7 +20766,7 @@
 			<key>Log Directory</key>
 			<string></string>
 			<key>Minimum Contrast</key>
-			<real>0.0</real>
+			<real>0.29143732244318182</real>
 			<key>Mouse Reporting</key>
 			<true/>
 			<key>Name</key>
@@ -21712,7 +21712,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2018-12-13T18:50:24Z</date>
+	<date>2019-01-01T23:33:10Z</date>
 	<key>SUSkippedVersion</key>
 	<string>3.1.7</string>
 	<key>SavePasteHistory</key>
