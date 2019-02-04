@@ -1150,11 +1150,12 @@ def show(x, all=False):
         print("Docstring")
         print("==============\n")
         print(x.__doc__)
-        print()
         l = 1
-        
-    print("Value")
-    print("==============\n")
+
+    if l:
+        print()
+        print("Value")
+        print("==============\n")
 
     print(_format_var(None, x, f="{value}"))
 
