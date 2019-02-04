@@ -157,13 +157,17 @@ def sha256(text):
     return _hash(hashlib.sha256, text).hexdigest()
 
 def handle(func, *args, **kwargs):
-    
-
-def json_or_none(text):
-    import json
+    res = kwargs.pop("onerror", None)
+    exc = kwargs.pop("exc", Exception)
     try:
-        return json.loads(text)
-    except 
+        return func(*args, **kwargs)
+    except exc:
+        return res
+
+def safejson(*args, **kwargs):
+    import json
+    kwargs["exc"] = json.JSONDecodeError
+    return handle(json.loads, *args, **kwargs)
 
 def pairs(iterable, **kwargs):
     "pairs(iterable) -> (s0, s1), (s1,s2), (s2, s3), etc"
