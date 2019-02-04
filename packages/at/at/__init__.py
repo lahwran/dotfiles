@@ -1409,13 +1409,17 @@ def _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
             print("running interpreter with globals")
         interactive(run_globals)
 
+
 def _main():
     global print
-    _debuffer()
-    _statements, _string, interactive, _shouldprint, _debug, print, _quiet = _parse_args()
-    if _debug:
-        print("_parse_args done. _shouldprint={}, _quiet={}".format(_shouldprint, _quiet))
-    _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
+    try:
+        _debuffer()
+        _statements, _string, interactive, _shouldprint, _debug, print, _quiet = _parse_args()
+        if _debug:
+            print("_parse_args done. _shouldprint={}, _quiet={}".format(_shouldprint, _quiet))
+        _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
+    except BrokenPipeError:
+        pass
 
 if _debug:
     print("before _main(); __name__ =", __name__)
