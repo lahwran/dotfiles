@@ -156,6 +156,15 @@ def sha256(text):
     import hashlib
     return _hash(hashlib.sha256, text).hexdigest()
 
+def handle(func, *args, **kwargs):
+    
+
+def json_or_none(text):
+    import json
+    try:
+        return json.loads(text)
+    except 
+
 def pairs(iterable, **kwargs):
     "pairs(iterable) -> (s0, s1), (s1,s2), (s2, s3), etc"
     from itertools import tee, zip_longest, chain
