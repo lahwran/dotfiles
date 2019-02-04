@@ -71,7 +71,10 @@ import tokenize
 import contextlib
 import six
 
-_debug = "-d" in sys.argv
+_debug = any((x.startswith("-") and not x.startswith("--") and len(x) < 9 and "d" in x) for x in sys.argv)
+def _debugp(*a, **kw):
+    if _debug:
+        print(x, 
 
 class _Unbuffered(object):
     def __init__(self, stream):
@@ -91,7 +94,7 @@ class _Unbuffered(object):
 
 def _debuffer():
     if _debug:
-        print("_debuffer()")
+        print("_debuffer()", file=sys.stderr)
     sys.stdout = _Unbuffered(sys.stdout)
     sys.stdout._unbuffered = sys.stdout.isatty()
 
@@ -1280,6 +1283,8 @@ def run(statements, expression, run_globals, _shouldprint, _quiet):
         if not _quiet:
             sys.stderr.write("@ killed (ctrl+d to close cleanly)")
         return fail
+    except BrokenPipeError:
+        raise
     except BaseException as e:
         import traceback
         if _debug:
