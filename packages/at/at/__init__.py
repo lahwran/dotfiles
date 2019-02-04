@@ -97,7 +97,7 @@ class _Unbuffered(object):
 
 def _debuffer():
     if _debug:
-        _debugp("_debuffer()", file=sys.stderr)
+        _debugp("_debuffer()")
     sys.stdout = _Unbuffered(sys.stdout)
     sys.stdout._unbuffered = sys.stdout.isatty()
 
@@ -1259,29 +1259,29 @@ def run(statements, expression, run_globals, _shouldprint, _quiet):
             _result = eval("(%s)" % expression, run_globals)
         if _debug:
             try:
-                print("result: repr={!r} str={}".format(_result, _result))
+                _debugp("result: repr={!r} str={}".format(_result, _result))
             except:
                 import traceback
-                print("error printing result:")
+                _debugp("error printing result:")
                 traceback.print_exc()
-                print("----------------")
+                _debugp("----------------")
 
         if "tensorflow" in sys.modules:
             import tensorflow
             if _debug:
-                print("tensorflow was imported, checking if tf result")
+                _debugp("tensorflow was imported, checking if tf result")
             if isinstance(_result, tensorflow.python.framework.ops.Tensor):
                 if _debug:
-                    print("tensorflow result detected")
+                    _debugp("tensorflow result detected")
                 if "session" not in run_globals:
                     if _debug:
-                        print("no session detected, creating interactivesession as 'session'")
+                        _debugp("no session detected, creating interactivesession as 'session'")
                     run_globals["session"] = tensorflow.InteractiveSession()
                 if _debug:
-                    print("run tf _result with", run_globals["session"])
+                    _debugp("run tf _result with", run_globals["session"])
                 _result = run_globals["session"].run(_result)
                 if _debug:
-                    print("tf result", _result)
+                    _debugp("tf result", _result)
     except KeyboardInterrupt:
         if not _quiet:
             sys.stderr.write("@ killed (ctrl+d to close cleanly)")
@@ -1302,12 +1302,12 @@ def run(statements, expression, run_globals, _shouldprint, _quiet):
 
     if _result is None:
         if _debug:
-            print("converting result of None to result of True")
+            _debugp("converting result of None to result of True")
         _result = True
 
     if not (isinstance(_result, six.string_types) or isinstance(_result, _LazyString)):
         if _debug:
-            print("result is not a string, attempting iteration")
+            _debugp("result is not a string, attempting iteration")
         try:
             iterator = iter(_result)
         except TypeError as e:
@@ -1316,7 +1316,7 @@ def run(statements, expression, run_globals, _shouldprint, _quiet):
                 print(repr(_result.__iter__))
                 raise
             if _debug:
-                print("result doesn't seem iterable")
+                _debugp("result doesn't seem iterable")
         else:
             if _shouldprint:
                 for x in iterator:
@@ -1349,12 +1349,12 @@ def run(statements, expression, run_globals, _shouldprint, _quiet):
                     else:
                         print(result2)
                 elif _debug:
-                    print("nothing to print")
+                    _debugp("nothing to print")
             return succeed
 
     if not isinstance(_result, bool) or _shouldprint:
         if _debug:
-            print("hasdoc:", _hasdoc(_result), "repr and str equal:", repr(_result) == str(_result), "uses object str:", type(_result).__str__ == object.__str__)
+            _debugp("hasdoc:", _hasdoc(_result), "repr and str equal:", repr(_result) == str(_result), "uses object str:", type(_result).__str__ == object.__str__)
         if (_hasdoc(_result) and repr(_result) == str(_result)) or type(_result).__str__ == object.__str__:
             if _debug:
                 print("printed docstring:", _result.__doc__)
@@ -1369,7 +1369,7 @@ def run(statements, expression, run_globals, _shouldprint, _quiet):
 
     if isinstance(_result, bool):
         if _debug:
-            print("bool result, returning exit code:", 0 if _result else 1, _result)
+            _debugp("bool result, returning exit code:", 0 if _result else 1, _result)
 
         if _result:
             return succeed
@@ -1377,14 +1377,14 @@ def run(statements, expression, run_globals, _shouldprint, _quiet):
             return fail
     else:
         if _debug:
-            print("non-bool result, returning exit code 0 (true)")
+            _debugp("non-bool result, returning exit code 0 (true)")
         return succeed
 
 
 def _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet):
     import os
     if _debug:
-        print("in _run")
+        _debugp("in _run")
     sys.path.append(os.path.abspath("."))
     old_globals = dict(globals())
 
@@ -1394,15 +1394,15 @@ def _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
 
     _add_modules(old_globals, _statements + [_string])
     if _debug:
-        print("freezing globals")
+        _debugp("freezing globals")
     run_globals = dict(old_globals)
     if _debug:
-        print("adding env vars")
+        _debugp("adding env vars")
     _add_environment_vars(run_globals, list(old_globals.keys()))
 
     if _string.strip() or _statements:
         if _debug:
-            print("main run...")
+            _debugp("main run...")
         try:
             result = run(_statements, _string, run_globals, _shouldprint, _quiet)
         except SystemExit:
@@ -1414,7 +1414,7 @@ def _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
 
     if interactive:
         if _debug:
-            print("running interpreter with globals")
+            _debugp("running interpreter with globals")
         interactive(run_globals)
 
 
@@ -1424,13 +1424,13 @@ def _main():
         _debuffer()
         _statements, _string, interactive, _shouldprint, _debug, print, _quiet = _parse_args()
         if _debug:
-            print("_parse_args done. _shouldprint={}, _quiet={}".format(_shouldprint, _quiet))
+            _debugp("_parse_args done. _shouldprint={}, _quiet={}".format(_shouldprint, _quiet))
         _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
     except BrokenPipeError:
         pass
 
 if _debug:
-    print("before _main(); __name__ =", __name__)
+    _debugp("before _main(); __name__ =", __name__)
 if __name__ == "__main__":
     _main()
 
