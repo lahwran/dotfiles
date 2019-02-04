@@ -74,7 +74,10 @@ import six
 _debug = any((x.startswith("-") and not x.startswith("--") and len(x) < 9 and "d" in x) for x in sys.argv)
 def _debugp(*a, **kw):
     if _debug:
-        print(x, 
+        sys.stdout.flush()
+        sys.stderr.flush()
+        print(*a, **kw, file=sys.stderr)
+        sys.stderr.flush()
 
 class _Unbuffered(object):
     def __init__(self, stream):
@@ -94,14 +97,14 @@ class _Unbuffered(object):
 
 def _debuffer():
     if _debug:
-        print("_debuffer()", file=sys.stderr)
+        _debugp("_debuffer()", file=sys.stderr)
     sys.stdout = _Unbuffered(sys.stdout)
     sys.stdout._unbuffered = sys.stdout.isatty()
 
     sys.stderr = _Unbuffered(sys.stderr)
     sys.stderr._unbuffered = sys.stderr.isatty()
     if _debug:
-        print("done in _debuffer()")
+        _debugp("done in _debuffer()")
 
 def succeed():
     "Function that exits with a success return code (0)."
@@ -321,7 +324,7 @@ read_until = readfor
 
 def shell(name="detect"):
     if _debug:
-        print("    => shell(name={!r})".format(name))
+        _debugp("    => shell(name={!r})".format(name))
     if name == "detect":
         try:
             import bpython
@@ -344,7 +347,7 @@ def shell(name="detect"):
     if name == "detect":
         name = "builtin"
     if _debug:
-        print("    => after detect: shell(name={!r})".format(name))
+        _debugp("    => after detect: shell(name={!r})".format(name))
 
     def passthrough(globs, string):
         _add_modules(globs, [string])
@@ -352,7 +355,7 @@ def shell(name="detect"):
 
     if name == "ipython":
         if _debug:
-            print("    => loading ipython")
+            _debugp("    => loading ipython")
         from IPython import embed
         from IPython.terminal.embed import InteractiveShellEmbed
 
@@ -369,7 +372,7 @@ def shell(name="detect"):
         return e
     elif name == "ptpython":
         if _debug:
-            print("    => loading ptpython")
+            _debugp("    => loading ptpython")
         from ptpython.repl import embed, PythonRepl
         def wrap_embed(globs):
             orig = PythonRepl._execute.im_func
@@ -382,7 +385,7 @@ def shell(name="detect"):
         return wrap_embed
     elif name == "bpython":
         if _debug:
-            print("    => loading bpython")
+            _debugp("    => loading bpython")
         from bpython import embed
         from bpython import repl
         def wrap_embed(globs):
@@ -395,7 +398,7 @@ def shell(name="detect"):
         return wrap_embed
     else:
         if _debug:
-            print("    => loading builtin")
+            _debugp("    => loading builtin")
         if name != "builtin":
             print("warning: don't have interpreter %s, using builtin" % name)
         import code
@@ -416,7 +419,7 @@ def shell(name="detect"):
 def _parse_args():
     global _debug
     if _debug:
-        print("in _parse_args()")
+        _debugp("in _parse_args()")
     import argparse
     class Thingy(argparse.RawDescriptionHelpFormatter,
             argparse.ArgumentDefaultsHelpFormatter):
@@ -456,27 +459,27 @@ def _parse_args():
     args = parser.parse_args()
     _debug = args.debug
     if _debug:
-        print("did initial parse, args:", args)
+        _debugp("did initial parse, args:", args)
 
     if args.unbuffered:
         sys.stdout._unbuffered = True
         sys.stderr._unbuffered = True
         if _debug:
-            print("=> mark unbuffered")
+            _debugp("=> mark unbuffered")
     if not args.string and not args.interactive:
         args.interactive = 'detect'
     if args.interactive:
         args.interactive = shell(args.interactive)
     if _debug:
-        print("=> args.interactive: ", args.interactive)
+        _debugp("=> args.interactive: ", args.interactive)
 
     string = " ".join(args.string) if args.string else None
     statements, string = _split_statements(string)
     if _debug:
-        print("=> statements: ", args.interactive)
+        _debugp("=> statements: ", args.interactive)
         for statement in statements:
-            print("   ", statement)
-        print(" <<", string)
+            _debugp("   ", statement)
+        _debugp(" <<", string)
     if args.print_joined:
         args.print_each = True
 
@@ -503,8 +506,8 @@ def _parse_args():
     if args.bool:
         string = "bool(%s)" % string
     if _debug:
-        print("=> processed final str:")
-        print(" << {}".format(string))
+        _debugp("=> processed final str:")
+        _debugp(" << {}".format(string))
 
     if not args.variables:
         args.variables = []
@@ -512,7 +515,7 @@ def _parse_args():
         name, equals, value = var.partition("=")
         assert equals, "please put an equals sign in variable defitions"
         if _debug:
-            print("=> add var {!r} = {!r}".format(name, value))
+            _debugp("=> add var {!r} = {!r}".format(name, value))
         globals()[name] = value
 
 
@@ -830,7 +833,7 @@ def _mute_all():
 
 def _add_modules(globbles, strings):
     if _debug:
-        print("=> in _add_modules()")
+        _debugp("=> in _add_modules()")
     def _import(_mod):
         try:
             globbles[_mod] = __import__(_mod)
@@ -857,17 +860,17 @@ def _add_modules(globbles, strings):
         return _mod not in globbles and any(re.search(mod_re, _s) for _s in strings)
 
     if _debug:
-        print("=> checking optional_modules")
+        _debugp("=> checking optional_modules")
     for _mod in _optional_modules:
         if _wanted(_mod, "module"):
             if _debug:
-                print("importing module found in code:", _mod)
+                _debugp("importing module found in code:", _mod)
             _import(_mod)
 
 
     if _wanted("terminal", "pre-initialized blessings instance") or _wanted("blessings", "blessings module") or _wanted("term", "same as `terminal`"):
         if _debug:
-            print("adding terminal/blessings")
+            _debugp("adding terminal/blessings")
         blessings = _import("blessings")
         globbles["blessings"] = blessings
         if blessings and "terminal" not in globbles:
@@ -895,7 +898,7 @@ def _add_modules(globbles, strings):
 
     if _wanted("np", "numpy module short-name"):
         if _debug:
-            print("adding numpy as np")
+            _debugp("adding numpy as np")
         numpy = _import("numpy")
         if numpy:
             globbles["np"] = numpy
@@ -903,7 +906,7 @@ def _add_modules(globbles, strings):
     for _itertool_func in _itertools_values:
         if _wanted(_itertool_func):
             if _debug:
-                print("adding itertools func", _itertool_func)
+                _debugp("adding itertools func", _itertool_func)
             _itertools = __import__("itertools")
             globbles[_itertool_func] = getattr(_itertools, _itertool_func)
             _reset_vars()
@@ -1229,9 +1232,9 @@ def _add_environment_vars(glob, outer_dir):
     overlap = set(original_globals) & set(os.environ)
     overlap2 = set(outer_dir + dir(__builtins__)) & set(os.environ)
     if overlap and _debug:
-        print("WARNING: variable overlap: %r" % overlap)
+        _debugp("WARNING: variable overlap: %r" % overlap)
     elif overlap2 and _debug:
-        print("WARNING: builtin overlap: %r" % overlap2)
+        _debugp("WARNING: builtin overlap: %r" % overlap2)
 
 
     glob.update(os.environ)
@@ -1240,19 +1243,19 @@ def _add_environment_vars(glob, outer_dir):
 
 def run(statements, expression, run_globals, _shouldprint, _quiet):
     if _debug:
-        print("in run()")
+        _debugp("in run()")
     try:
         for statement in statements:
             if _debug:
-                print("exec statement:", statement)
+                _debugp("exec statement:", statement)
             six.exec_(statement, run_globals)
         if not expression.strip():
             if _debug:
-                print("no expression to run")
+                _debugp("no expression to run")
             _result = None
         else:
             if _debug:
-                print("running expression:", expression)
+                _debugp("running expression:", expression)
             _result = eval("(%s)" % expression, run_globals)
         if _debug:
             try:
