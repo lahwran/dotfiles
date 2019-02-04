@@ -709,7 +709,7 @@ _optional_modules = [
     "unicodedata",
     "urllib",
     "urllib2",
-    "urlparse",
+    #"urlparse",
     "uu",
     "uuid",
     "warnings",
@@ -1111,7 +1111,7 @@ def _format_var(name, value, f=None):
         simpledesc = "builtin"
     elif type(value) == type:
         simpledesc = "class"
-    elif type(value) == type(token):
+    elif type(value) == type(contextlib):
         simpledesc = "module"
     elif type(value) == type(str.join):
         simpledesc = "method"
@@ -1136,18 +1136,27 @@ def show(x, all=False):
         return "\n".join(
             _format_var(name, value)
             for name, value in sorted(d.items(), key=lambda x: x[0]))
-    print(_format_var(None, x, f="{value}"))
+    m = dict((q, getattr(x, q)) for q in dir(x) if all or not q.startswith("_"))
 
-    m = dict((q, getattr(x, q)) for q in dir(x) if all or not q.startswith("__"))
-    if _hasdoc(x):
-        print()
-        print(x.__doc__)
-        print()
-
+    l = 0
     if m:
         print("Attributes")
         print("==============\n")
         print(f(m, {}))
+        l = 1
+
+    if _hasdoc(x):
+        print()
+        print("Docstring")
+        print("==============\n")
+        print(x.__doc__)
+        print()
+        l = 1
+        
+    print("Value")
+    print("==============\n")
+
+    print(_format_var(None, x, f="{value}"))
 
 
 def _variables(g, oldglobals, quick=False):
