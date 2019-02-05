@@ -19388,7 +19388,7 @@
 		</dict>
 	</dict>
 	<key>Default Bookmark Guid</key>
-	<string>73EF429D-80CA-46EB-9A11-4C6F04AFB8CC</string>
+	<string>2462C096-1189-4A98-93DC-A19364C73C82</string>
 	<key>DimBackgroundWindows</key>
 	<false/>
 	<key>DimInactiveSplitPanes</key>
@@ -19669,7 +19669,7 @@
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>155 593 592 584 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>352 459 1330 718 0 0 1920 1177 </string>
+	<string>352 987 325 188 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>562 310 850 851 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
@@ -19683,6 +19683,10 @@
 	<key>NeverWarnAboutShortLivedSessions_046D552A-2ED4-4C34-8547-14762A374937</key>
 	<true/>
 	<key>NeverWarnAboutShortLivedSessions_046D552A-2ED4-4C34-8547-14762A374937_selection</key>
+	<integer>0</integer>
+	<key>NeverWarnAboutShortLivedSessions_2462C096-1189-4A98-93DC-A19364C73C82</key>
+	<true/>
+	<key>NeverWarnAboutShortLivedSessions_2462C096-1189-4A98-93DC-A19364C73C82_selection</key>
 	<integer>0</integer>
 	<key>NeverWarnAboutShortLivedSessions_8E9BA4F3-A719-4AD8-9BF8-05E357DA205F</key>
 	<true/>
@@ -21850,33 +21854,41 @@
 			<real>2.8634022049492383</real>
 			<key>Bold Color</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.56363654136657715</real>
+				<real>0.88627450980392153</real>
+				<key>Color Space</key>
+				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.56485837697982788</real>
+				<real>0.88627450980392153</real>
 				<key>Red Component</key>
-				<real>0.50599193572998047</real>
+				<real>0.88627450980392153</real>
 			</dict>
 			<key>Bound Hosts</key>
 			<array/>
 			<key>Character Encoding</key>
 			<integer>4</integer>
 			<key>Close Sessions On End</key>
-			<false/>
+			<true/>
 			<key>Columns</key>
-			<integer>50</integer>
+			<integer>45</integer>
 			<key>Command</key>
-			<string>/usr/bin/python -c 'print("\\n\\n\\n\\n\tPlease select a profile.\\n\\n\\n\\n");import time;time.sleep(3)'</string>
+			<string>/usr/bin/python -c 'print("\\n\\n\\n\\n\tPlease select a profile.\\n\\n\\n\\n");import time;time.sleep(1.5)'</string>
 			<key>Cursor Boost</key>
 			<real>0.0</real>
 			<key>Cursor Color</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.51685798168182373</real>
+				<real>0.16862745098039217</real>
+				<key>Color Space</key>
+				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.50962930917739868</real>
+				<real>0.16862745098039217</real>
 				<key>Red Component</key>
-				<real>0.44058024883270264</real>
+				<real>0.70196078431372544</real>
 			</dict>
 			<key>Cursor Guide Color</key>
 			<dict>
@@ -21893,12 +21905,16 @@
 			</dict>
 			<key>Cursor Text Color</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.19370138645172119</real>
+				<real>0.16862745098039217</real>
+				<key>Color Space</key>
+				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.15575926005840302</real>
+				<real>0.16862745098039217</real>
 				<key>Red Component</key>
-				<real>0.0</real>
+				<real>0.70196078431372544</real>
 			</dict>
 			<key>Cursor Type</key>
 			<integer>2</integer>
@@ -22045,13 +22061,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.73423302173614502</real>
+				<real>0.88627450980392153</real>
 				<key>Color Space</key>
 				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.35916060209274292</real>
+				<real>0.88627450980392153</real>
 				<key>Red Component</key>
-				<real>0.0</real>
+				<real>0.88627450980392153</real>
 			</dict>
 			<key>Log Directory</key>
 			<string></string>
@@ -22078,7 +22094,7 @@
 			<key>Right Option Key Sends</key>
 			<integer>0</integer>
 			<key>Rows</key>
-			<integer>9</integer>
+			<integer>10</integer>
 			<key>Screen</key>
 			<integer>-1</integer>
 			<key>Scrollback Lines</key>
@@ -22089,21 +22105,29 @@
 			<true/>
 			<key>Selected Text Color</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.56363654136657715</real>
+				<real>0.88627450980392153</real>
+				<key>Color Space</key>
+				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.56485837697982788</real>
+				<real>0.88627450980392153</real>
 				<key>Red Component</key>
-				<real>0.50599193572998047</real>
+				<real>0.88627450980392153</real>
 			</dict>
 			<key>Selection Color</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.43535593152046204</real>
+				<real>0.16862745098039217</real>
+				<key>Color Space</key>
+				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.33620709180831909</real>
+				<real>0.16862745098039217</real>
 				<key>Red Component</key>
-				<real>0.042227141559123993</real>
+				<real>0.70196078431372544</real>
 			</dict>
 			<key>Semantic History</key>
 			<dict>
@@ -22123,7 +22147,7 @@
 			<key>Silence Bell</key>
 			<false/>
 			<key>Smart Cursor Color</key>
-			<true/>
+			<false/>
 			<key>Smart Selection Rules</key>
 			<array>
 				<dict>
@@ -22379,6 +22403,8 @@
 	<key>SplitPaneDimmingAmount</key>
 	<real>0.60000002384185791</real>
 	<key>StretchTabsToFillBar</key>
+	<true/>
+	<key>SuppressRestartAnnouncement</key>
 	<true/>
 	<key>SwitchTabModifier</key>
 	<integer>9</integer>
