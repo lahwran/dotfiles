@@ -22,6 +22,8 @@
 	<false/>
 	<key>CheckTestRelease</key>
 	<true/>
+	<key>CloseBookmarksWindowAfterOpening</key>
+	<true/>
 	<key>ClosingHotkeySwitchesSpaces</key>
 	<true/>
 	<key>CommandSelection</key>
@@ -19472,6 +19474,20 @@
 			<key>Text</key>
 			<string>0</string>
 		</dict>
+		<key>0x6e-0x100000</key>
+		<dict>
+			<key>Action</key>
+			<integer>25</integer>
+			<key>Text</key>
+			<string>Open Profiles…</string>
+		</dict>
+		<key>0x74-0x100000</key>
+		<dict>
+			<key>Action</key>
+			<integer>25</integer>
+			<key>Text</key>
+			<string>Open Profiles…</string>
+		</dict>
 		<key>0x9-0x40000</key>
 		<dict>
 			<key>Action</key>
@@ -19669,7 +19685,7 @@
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>155 593 592 584 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>352 1003 325 164 0 0 1920 1177 </string>
+	<string>-216 92 1914 1067 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>562 310 850 851 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
@@ -22249,6 +22265,8 @@
 					<string>(?&lt;= a/| b/)\~?/?([[:letter:][:number:]._-]+/+)+[[:letter:][:number:]._-]+/?</string>
 				</dict>
 			</array>
+			<key>Space</key>
+			<integer>-1</integer>
 			<key>Sync Title</key>
 			<false/>
 			<key>Tags</key>
@@ -22978,6 +22996,8 @@
 	<key>PrefsCustomFolder</key>
 	<string>/Users/lahwran/dotfiles/files/iterm2</string>
 	<key>Print In Black And White</key>
+	<true/>
+	<key>ProfilesWindowJoinsActiveSpace</key>
 	<true/>
 	<key>PromptOnQuit</key>
 	<true/>
