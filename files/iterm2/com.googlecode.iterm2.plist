@@ -20250,7 +20250,7 @@
 	<key>NSWindow Frame NSColorPanel</key>
 	<string>3146 519 214 309 2560 0 2560 1418 </string>
 	<key>NSWindow Frame NSFontPanel</key>
-	<string>130 413 445 77 0 0 1920 1177 </string>
+	<string>107 405 445 77 0 0 1920 1177 </string>
 	<key>NSWindow Frame Preferences</key>
 	<string>908 506 606 456 0 0 2560 1417 </string>
 	<key>NSWindow Frame SUAutomaticUpdateAlert</key>
@@ -20258,21 +20258,27 @@
 	<key>NSWindow Frame SessionsPreferences</key>
 	<string>269 57 606 469 0 0 1920 1177 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>355 247 928 394 0 0 1920 1177 </string>
+	<string>104 776 918 394 0 0 1920 1177 </string>
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>155 593 592 584 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>-216 988 325 164 0 0 1920 1177 </string>
+	<string>0 71 1920 1106 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
-	<string>562 326 850 827 0 0 1920 1177 </string>
+	<string>780 157 850 827 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
-	<string>630 980 500 145 0 0 1920 1177 </string>
+	<string>97 145 850 827 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 3</key>
-	<string>0 531 850 849 0 0 2560 1417 </string>
+	<string>969 183 850 827 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 4</key>
-	<string>547 244 850 749 0 0 1920 1177 </string>
+	<string>874 108 850 827 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 5</key>
-	<string>719 175 850 827 0 0 1920 1177 </string>
+	<string>162 180 1319 875 0 0 1920 1177 </string>
+	<key>NSWindow Frame iTerm Window 6</key>
+	<string>798 103 850 827 0 0 1920 1177 </string>
+	<key>NSWindow Frame iTerm Window 7</key>
+	<string>66 113 850 677 0 0 1920 1177 </string>
+	<key>NSWindow Frame iTerm Window 8</key>
+	<string>394 500 850 677 0 0 1920 1177 </string>
 	<key>NeverWarnAboutOverrides</key>
 	<true/>
 	<key>NeverWarnAboutOverrides_selection</key>
@@ -20882,7 +20888,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Thin Strokes</key>
-			<integer>0</integer>
+			<integer>4</integer>
 			<key>Transparency</key>
 			<real>0.0</real>
 			<key>Triggers</key>
@@ -21589,7 +21595,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Thin Strokes</key>
-			<integer>0</integer>
+			<integer>4</integer>
 			<key>Transparency</key>
 			<real>0.0</real>
 			<key>Triggers</key>
@@ -22230,7 +22236,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Thin Strokes</key>
-			<integer>0</integer>
+			<integer>4</integer>
 			<key>Transparency</key>
 			<real>0.0</real>
 			<key>Triggers</key>
@@ -22875,7 +22881,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Thin Strokes</key>
-			<integer>0</integer>
+			<integer>4</integer>
 			<key>Transparency</key>
 			<real>0.0</real>
 			<key>Triggers</key>
@@ -24049,7 +24055,7 @@
 			<key>Non-ASCII Anti Aliased</key>
 			<true/>
 			<key>Normal Font</key>
-			<string>Menlo-Regular 12</string>
+			<string>PressStart2P 12</string>
 			<key>Only The Default BG Color Uses Transparency</key>
 			<false/>
 			<key>Option Key Sends</key>
@@ -24239,7 +24245,7 @@
 			<key>Use Non-ASCII Font</key>
 			<false/>
 			<key>Vertical Spacing</key>
-			<real>0.90000000000000002</real>
+			<real>1</real>
 			<key>Visual Bell</key>
 			<false/>
 			<key>Window Type</key>
@@ -24659,7 +24665,7 @@
 			<key>Non-ASCII Anti Aliased</key>
 			<true/>
 			<key>Normal Font</key>
-			<string>Menlo-Regular 12</string>
+			<string>neoletters 14</string>
 			<key>Only The Default BG Color Uses Transparency</key>
 			<false/>
 			<key>Option Key Sends</key>
@@ -25148,7 +25154,7 @@
 			<key>Hide After Opening</key>
 			<false/>
 			<key>Horizontal Spacing</key>
-			<real>1</real>
+			<real>0.97307393637048212</real>
 			<key>Idle Code</key>
 			<integer>0</integer>
 			<key>Initial Text</key>
@@ -25273,7 +25279,7 @@
 			<key>Non-ASCII Anti Aliased</key>
 			<true/>
 			<key>Normal Font</key>
-			<string>Menlo-Regular 12</string>
+			<string>GoMono 13</string>
 			<key>Only The Default BG Color Uses Transparency</key>
 			<false/>
 			<key>Option Key Sends</key>
@@ -25463,7 +25469,7 @@
 			<key>Use Non-ASCII Font</key>
 			<false/>
 			<key>Vertical Spacing</key>
-			<real>0.90000000000000002</real>
+			<real>1.1957125376506024</real>
 			<key>Visual Bell</key>
 			<false/>
 			<key>Window Type</key>
@@ -25762,7 +25768,7 @@
 			<key>Hide After Opening</key>
 			<false/>
 			<key>Horizontal Spacing</key>
-			<real>1</real>
+			<real>0.98267483998493965</real>
 			<key>Idle Code</key>
 			<integer>0</integer>
 			<key>Initial Text</key>
@@ -25887,7 +25893,7 @@
 			<key>Non-ASCII Anti Aliased</key>
 			<true/>
 			<key>Normal Font</key>
-			<string>Menlo-Regular 12</string>
+			<string>Monaco 13</string>
 			<key>Only The Default BG Color Uses Transparency</key>
 			<false/>
 			<key>Option Key Sends</key>
@@ -26053,7 +26059,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Thin Strokes</key>
-			<integer>0</integer>
+			<integer>3</integer>
 			<key>Transparency</key>
 			<real>0.0</real>
 			<key>Triggers</key>
@@ -26077,7 +26083,7 @@
 			<key>Use Non-ASCII Font</key>
 			<false/>
 			<key>Vertical Spacing</key>
-			<real>0.90000000000000002</real>
+			<real>1.3266342714608432</real>
 			<key>Visual Bell</key>
 			<false/>
 			<key>Window Type</key>
@@ -26663,7 +26669,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Thin Strokes</key>
-			<integer>0</integer>
+			<integer>4</integer>
 			<key>Transparency</key>
 			<real>0.0</real>
 			<key>Triggers</key>
@@ -27277,7 +27283,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Thin Strokes</key>
-			<integer>0</integer>
+			<integer>4</integer>
 			<key>Transparency</key>
 			<real>0.0</real>
 			<key>Triggers</key>
@@ -27887,7 +27893,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Thin Strokes</key>
-			<integer>0</integer>
+			<integer>4</integer>
 			<key>Transparency</key>
 			<real>0.0</real>
 			<key>Triggers</key>
@@ -28497,7 +28503,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Thin Strokes</key>
-			<integer>0</integer>
+			<integer>4</integer>
 			<key>Transparency</key>
 			<real>0.0</real>
 			<key>Triggers</key>
@@ -28630,7 +28636,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2019-02-06T07:04:11Z</date>
+	<date>2019-02-07T17:32:49Z</date>
 	<key>SUSkippedVersion</key>
 	<string>3.1.7</string>
 	<key>SavePasteHistory</key>

@@ -76,7 +76,8 @@ def _debugp(*a, **kw):
     if _debug:
         sys.stdout.flush()
         sys.stderr.flush()
-        print(*a, **kw, file=sys.stderr)
+        kw["file"]=sys.stderr
+        print(*a, **kw)
         sys.stderr.flush()
 
 class _Unbuffered(object):
