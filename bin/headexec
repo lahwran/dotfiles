@@ -1,0 +1,513 @@
+#!/usr/bin/env python3
+from __future__ import print_function
+import re
+import errno
+import subprocess
+import signal
+#import pudb; pudb.set_trace()
+import sys
+import time
+import blessed
+from blessed.sequences import Sequence
+sys.stderr = sys.stdout
+term = blessed.Terminal()
+argv = sys.argv[1:]
+do_clear = False
+
+debug = False
+
+if argv[0] == "__do_clear":
+    do_clear = True
+    argv = argv[1:]
+
+stdout = getattr(sys.stdout, "buffer", sys.stdout)
+
+cache = {}
+_whitespace = '\t\n\x0b\x0c\r '.encode("utf-8")
+
+def iter_parse(term, text):
+    """
+    from
+    https://github.com/jquast/blessed/blob/34216d1bc6c22397416fa721a9a0957f672a9ff1/blessed/sequences.py#L404
+    """
+    for match in re.finditer(term._caps_compiled_any.pattern.encode("utf-8"), text):
+        name = match.lastgroup
+        value = match.group(name)
+        if name == 'MISMATCH':
+            yield (value, None)
+        else:
+            yield value, term.caps[name]
+class TextWrapper:
+    """
+    this class copied from python 3.5 textwrap.py and changed to use bytes
+    """
+
+    unicode_whitespace_trans = {}
+    uspace = ord(' ')
+    for x in _whitespace:
+        unicode_whitespace_trans[x] = uspace
+
+    # This funky little regex is just the trick for splitting
+    # text up into word-wrappable chunks.  E.g.
+    #   "Hello there -- you goof-ball, use the -b option!"
+    # splits into
+    #   Hello/ /there/ /--/ /you/ /goof-/ball,/ /use/ /the/ /-b/ /option!
+    # (after stripping out empty strings).
+    word_punct = r'[\w!"\'&.,?]'
+    letter = r'[^\d\W]'
+    wordsep_re = re.compile((r'''
+        ( # any whitespace
+          \s+
+        | # em-dash between words
+          (?<=%(wp)s) -{2,} (?=\w)
+        | # word, possibly hyphenated
+          \S+? (?:
+            # hyphenated word
+              -(?: (?<=%(lt)s{2}-) | (?<=%(lt)s-%(lt)s-))
+              (?= %(lt)s -? %(lt)s)
+            | # end of word
+              (?=\s|\Z)
+            | # em-dash
+              (?<=%(wp)s) (?=-{2,}\w)
+            )
+        )''' % {'wp': word_punct, 'lt': letter}).encode("utf-8"), re.VERBOSE)
+    del word_punct, letter
+
+    # This less funky little regex just split on recognized spaces. E.g.
+    #   "Hello there -- you goof-ball, use the -b option!"
+    # splits into
+    #   Hello/ /there/ /--/ /you/ /goof-ball,/ /use/ /the/ /-b/ /option!/
+    wordsep_simple_re = re.compile(r'(\s+)'.encode("utf-8"))
+
+    # XXX this is not locale- or charset-aware -- string.lowercase
+    # is US-ASCII only (and therefore English-only)
+    sentence_end_re = re.compile((r'[a-z]'             # lowercase letter
+                                 r'[\.\!\?]'          # sentence-ending punct.
+                                 r'[\"\']?'           # optional end-of-quote
+                                 r'\Z').encode("utf-8"))               # end of chunk
+
+
+    def __init__(self,
+                 width=70,
+                 expand_tabs=True,
+                 replace_whitespace=True,
+                 fix_sentence_endings=False,
+                 break_long_words=True,
+                 drop_whitespace=True,
+                 tabsize=8,
+                 *,
+                 max_lines=None):
+        self.width = width
+        self.expand_tabs = expand_tabs
+        self.replace_whitespace = replace_whitespace
+        self.fix_sentence_endings = fix_sentence_endings
+        self.break_long_words = break_long_words
+        self.drop_whitespace = drop_whitespace
+        self.tabsize = tabsize
+        self.max_lines = max_lines
+
+
+    # -- Private methods -----------------------------------------------
+    # (possibly useful for subclasses to override)
+
+    def _munge_whitespace(self, text):
+        if self.expand_tabs:
+            text = text.expandtabs(self.tabsize)
+        if self.replace_whitespace:
+            text = text.translate(self.unicode_whitespace_trans)
+        return text
+
+
+    def _split(self, text):
+        chunks = self.wordsep_simple_re.split(text)
+        chunks = [c for c in chunks if c]
+        return chunks
+
+    def _fix_sentence_endings(self, chunks):
+        i = 0
+        patsearch = self.sentence_end_re.search
+        while i < len(chunks)-1:
+            if chunks[i+1] == b" " and patsearch(chunks[i]):
+                chunks[i+1] = b"  "
+                i += 2
+            else:
+                i += 1
+
+    def _handle_long_word(self, reversed_chunks, cur_line, cur_len, width):
+        # Figure out when indent is larger than the specified width, and make
+        # sure at least one character is stripped off on every pass
+        if width < 1:
+            space_left = 1
+        else:
+            space_left = width - cur_len
+
+        # If we're allowed to break long words, then do so: put as much
+        # of the next chunk onto the current line as will fit.
+        if self.break_long_words:
+            cur_line.append(reversed_chunks[-1][:space_left])
+            reversed_chunks[-1] = reversed_chunks[-1][space_left:]
+
+        # Otherwise, we have to preserve the long word intact.  Only add
+        # it to the current line if there's nothing already there --
+        # that minimizes how much we violate the width constraint.
+        elif not cur_line:
+            cur_line.append(reversed_chunks.pop())
+
+        # If we're not allowed to break long words, and there's already
+        # text on the current line, do nothing.  Next time through the
+        # main loop of _wrap_chunks(), we'll wind up here again, but
+        # cur_len will be zero, so the next line will be entirely
+        # devoted to the long word that we can't handle right now.
+
+    def _wrap_chunks(self, chunks):
+        lines = []
+        if self.width <= 0:
+            raise ValueError("invalid width %r (must be > 0)" % self.width)
+
+        # Arrange in reverse order so items can be efficiently popped
+        # from a stack of chucks.
+        chunks.reverse()
+
+        while chunks:
+
+            # Start the list of chunks that will make up the current line.
+            # cur_len is just the length of all the chunks in cur_line.
+            cur_line = []
+            cur_len = 0
+
+            # Figure out which static string will prefix this line.
+
+            # Maximum width for this line.
+            width = self.width
+
+            # First chunk on line is whitespace -- drop it, unless this
+            # is the very beginning of the text (ie. no lines started yet).
+            if self.drop_whitespace and chunks[-1].strip() == b'' and lines:
+                del chunks[-1]
+
+            while chunks:
+                l = len(chunks[-1])
+
+                # Can at least squeeze this chunk onto the current line.
+                if cur_len + l <= width:
+                    cur_line.append(chunks.pop())
+                    cur_len += l
+
+                # Nope, this line is full.
+                else:
+                    break
+
+            # The current line is full, and the next chunk is too big to
+            # fit on *any* line (not just this one).
+            if chunks and len(chunks[-1]) > width:
+                self._handle_long_word(chunks, cur_line, cur_len, width)
+                cur_len = sum(map(len, cur_line))
+
+            # If the last chunk on this line is all whitespace, drop it.
+            if self.drop_whitespace and cur_line and cur_line[-1].strip() == b'':
+                cur_len -= len(cur_line[-1])
+                del cur_line[-1]
+
+            if cur_line:
+                if (self.max_lines is None or
+                    len(lines) + 1 < self.max_lines or
+                    (not chunks or
+                     self.drop_whitespace and
+                     len(chunks) == 1 and
+                     not chunks[0].strip()) and cur_len <= width):
+                    # Convert current line back to a string and store it in
+                    # list of all lines (return value).
+                    lines.append(b''.join(cur_line))
+                else:
+                    while cur_line:
+                        if (cur_line[-1].strip() and
+                            cur_len <= width):
+                            lines.append(b''.join(cur_line))
+                            break
+                        cur_len -= len(cur_line[-1])
+                        del cur_line[-1]
+                    else:
+                        if lines:
+                            prev_line = lines[-1].rstrip()
+                            if (len(prev_line) + len(self.placeholder) <=
+                                    self.width):
+                                lines[-1] = prev_line + self.placeholder
+                                break
+                    break
+
+        return lines
+
+    def _split_chunks(self, text):
+        text = self._munge_whitespace(text)
+        return self._split(text)
+
+    # -- Public interface ----------------------------------------------
+
+    def wrap(self, text):
+        chunks = self._split_chunks(text)
+        if self.fix_sentence_endings:
+            self._fix_sentence_endings(chunks)
+        return self._wrap_chunks(chunks)
+
+    def fill(self, text):
+        return b"\n".join(self.wrap(text))
+
+
+class SequenceTextWrapper(TextWrapper):
+    """
+    copied from https://github.com/jquast/blessed/blob/34216d1bc6c22397416fa721a9a0957f672a9ff1/blessed/sequences.py#L138
+    this class only is licensed same as blessed
+    """
+
+    def __init__(self, width, term, **kwargs):
+        self.term = term
+        TextWrapper.__init__(self, width, **kwargs)
+
+    def _wrap_chunks(self, chunks):
+        lines = []
+        if self.width <= 0 or not isinstance(self.width, int):
+            raise ValueError(
+                "invalid width {0!r}({1!r}) (must be integer > 0)"
+                .format(self.width, type(self.width)))
+
+        term = self.term
+        drop_whitespace = not hasattr(self, 'drop_whitespace'
+                                      ) or self.drop_whitespace
+        chunks.reverse()
+        while chunks:
+            cur_line = []
+            cur_len = 0
+            width = self.width
+            if drop_whitespace and (
+                    Sequence(chunks[-1], term).strip() == b'' and lines):
+                del chunks[-1]
+            while chunks:
+                chunk_len = Sequence(chunks[-1], term).length()
+                if cur_len + chunk_len <= width:
+                    cur_line.append(chunks.pop())
+                    cur_len += chunk_len
+                else:
+                    break
+            if chunks and Sequence(chunks[-1], term).length() > width:
+                self._handle_long_word(chunks, cur_line, cur_len, width)
+            if drop_whitespace and (
+                    cur_line and Sequence(cur_line[-1], term).strip() == b''):
+                del cur_line[-1]
+            if cur_line:
+                lines.append(b''.join(cur_line))
+        return lines
+
+    def _handle_long_word(self, reversed_chunks, cur_line, cur_len, width):
+        # Figure out when indent is larger than the specified width, and make
+        # sure at least one character is stripped off on every pass
+        if width < 1:
+            space_left = 1
+        else:
+            space_left = width - cur_len
+
+        # If we're allowed to break long words, then do so: put as much
+        # of the next chunk onto the current line as will fit.
+
+        if self.break_long_words:
+            term = self.term
+            chunk = reversed_chunks[-1]
+            idx = nxt = 0
+            for text, _ in iter_parse(term, chunk):
+                nxt += len(text)
+                if Sequence(chunk[:nxt], term).length() > space_left:
+                    break
+                idx = nxt
+            cur_line.append(chunk[:idx])
+            reversed_chunks[-1] = chunk[idx:]
+
+        # Otherwise, we have to preserve the long word intact.  Only add
+        # it to the current line if there's nothing already there --
+        # that minimizes how much we violate the width constraint.
+        elif not cur_line:
+            cur_line.append(reversed_chunks.pop())
+
+        # If we're not allowed to break long words, and there's already
+        # text on the current line, do nothing.  Next time through the
+        # main loop of _wrap_chunks(), we'll wind up here again, but
+        # cur_len will be zero, so the next line will be entirely
+        # devoted to the long word that we can't handle right now.
+
+def wrapline(line):
+    return [_linewrap for _linewrap in SequenceTextWrapper(width=term.width, term=term, drop_whitespace=False, replace_whitespace=False).wrap(line)] if line.strip() else (b'',)
+    
+
+def memoized_wrapline(line, strip_end):
+    lines = cache.get(line, None)
+    if lines is None:
+        lines = wrapline((line[:-1] if strip_end else line))
+        cache[line] = lines
+    return lines
+
+def seq_splitlines(text_list, tail):
+    global rlog
+    result = 0
+    first_unclear = len(text_list)
+    rlog = []
+    for idx, buf in enumerate(text_list):
+        if not buf or buf[-1] != b"\n":
+            first_unclear = idx
+            break
+        new_lines = memoized_wrapline(buf[:-1], True)
+        result += len(new_lines)
+        rlog.append(("f", idx, buf, new_lines, len(buf), result))
+    joined = b"".join(text_list[first_unclear:])
+    joined += tail
+
+    remaining = joined.split(b'\n')
+    temp = [(s + b"\n" if i < len(remaining) - 1 else s) for i, s in enumerate(remaining)]
+    for idx, buf in enumerate(temp[:-1]):
+        new_lines = memoized_wrapline(buf, True)
+        result += len(new_lines)
+        rlog.append(("j", idx, buf, new_lines, len(buf), result))
+    new_lines = wrapline(temp[-1])
+    result += len(new_lines)
+    rlog.append(("k", temp[-1], new_lines, len(temp[-1]), result))
+    return result, temp, first_unclear, rlog
+
+def track_linecount(text_list, tail, thresh):
+    result, temp, first_unclear, rlog = seq_splitlines(text_list, tail)
+    if temp is not None and result < thresh:
+        text_list[:] = text_list[:first_unclear] + temp
+    return result < thresh
+
+def get_linecount(text_list):
+    return seq_splitlines(text_list, b"")[0]
+
+
+def chunks(seq, chunklen, enum=False):
+    x = len(seq)
+    q = chunklen
+    g = ((a*q, (a+1)*q) for a in range((x+q-1)//q))
+    if not enum:
+        return [seq[start:end] for start,end in g]
+    return [((start, end), seq[start:end]) for start,end in g]
+
+color = 0
+def cinv(text):
+    global color
+    if not debug:
+        return text
+    if re.match(b"\033(?!\[[0-9;]+m)", text):
+        return text
+    text = re.sub(b"\033\[[0-9;]*m","",text)
+    text = (b"\033[30;%dm" % (color + 41)) + text + b"\033[m"
+    color = (color + 1) % 6
+    return text
+
+def print_what_we_can(printed_so_far, print_queue, flush):
+    #if len("".join(printed_so_far) + "".join(print_queue)) > 18496: import pudb; pudb.set_trace()
+    if not print_queue:
+        return
+    printed = False
+    try:
+        maxidx = 0
+        for fragidx, frag in enumerate(print_queue):
+            if len(frag) > term.height * term.width * 2:
+                # geez let's chunk this
+                break
+                
+            if track_linecount(printed_so_far, frag, term.height):
+                printed = True
+                stdout.write(cinv(frag))
+                maxidx = fragidx+1
+            else:
+                break
+        print_queue[:] = print_queue[maxidx:]
+        if not print_queue:
+            return
+
+        for chunksize in [256, 64, 8, 1]:
+            if not print_queue: break
+            maxchunkidx = 0
+            for chunkrange, chunk in chunks(print_queue[0], chunksize, enum=True):
+                begin, end = chunkrange
+                if track_linecount(printed_so_far, chunk, term.height):
+                    printed = True
+                    stdout.write(cinv(chunk))
+                    maxidx = end
+                else:
+                    break
+            print_queue[0] = print_queue[0][maxidx:]
+            if not print_queue[0]:
+                print_queue[:] = print_queue[1:]
+    finally:
+        if printed and flush:
+            sys.stdout.flush()
+
+def execute(command):
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+    # Poll process for new output until finished
+    now = time.time()
+    last = 0
+    printed_so_far = []
+    print_queue = []
+    if do_clear:
+        print_queue.append(
+                (term.move(0,0)
+                + term.clear_eos
+                + term.move(0,0)).encode("utf-8"))
+    try:
+        size = 1
+        while process.poll() is None:
+            if now - last > 0.1 and False:
+                size = 1
+            else:
+                size = min(size*2, 1024)
+
+            last = time.time()
+            content = process.stdout.read(size)
+            now = time.time()
+            print_queue.append(content)
+            print_what_we_can(printed_so_far, print_queue, flush=(not do_clear))
+            if print_queue:
+                #print("\nprint_what_we_can didn't flush buffer, aborting")
+                raise KeyboardInterrupt
+        print_queue.append(process.stdout.read())
+        print_what_we_can(printed_so_far, print_queue, flush=True)
+        sys.stdout.write("\n")
+        sys.stdout.flush()
+    except KeyboardInterrupt:
+        try:
+            process.send_signal(signal.SIGINT)
+            for x in range(30):
+                time.sleep(0.002)
+                if process.poll(): return process.poll()
+            process.terminate()
+            for x in range(60):
+                time.sleep(0.002)
+                if process.poll(): return process.poll()
+            process.kill()
+            for x in range(100):
+                time.sleep(0.01)
+                if process.poll(): return process.poll()
+        except OSError as e:
+            if e.errno == errno.ESRCH:
+                return process.poll()
+            raise
+        print("Process somehow still alive after kill... This shouldn't happen but is imaginable, your kernel may be fucked up or something")
+    import pprint
+    if debug:
+        pprint.pprint(rlog)
+    return process.poll()
+
+def execute_dumb(command):
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p2 = subprocess.Popen(["fold", "-w", str(term.width-1)], stdin=process.stdout, stdout=subprocess.PIPE)
+    process.stdout.close()
+    p2 = subprocess.Popen(["head", "-n", str(term.height-1)], stdin=p2.stdout, stdout=subprocess.PIPE)
+    #p2.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
+    output = p2.communicate()[0]
+    sys.stdout.buffer.write(
+            (term.move(0,0)
+            + term.clear_eos
+            + term.move(0,0)).encode("utf-8") + output)
+    sys.stdout.flush()
+
+
+sys.exit(execute_dumb(argv))

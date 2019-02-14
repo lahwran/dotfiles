@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import json
 import subprocess
 import sys
 import logging
@@ -43,19 +44,34 @@ pip_dependencies = [
     "pytest",
     "twisted",
     "blessings",
+    "blessed",
     "watchdog",
     "chardet",
     "decorator",
     "flask",
     "husl",
     "ptpython",
-    "progressbar",
     "prompt_toolkit",
     "pudb",
     "py",
     "requests",
     "treq",
     "klein",
+    "numpy",
+    "urwid",
+    "bpython",
+    "hsluv",
+    "jupyter",
+    "lxml",
+    "incremental",
+    "six",
+    "pytest-regtest",
+    "neovim",
+    "python-pcre",
+]
+py2_pip_dependencies = [
+    "progressbar",
+    "ipython<=6"
 ]
 
 ensure_nonexistant = [
@@ -239,16 +255,62 @@ def which(program):
 
     return None
 
+def check_py(name, found, sites, check_version=None):
+    binary = which(name)
+    if not binary:
+        return
+    if check_version is not None:
+        out = json.loads(subprocess.check_output([binary, '-c', 'import sys, json; json.dump(list(sys.version_info), sys.stdout)']))
+        if out[:len(check_version)] != check_version:
+            return
+    out = subprocess.check_output([binary, '-m', 'site', '--user-site']).strip()
+    if out in sites:
+        found.remove(sites[out])
+    sites[out] = binary
+    found.append(binary)
+
+def fix_pypy(packages, is_pypy):
+    if not is_pypy:
+        return packages
+    mapping = {
+        "numpy": "git+https://bitbucket.org/pypy/numpy.git"
+    }
+    return [mapping.get(x, x) for x in packages]
 
 def user_install():
     global logger
+    sites2 = {}
+    python2s = []
+    check_py("python2.7", python2s, sites2)
+    check_py("python2", python2s, sites2)
+    check_py("python", python2s, sites2, check_version=[2, 7])
+    check_py("pypy", python2s, sites2, check_version=[2, 7])
 
-    if which("pip") is None or which("pip").startswith("/usr"):
-        wrap_process.call("python", ["python", path("get-pip.py"), "--user"])
-    # install pip packages
-    logger.info("Installing pip packages...")
-    wrap_process.call("pip", ["pip", "install", "--user"] + pip_dependencies)
-    wrap_process.call("pip", ["pip", "install", "--user", "--editable", path("packages/at/")])
+    sites3 = {}
+    python3s = []
+    for x in range(5, 10):
+        check_py("python3.{}".format(x), python3s, sites3)
+    check_py("python3", python3s, sites3)
+    check_py("python", python3s, sites3, check_version=[3])
+    check_py("pypy3", python3s, sites3)
+
+    wrap_process.call("wget", ["wget", "https://bootstrap.pypa.io/get-pip.py", "-O", path("get-pip.py")])
+
+    for python2 in python2s:
+        wrap_process.call(python2, [python2, path("get-pip.py"), "--user", "--upgrade"])
+        # install pip packages
+        logger.info("Installing pip packages...")
+        wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user", "--upgrade", "pip", "setuptools"])
+        wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user", "--upgrade"] + fix_pypy(pip_dependencies + py2_pip_dependencies, is_pypy="pypy" in python2))
+        wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
+    for python3 in python3s:
+        wrap_process.call(python3, [python3, path("get-pip.py"), "--user", "--upgrade"])
+        # install pip packages
+        logger.info("Installing pip packages...")
+        wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade", "pip", "setuptools"])
+        wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade"] + fix_pypy(pip_dependencies, is_pypy="pypy" in python3))
+        wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
+
 
     logger = logging.getLogger("u")
     logger.info("Doing user install...")
@@ -311,6 +373,7 @@ def user_install():
     wrap_process.call("git submodule", ["git", "submodule", "update"], wd=projectroot)
 
     install_file("submodules/pathogen/autoload/pathogen.vim", "~/.vim/autoload/pathogen.vim")
+    install_file("submodules/jinja2/", "~/.vim/bundle/jinja2/")
     install_file("submodules/nerdtree/", "~/.vim/bundle/nerdtree/")
     install_file("submodules/ctrlp/", "~/.vim/bundle/ctrlp/")
     install_file("submodules/fugitive/", "~/.vim/bundle/fugitive/")
@@ -325,6 +388,8 @@ def user_install():
     install_file("submodules/vim-multiple-cursors/", "~/.vim/bundle/vim-multiple-cursors/")
     install_file("submodules/vim-jsx/", "~/.vim/bundle/vim-jsx/")
     install_file("submodules/vim-auto-save/", "~/.vim/bundle/vim-auto-save/")
+    install_file("submodules/vim-markology/", "~/.vim/bundle/vim-markology/")
+    install_file("submodules/vim-terraform/", "~/.vim/bundle/vim-terraform/")
 
     install_file("files/tmux.conf", "~/.tmux.conf")
 
@@ -395,19 +460,24 @@ def root_install():
 def init_logging(mode):
     rootlogger = logging.getLogger()
     prefix = "\033[32m"
-    formatter = logging.Formatter('[%(relativeCreated)6dms ' + highlight(mode) + ' %(levelname)s] ' +
-                                        highlight('%(name)s') + ': %(message)s')
     rootlogger.setLevel(logging.DEBUG)
     today = datetime.date.today()
     today_str = today.strftime("%Y-%m-%d")
-    logfile = open(".install_%s.log" % today_str, "a")
-    handlers = [
-        logging.StreamHandler(sys.stdout),
-        logging.StreamHandler(logfile)
-    ]
-    for handler in handlers:
-        handler.setFormatter(formatter)
-        rootlogger.addHandler(handler)
+    logfile = open(path(".install_%s.log" % today_str), "a")
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(
+        logging.Formatter(highlight(mode) + ' %(levelname)s ' +
+                                highlight('%(name)s') + ': %(message)s'))
+    rootlogger.addHandler(handler)
+
+    handler = logging.StreamHandler(logfile)
+    handler.setFormatter(
+        logging.Formatter('[%(relativeCreated)6dms ' + highlight(mode) + ' %(levelname)s] ' +
+                                        highlight('%(name)s') + ': %(message)s'))
+
+    rootlogger.addHandler(handler)
+
     logger.info("Logging initialized")
 
 def main(mode="user", *args):

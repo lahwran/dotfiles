@@ -1,0 +1,210 @@
+#!/usr/bin/env python3
+import sys
+import argparse
+import signal
+import subprocess
+import os
+import time
+
+
+import blessed
+from watchdog.observers import Observer
+from watchdog.tricks import Trick
+from watchdog.events import *
+#import pudb; pudb.set_trace()
+term = blessed.Terminal()
+
+
+
+original_argv = sys.argv
+
+if "--" in sys.argv:
+    idx = sys.argv.index("--")
+    prefix_args = sys.argv[1:idx]
+    cmd = sys.argv[idx+1:]
+else:
+    prefix_args = []
+    cmd = sys.argv[1:]
+
+parser = argparse.ArgumentParser(
+    usage=term.bold(
+        "\n  watchmeexec binary [args for binary ...]"
+      + "\n  watchmeexec [-h] [pattern...] -- binary [args for binary ...]"
+    )
+)
+parser.add_argument("patterns", nargs="*")
+if not cmd or cmd[0].startswith("-"):
+    parser.print_help()
+    sys.exit(1)
+args = parser.parse_args(prefix_args)
+
+#watchmedo shell-command -c "clear; $command" 
+
+#patterns, ignore_patterns = parse_patterns(args.patterns,
+#                                            args.ignore_patterns)
+patterns = []
+
+
+#subprocess.call(["python", "-c", headexec] + cmd)
+
+def invoke():
+    #pass
+    subprocess.call(["headexec", "__do_clear"] + cmd)
+
+watchmeexec_internals = [
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "**"),
+]
+
+stopping = False
+restarting = False
+process = None
+
+from watchdog.events import FileSystemEvent
+real_init = FileSystemEvent.__init__
+def event_init(self, *a, **kw):
+    real_init(self, *a, **kw)
+    self.when = time.time()
+FileSystemEvent.__init__ = event_init
+
+class CommandTrick(Trick):
+
+    """Executes shell commands in response to matched events."""
+
+    def __init__(self, patterns=None, ignore_patterns=None,
+                 ignore_directories=False, wait_for_process=False,
+                 drop_during_process=False):
+        super(CommandTrick, self).__init__(patterns, ignore_patterns,
+                                                ignore_directories)
+        self.wait_for_process = wait_for_process
+        self.drop_during_process = drop_during_process
+        self.ratelimit = 0.0
+        self.last_event = time.time()
+        self.wait_for_reemit = False
+        self.unseen_events = 0
+
+    def dispatch(self, event):
+        """Dispatches events to the appropriate methods.
+        :param event:
+            The event object representing the file system event.
+        :type event:
+            :class:`FileSystemEvent`
+        """
+        if self.ignore_directories and event.is_directory:
+            return
+
+        paths = []
+        if has_attribute(event, 'dest_path'):
+            paths.append(unicode_paths.decode(event.dest_path))
+        if event.src_path:
+            paths.append(unicode_paths.decode(event.src_path))
+
+        if match_any_paths(paths,
+                           included_patterns=self.patterns,
+                           excluded_patterns=self.ignore_patterns,
+                           case_sensitive=self.case_sensitive):
+            self.on_any_event(event)
+            _method_map = {
+                EVENT_TYPE_MODIFIED: self.on_modified,
+                EVENT_TYPE_MOVED: self.on_moved,
+                EVENT_TYPE_CREATED: self.on_created,
+                EVENT_TYPE_DELETED: self.on_deleted,
+            }
+            event_type = event.event_type
+            _method_map[event_type](event)
+
+    def on_any_event(self, event):
+        global stopping
+        global restarting
+        global process
+        sp = getattr(event, "src_path", None)
+        #print(event)
+
+        now = event.when
+        min_wait = 0.05
+        thresh_wait = 0.02
+
+        delta = max(now - self.last_event, 1e-3)
+        self.last_event = now
+        self.ratelimit = min(2, max(0, (0.96 ** delta)*self.ratelimit + 3*(1.0/delta + 0.125)))
+
+        time_to_wait = max(min_wait, self.ratelimit - delta)
+
+        if time_to_wait > thresh_wait:
+            #print(term.bold+term.orange+"WATCH: got event after ({:0.3f}s out of {:0.3f}s), ignore duration {:0.3f}s".format(delta, self.ratelimit, time_to_wait)+term.normal)
+            time.sleep(time_to_wait)
+            #print(term.bold+term.orange+"WATCH: Skipping {} events".format(self.observer.event_queue.qsize())+term.normal)
+            self.observer.event_queue.queue.clear()
+
+        if sp is not None and os.path.abspath(sp) == os.path.abspath(__file__):
+            os.kill(os.getpid(), signal.SIGINT)
+            restarting = True
+            stopping = True
+            return
+        invoke()
+
+# todo: this is actually cartesian product between patterns and dirs but WHATEVER
+patterns = []
+dirnames = {}
+executable = cmd[0]
+if os.path.basename(executable) in ["python", "python3", "python2", "bash", "ruby", "node", "nodejs", "python3.6", "python3.5", "python3.7"]:
+    # todo make less naive
+    executable = cmd[1]
+executable = os.path.abspath(executable)
+for pathpattern in args.patterns + [executable] + watchmeexec_internals:
+    pathpattern=os.path.abspath(pathpattern)
+    if "**" in pathpattern:
+        before, stars, after = pathpattern.partition("**")
+        dirname = os.path.dirname(before)
+        base = os.path.basename(before)
+        dirnames[dirname] = True
+        patterns.append(before + "*" + after)
+        continue
+
+    dirname = os.path.dirname(pathpattern)
+    basename = os.path.dirname(pathpattern)
+    assert "*" not in dirname
+    dirnames.setdefault(dirname, False)
+    patterns.append(pathpattern)
+
+handler = CommandTrick(
+                            patterns=patterns,
+                            ignore_patterns=[], #ignore_patterns,
+                            ignore_directories=[], #args.ignore_directories,
+                            wait_for_process=True,
+                            drop_during_process=False)
+observer = Observer(timeout=30)
+handler.observer = observer
+
+
+#cmd="$(python -c 'import sys,pipes;print(" ".join(pipes.quote(x) for x in sys.argv[1:]))' "$@")"
+#bin="$1"
+#dir="$(dirname $bin)"
+##clear
+#"$@"
+
+
+
+with term.fullscreen():
+    sys.stdout.write(" \b")
+    invoke()
+    for dirname, recursive in dirnames.items():
+        observer.schedule(handler, dirname, recursive)
+
+    try:
+        observer.start()
+        try:
+            while not stopping:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            pass
+        print("Stopping")
+        observer.stop()
+        print("Done stopping")
+    except KeyboardInterrupt:
+        print("Shutting down forcefully?")
+        pass
+        print("Stuff may or may not actually happen")
+
+
+if restarting:
+    os.execv(sys.executable, [sys.executable, __file__] + sys.argv[1:])

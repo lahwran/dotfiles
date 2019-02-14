@@ -11,6 +11,7 @@ setup(
     keywords = "utility",
     url = "https://github.com/lahwran/dotfiles/tree/master/packages/at",
     packages=['at'],
+    install_requires=['six'],
     long_description="",
     entry_points={
         'console_scripts': [

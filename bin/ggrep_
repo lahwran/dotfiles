@@ -1,66 +1,129 @@
 #!/usr/bin/python
+from __future__ import print_function
 import sys
+import os
+import re
 sys.stderr = sys.stdout
 import subprocess
 import argparse
 import pipes
 parser = argparse.ArgumentParser(prefix_chars="-")
 parser.add_argument("--args", dest="ignored", action="store_true")
-parser.add_argument("args", nargs="+")
+parser.add_argument("search")
+parser.add_argument("args", nargs="*")
 parser.add_argument("-a")
 parser.add_argument("-b")
 parser.add_argument("-c")
 parser.add_argument("-i", action="store_true")
+parser.add_argument("-I", action="store_true", dest="i")
 parser.add_argument("-A", dest="a")
 parser.add_argument("-B", dest="b")
 parser.add_argument("-C", dest="c")
 parser.add_argument("-f", action="append", default=[])
-parser.add_argument("-r", action="store_true")
+parser.add_argument("-r", "--raw", action="store_true")
+parser.add_argument("-e", help="extended regex", action="store_true")
+parser.add_argument("-E", help="extended regex", action="store_true", dest="e")
+parser.add_argument("-p", help="extended regex", action="store_true")
+parser.add_argument("-P", help="extended regex", action="store_true", dest="p")
 args = parser.parse_args()
 
-print "####", "Grep for %r" % args.args[0]
-if len(args.args[1:]):
-    print "####", "in %r" % args.args[1:]
-cmd = ["git", "grep"]
+print("####", "Grep for %r" % args.search)
+if len(args.args):
+    print("####", "in %r" % args.args)
+cmd_base = ["git", "grep"]
+cmd = []
 special = []
 if args.c:
     special.extend(["-C", args.c])
-    print "####", "with", args.c, "context"
+    print("####", "with", args.c, "context")
 if args.a:
     special.extend(["-A", args.a])
-    print "####", "with", args.a, "postcontext"
+    print("####", "with", args.a, "postcontext")
 if args.b:
     special.extend(["-B", args.b])
-    print "####", "with", args.b, "precontext"
+    print("####", "with", args.b, "precontext")
 if args.i:
     special.extend(["-i"])
+if args.p:
+    special.extend(["-P"])
+if args.e:
+    special.extend(["-E"])
 cmd.extend(special)
+cmd.append(args.search)
 cmd.extend(args.args)
-print "####", " ".join([pipes.quote(x) for x in cmd])
-sys.stdout.flush()
-sys.stderr.flush()
 #processes = []
 #commands = [cmd]
 #for filter in args.f:
 #    commands.append(["grep", "-C", "10",)
-
-process = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+e_cmd = cmd_base + cmd
+print("####", " ".join([pipes.quote(x) for x in e_cmd]))
+sys.stdout.flush()
+sys.stderr.flush()
+process = subprocess.Popen(e_cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 output = process.communicate()
-if not args.r:
+
+if output == ('fatal: Not a git repository (or any of the parent directories): .git\n', None):
+    #import pudb; pudb.set_trace()
+    print(output[0])
+    derp = [(not x.startswith("-")) for x in args.args]
+    if not any(derp):
+        cmd.append(".")
+    e_cmd = ["grep", "-R"] + cmd
+    print("####", " ".join([pipes.quote(x) for x in e_cmd]))
+    process = subprocess.Popen(e_cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    output = process.communicate()
+
+existant_files = set()
+def exists(filename):
+    if filename in existant_files:
+        return True
+    res = os.path.exists(filename.replace("\0", ""))
+    if res:
+        existant_files.add(filename)
+    return res
+
+def splitline(orig):
+    line = orig
+    #print(1, repr(line))
+    line = line.replace("\\", "\\\\")
+    #print(2, repr(line))
+    line = line.replace("\0", "\\0")
+    #print(3, repr(line))
+    line = re.sub("([-:])", "\\1\0", line)
+    #print(4, repr(line))
+    parts = line.split("\0")
+    #print(5, repr(parts))
+    parts = [x.replace("\\0", "\0").replace("\\\\", "\\") for x in parts]
+    #print(repr(line), repr(parts))
+    if len(parts) == 1:
+        return None, orig # ??
+    if len(parts) == 2:
+        return parts[0][:-1], parts[1]
+    for chunk in list(range(len(parts) - 1))[::-1]:
+        path_candidate = "".join(parts[:chunk+1])[:-1]
+        match_candidate = "".join(parts[chunk+1:])
+        if exists(path_candidate):
+            return path_candidate, match_candidate
+    return path_candidate, match_candidate
+
+if not args.raw:
     # not in raw mode, fancify it
     lastpath = None
     for line in output[0].replace("\r\n", "\n").split("\n"):
+        if line == "--":
+            print("--")
+            continue
         if not line.strip():
             continue
-        if "-" in line and (not ":" in line or line.index("-") < line.index(":")):
-            path, colon, match = line.partition("-")
-        else:
-            path, colon, match = line.partition(":")
+        path, match = splitline(line)
 
-        if path != lastpath:
+        if path is not None and path != lastpath:
             lastpath = path
-            print
-            print path + colon
-        print match
+            print()
+            print(path + ":")
+        #print(repr((path, match)))
+        print(match)
+else:
+    print(output[0].replace("\r\n", "\n"))
 
 sys.exit(process.returncode or 1)

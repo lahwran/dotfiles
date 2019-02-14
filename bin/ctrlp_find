@@ -2,6 +2,13 @@
 
 MYPATH="$1"
 export PATH="$(dirname $0):$PATH"
+function log() {
+    p="$1"
+    shift
+    logger -t ctrlp_find -p "user.$p" -- "[$$]" "$@"
+}
+
+log info Running from "[$PWD]", searching "[$MYPATH]"
 
 function derp {
     if [ -e "$MYPATH/.ctrlp_ignore" ]; then
@@ -10,5 +17,14 @@ function derp {
         cat
     fi;
 }
-find "$MYPATH" | grep -v "^$MYPATH"'$' | egrep -v "__pycache__|\.pyc$|\.so|htmlcov|\.git|\.class|\.sw.$" | derp
+function headthing {
+    head -n "$(( $1 - 1 ))"
+    log warning "Head #$2 hit limit of $1 lines"
+    head -n 1
+}
+timeout 60 find "$MYPATH" | headthing 500000 early | grep -v "^$MYPATH"'$' | egrep -v "__pycache__|\.pyc$|\.so|htmlcov|\.git|\.class|\.sw.$" | derp
+st="${PIPESTATUS[0]}"
+if [ "$st" = "124" ]; then
+    log warning "timed out"
+fi
 # | egrep -v "^.*(path1|path2|...).*$"

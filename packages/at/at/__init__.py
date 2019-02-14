@@ -63,14 +63,24 @@ another great one:
 
 from __future__ import print_function
 
+from datetime import datetime as dt
+from datetime import timedelta as td
+from random import *
+r=random
+import random
+try:
+    import builtins
+except ImportError:
+    import __builtin__ as builtins
+
 import sys
 import codecs
 import ast
-import token
 import tokenize
 import contextlib
+import six
 
-_debug = False
+_debug = "-d" in sys.argv
 
 class _Unbuffered(object):
     def __init__(self, stream):
@@ -78,7 +88,7 @@ class _Unbuffered(object):
         self._unbuffered = True
 
     def write(self, data):
-        if type(data) == unicode:
+        if isinstance(data, six.text_type) and not getattr(self.stream, "buffer", None):
             data = data.encode("utf-8")
         self.stream.write(data)
         if self._unbuffered:
@@ -89,11 +99,15 @@ class _Unbuffered(object):
 
 
 def _debuffer():
+    if _debug:
+        print("_debuffer()")
     sys.stdout = _Unbuffered(sys.stdout)
     sys.stdout._unbuffered = sys.stdout.isatty()
 
     sys.stderr = _Unbuffered(sys.stderr)
     sys.stderr._unbuffered = sys.stderr.isatty()
+    if _debug:
+        print("done in _debuffer()")
 
 def succeed():
     "Function that exits with a success return code (0)."
@@ -102,6 +116,8 @@ def succeed():
 def fail():
     "Function that exits with a failure return code (1)."
     sys.exit(1)
+
+long = getattr(builtins, 'long', int)
 
 class lines(object):
     def __init__(self):
@@ -117,16 +133,22 @@ class lines(object):
         return "iterable"
 
     def next(self):
-        line = sys.stdin.readline().decode("utf-8")
+        line = sys.stdin.readline()
+        if type(line) == type(b""):
+            line = line.decode("utf-8")
         if not line:
             raise StopIteration
         if line.endswith("\n"):
             line = line[:-1]
         return line
+    __next__ = next
 
 def inp():
     "Returns entire standard in as one string."
-    return sys.stdin.read().decode("utf-8")
+    res = sys.stdin.read()
+    if type(res) == type(b""):
+        return res.decode("utf-8")
+    return res
 
 def _hash(hasher, text):
     instance = hasher()
@@ -143,13 +165,25 @@ def sha256(text):
     import hashlib
     return _hash(hashlib.sha256, text).hexdigest()
 
-
-def pairs(iterable):
+def pairs(iterable, **kwargs):
     "pairs(iterable) -> (s0, s1), (s1,s2), (s2, s3), etc"
-    from itertools import tee, izip
+    from itertools import tee, zip_longest, chain
+    iterables = []
+    for key, value in kwargs.items():
+        if any(x in key for x in ["pre", "head", "begin", "start", "lead", "before", "open", "front", "first", "prepare", "embark", "launch", "create", "go", "push"]):
+            iterables.append([value])
+            break
+    iterables.append(iterable)
+    for key, value in kwargs.items():
+        if any(x in key for x in ["post", "tail", "end",  "stop", "conclude", "after", "close", "back", "last", "destroy", "halt", "off", "termin", "pop"]):
+            iterables.append([value])
+            break
+
+    if len(iterables) > 1:
+        iterable = chain(*iterables)
     a, b = tee(iterable)
     next(b, None)
-    return izip(a, b)
+    return zip(a, b)
 
 def write(contents, value):
     sys.stdout.write(contents)
@@ -164,10 +198,11 @@ def chunks(generator, size, pad=_chunks_guard):
     fills the last one with pad if provided.
     """
     import itertools
-    q = itertools.izip_longest(*[iter(generator)]*size, fillvalue=pad)
+    q = itertools.zip_longest(*[iter(generator)]*size, fillvalue=pad)
     return ([a for a in b if a is not _chunks_guard] for b in q)
 
-
+def lerp(x, y, v):
+    return x + (y - x) * v
 def delays(delta, iterable=None):
     "delays(secs, i=itertools.repeat(None)) - Wraps iterator with delays."
     if iterable is None:
@@ -184,14 +219,23 @@ def delays(delta, iterable=None):
         time.sleep(float(deltafunc()))
         yield x
 
+def noexc(lamb, *a, **kw):
+    default = kw.get("default", None)
+    try:
+        return lamb(*a)
+    except Exception as e:
+        res = default
+        if type(default) in [str, unicode]:
+            return default.format(e=e)
+
 
 lines = lines()
 
-class bytes(object):
+class chars(object):
     def __init__(self):
-        self.__doc__ = "Standard in, byte by byte, as an iterator"
+        self.__doc__ = "Standard in, char by char, as an iterator"
         self.iterator = self._go()
-        assert self.iterator.next() is None
+        assert six.next(self.iterator) is None
 
     def __iter__(self):
         return self.iterator
@@ -200,10 +244,10 @@ class bytes(object):
         return self.iterator.next()
 
     def __repr__(self):
-        return "<bytes - standard in, byte by byte, as an iterator>"
+        return "<chars - standard in, char by char, as an iterator>"
 
     def __str__(self):
-        return "iterable"
+        return "".join(self)
 
     def _go(self):
         yield None
@@ -218,7 +262,7 @@ class bytes(object):
                 break
             for char in s:
                 yield char
-bytes = bytes()
+chars = chars()
 
 
 def _split_statements(string):
@@ -227,7 +271,9 @@ def _split_statements(string):
         return [], ""
 
     operations = [[]]
-    for type, tokenstring, start, end, line in tokenize.generate_tokens(iter(string.split("\n")).next):
+    i = iter(string.split("\n"))
+    nextop = lambda: six.next(i)
+    for type, tokenstring, start, end, line in tokenize.generate_tokens(nextop):
         if tokenstring.strip() == ";":
             operations.append([])
             continue
@@ -242,6 +288,12 @@ def readall(file_like, max=None):
     while select.select([file_like], [], [], 0)[0] != [] and (max is None or len(read) < max):
         read += file_like.read(select.PIPE_BUF)
     return read
+
+
+def paste():
+    import subprocess
+    return subprocess.check_output(["pbpaste"])
+
 
 
 def readfor(file_like, duration, use_select=True):
@@ -262,13 +314,8 @@ read_until = readfor
 
 
 def shell(name="detect"):
-    if name == "detect":
-        try:
-            import ptpython
-            name = "ptpython"
-        except ImportError:
-            print("You should totally install ptpython, it's super awesome.")
-            print("Specify `-i builtin` to shut this suggestion up.")
+    if _debug:
+        print("    => shell(name={!r})".format(name))
     if name == "detect":
         try:
             import bpython
@@ -282,13 +329,24 @@ def shell(name="detect"):
         except ImportError:
             pass
     if name == "detect":
+        try:
+            import ptpython
+            name = "ptpython"
+        except ImportError:
+            print("You should totally install ptpython, it's super awesome.")
+            print("Specify `-i builtin` to shut this suggestion up.")
+    if name == "detect":
         name = "builtin"
+    if _debug:
+        print("    => after detect: shell(name={!r})".format(name))
 
     def passthrough(globs, string):
         _add_modules(globs, [string])
         return string
 
     if name == "ipython":
+        if _debug:
+            print("    => loading ipython")
         from IPython import embed
         from IPython.terminal.embed import InteractiveShellEmbed
 
@@ -304,6 +362,8 @@ def shell(name="detect"):
         # write with self.push(dict)
         return e
     elif name == "ptpython":
+        if _debug:
+            print("    => loading ptpython")
         from ptpython.repl import embed, PythonRepl
         def wrap_embed(globs):
             orig = PythonRepl._execute.im_func
@@ -315,16 +375,21 @@ def shell(name="detect"):
         # write to actual external globals dict
         return wrap_embed
     elif name == "bpython":
+        if _debug:
+            print("    => loading bpython")
         from bpython import embed
         from bpython import repl
         def wrap_embed(globs):
             orig = repl.Interpreter.runsource.im_func
             def runsource(self, source, *a, **kw):
                 return orig(self, passthrough(globs, source), *a, **kw)
+                
             repl.Interpreter.runsource = runsource
             return embed(globs)
         return wrap_embed
     else:
+        if _debug:
+            print("    => loading builtin")
         if name != "builtin":
             print("warning: don't have interpreter %s, using builtin" % name)
         import code
@@ -343,6 +408,9 @@ def shell(name="detect"):
 
 
 def _parse_args():
+    global _debug
+    if _debug:
+        print("in _parse_args()")
     import argparse
     class Thingy(argparse.RawDescriptionHelpFormatter,
             argparse.ArgumentDefaultsHelpFormatter):
@@ -380,17 +448,29 @@ def _parse_args():
             const="detect", nargs="?",
             help='launch interactive mode')
     args = parser.parse_args()
+    _debug = args.debug
+    if _debug:
+        print("did initial parse, args:", args)
 
     if args.unbuffered:
         sys.stdout._unbuffered = True
         sys.stderr._unbuffered = True
+        if _debug:
+            print("=> mark unbuffered")
     if not args.string and not args.interactive:
         args.interactive = 'detect'
     if args.interactive:
         args.interactive = shell(args.interactive)
+    if _debug:
+        print("=> args.interactive: ", args.interactive)
 
     string = " ".join(args.string) if args.string else None
     statements, string = _split_statements(string)
+    if _debug:
+        print("=> statements: ", args.interactive)
+        for statement in statements:
+            print("   ", statement)
+        print(" <<", string)
     if args.print_joined:
         args.print_each = True
 
@@ -416,13 +496,19 @@ def _parse_args():
 
     if args.bool:
         string = "bool(%s)" % string
+    if _debug:
+        print("=> processed final str:")
+        print(" << {}".format(string))
 
     if not args.variables:
         args.variables = []
     for var in args.variables:
         name, equals, value = var.partition("=")
         assert equals, "please put an equals sign in variable defitions"
+        if _debug:
+            print("=> add var {!r} = {!r}".format(name, value))
         globals()[name] = value
+
 
     return (statements, string, args.interactive, args.print_each, args.debug,
             sys.stdout.write if args.print_joined else print, args.quiet)
@@ -444,6 +530,7 @@ class _Importable(object):
 
 
 _optional_modules = [
+    "six",
     "abc",
     "aifc",
     "argparse",
@@ -737,9 +824,11 @@ def _mute_all():
         #os.write(2, "unmuting fd 2 (this was written to fd 2)\n")
 
 def _add_modules(globbles, strings):
+    if _debug:
+        print("=> in _add_modules()")
     def _import(_mod):
         try:
-            exec "import %s" % _mod in globbles
+            globbles[_mod] = __import__(_mod)
         except ImportError as e:
             print(e)
             return None
@@ -762,17 +851,24 @@ def _add_modules(globbles, strings):
         import re
         return _mod not in globbles and any(re.search(mod_re, _s) for _s in strings)
 
+    if _debug:
+        print("=> checking optional_modules")
     for _mod in _optional_modules:
         if _wanted(_mod, "module"):
+            if _debug:
+                print("importing module found in code:", _mod)
             _import(_mod)
 
 
-    if _wanted("terminal", "pre-initialized blessings instance") or _wanted("blessings", "blessings module"):
+    if _wanted("terminal", "pre-initialized blessings instance") or _wanted("blessings", "blessings module") or _wanted("term", "same as `terminal`"):
+        if _debug:
+            print("adding terminal/blessings")
         blessings = _import("blessings")
         globbles["blessings"] = blessings
         if blessings and "terminal" not in globbles:
             terminal = blessings.Terminal(force_styling=True)
             globbles["terminal"] = terminal
+            globbles["term"] = terminal
 
     # force non-short-circuit evaluation
     #a = _wanted("session", "pre-initialized tensorflow session")
@@ -793,18 +889,24 @@ def _add_modules(globbles, strings):
     #            _reset_vars()
 
     if _wanted("np", "numpy module short-name"):
+        if _debug:
+            print("adding numpy as np")
         numpy = _import("numpy")
         if numpy:
             globbles["np"] = numpy
 
     for _itertool_func in _itertools_values:
         if _wanted(_itertool_func):
-            exec "from itertools import %s" % _itertool_func in globbles
+            if _debug:
+                print("adding itertools func", _itertool_func)
+            _itertools = __import__("itertools")
+            globbles[_itertool_func] = getattr(_itertools, _itertool_func)
             _reset_vars()
         del _itertool_func
 
 _available_itertools = []
 _itertools_values = [
+    "accumulate",
     "count",
     "cycle",
     "repeat",
@@ -987,7 +1089,7 @@ def _format_var(name, value, f=None):
     def truncate_to_line(v, length=100):
         s = v.split("\n")
         if len(s) > 1 or len(s[0]) >= length:
-            v = s[0][:length/2 - 5] + "   ...   " + s[0][-(length/2 - 6):]
+            v = s[0][:length//2 - 5] + "   ...   " + s[0][-(length//2 - 6):]
         return v
 
     if f is None:
@@ -1005,9 +1107,9 @@ def _format_var(name, value, f=None):
         simpledesc = "module"
     elif type(value) == type(str.join):
         simpledesc = "method"
-    elif type(value) == type("".join) or type(value) == type(object().__str__) or type(value) == type(bytes.__str__):
+    elif type(value) == type("".join) or type(value) == type(object().__str__) or type(value) == type(chars.__str__):
         simpledesc = "bound method"
-    elif type(value) == str or type(value) == unicode:
+    elif isinstance(type(value), six.string_types):
         simpledesc = repr(value)
     else:
         simpledesc = str(value)
@@ -1132,43 +1234,79 @@ def _add_environment_vars(glob, outer_dir):
 
 
 def run(statements, expression, run_globals, _shouldprint, _quiet):
+    if _debug:
+        print("in run()")
     try:
         for statement in statements:
-            exec statement in run_globals
+            if _debug:
+                print("exec statement:", statement)
+            six.exec_(statement, run_globals)
         if not expression.strip():
+            if _debug:
+                print("no expression to run")
             _result = None
         else:
+            if _debug:
+                print("running expression:", expression)
             _result = eval("(%s)" % expression, run_globals)
+        if _debug:
+            try:
+                print("result: repr={!r} str={}".format(_result, _result))
+            except:
+                import traceback
+                print("error printing result:")
+                traceback.print_exc()
+                print("----------------")
 
         if "tensorflow" in sys.modules:
             import tensorflow
+            if _debug:
+                print("tensorflow was imported, checking if tf result")
             if isinstance(_result, tensorflow.python.framework.ops.Tensor):
+                if _debug:
+                    print("tensorflow result detected")
                 if "session" not in run_globals:
+                    if _debug:
+                        print("no session detected, creating interactivesession as 'session'")
                     run_globals["session"] = tensorflow.InteractiveSession()
+                if _debug:
+                    print("run tf _result with", run_globals["session"])
                 _result = run_globals["session"].run(_result)
+                if _debug:
+                    print("tf result", _result)
     except KeyboardInterrupt:
         if not _quiet:
             sys.stderr.write("@ killed (ctrl+d to close cleanly)")
         return fail
     except BaseException as e:
         import traceback
-        x = traceback.format_exc().split("\n")
-        y = "\n".join(x[4:])
-        sys.stderr.write(y)
+        if _debug:
+            traceback.print_exc()
+        else:
+            x = traceback.format_exc().split("\n")
+            y = "\n".join(x[4:])
+            sys.stderr.write(y)
         sys.stderr.flush()
         return fail
 
 
     if _result is None:
+        if _debug:
+            print("converting result of None to result of True")
         _result = True
 
-    if not (isinstance(_result, basestring) or isinstance(_result, _LazyString)):
+    if not (isinstance(_result, six.string_types) or isinstance(_result, _LazyString)):
+        if _debug:
+            print("result is not a string, attempting iteration")
         try:
             iterator = iter(_result)
         except TypeError as e:
             if getattr(_result, "__iter__", None):
+                print("Tried to run as iterator, but it failed with typeerror, despite having an __iter__:")
                 print(repr(_result.__iter__))
                 raise
+            if _debug:
+                print("result doesn't seem iterable")
         else:
             if _shouldprint:
                 for x in iterator:
@@ -1235,6 +1373,8 @@ def run(statements, expression, run_globals, _shouldprint, _quiet):
 
 def _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet):
     import os
+    if _debug:
+        print("in _run")
     sys.path.append(os.path.abspath("."))
     old_globals = dict(globals())
 
@@ -1243,10 +1383,16 @@ def _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
 
 
     _add_modules(old_globals, _statements + [_string])
+    if _debug:
+        print("freezing globals")
     run_globals = dict(old_globals)
+    if _debug:
+        print("adding env vars")
     _add_environment_vars(run_globals, list(old_globals.keys()))
 
     if _string.strip() or _statements:
+        if _debug:
+            print("main run...")
         try:
             result = run(_statements, _string, run_globals, _shouldprint, _quiet)
         except SystemExit:
@@ -1257,15 +1403,20 @@ def _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
                 result()
 
     if interactive:
+        if _debug:
+            print("running interpreter with globals")
         interactive(run_globals)
-
 
 def _main():
     global print
     _debuffer()
     _statements, _string, interactive, _shouldprint, _debug, print, _quiet = _parse_args()
+    if _debug:
+        print("_parse_args done. _shouldprint={}, _quiet={}".format(_shouldprint, _quiet))
     _run(_statements, _string, interactive, _shouldprint, _debug, print, _quiet)
 
+if _debug:
+    print("before _main(); __name__ =", __name__)
 if __name__ == "__main__":
     _main()
 

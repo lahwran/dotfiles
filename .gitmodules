@@ -52,3 +52,12 @@
 [submodule "submodules/vim-auto-save"]
 	path = submodules/vim-auto-save
 	url = https://github.com/907th/vim-auto-save.git
+[submodule "submodules/jinja2"]
+	path = submodules/jinja2
+	url = https://github.com/Glench/Vim-Jinja2-Syntax.git
+[submodule "submodules/vim-markology"]
+	path = submodules/vim-markology
+	url = https://github.com/jeetsukumaran/vim-markology.git
+[submodule "submodules/vim-terraform"]
+	path = submodules/vim-terraform
+	url = https://github.com/hashivim/vim-terraform.git

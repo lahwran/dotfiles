@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+
+import sys
+import os
+dirn = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "at")
+if os.path.exists(os.path.join(dirn, "__init__.py")):
+    sys.path.append(dirn)
+import at
+at._main()

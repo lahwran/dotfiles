@@ -197,12 +197,26 @@ function! CancelWindowCommandAction()
 endfunction
 call SetWeirdEsc()
 
+function! MakeEditableHelp()
+    above new
+    setlocal bufhidden=hide nobuflisted 
+endfunction
+
 function! MakeScratchWindow()
     vnew
     setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile
 endfunction
 
-function! ReadCmd(prefix, postfix, window, wclose, content)
+nnoremap <C-k> 10k
+nnoremap <C-j> 10j
+nnoremap <C-h> 10h
+nnoremap <C-l> 10l
+vnoremap <C-k> 10k
+vnoremap <C-j> 10j
+vnoremap <C-h> 10h
+vnoremap <C-l> 10l
+
+function! ReadCmd(prefix, postfix, window, wclose, content, syntax, readonly)
     let curline = getline('.')
     call inputsave()
     try
@@ -221,7 +235,7 @@ function! ReadCmd(prefix, postfix, window, wclose, content)
                     q
                 endif
             else
-                call ReadCmd('', '', 0, 0, l:cmd)
+                call ReadCmd('', '', 0, 0, l:cmd, a:syntax, a:readonly)
             endif
             return 0
         endif
@@ -229,17 +243,25 @@ function! ReadCmd(prefix, postfix, window, wclose, content)
 
         let l:output = system('(true;' . l:cmd . ') 2>&1')
         "let l:output = substitute(l:output, '\n', '', '')
-        set paste
+        setlocal paste
         execute 'normal! i' . l:output
         set nopaste
+        if empty(l:syntax)
+            " how do you do not in branch
+        else
+            execute 'setlocal syntax=' . l:syntax
+        endif
+        if a:readonly
+            execute 'setlocal nomodifiable'
+        endif
     catch
     endtry
 
     call inputrestore()
     call setline('.', curline)
 endfunction
-nnoremap <silent> <nowait> ,c :call ReadCmd('','',0,0,'')<CR>
-nnoremap <silent> <nowait> ,C :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:call ReadCmd("", "", 1, 1, '')<CR>
+nnoremap <silent> <nowait> ,c :call ReadCmd('','',0,0,'','',0)<CR>
+nnoremap <silent> <nowait> ,C :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:call ReadCmd("", "", 1, 1, '', '', 0)<CR>
 
 noremap <nowait> [ {
 noremap <nowait> { [
@@ -305,7 +327,8 @@ nnoremap <silent> <nowait> ,j :rightbelow new<CR>:execute "buffer! " . g:wingrab
 
 " ,z to open git-tracked version of this file in scratch split
 nnoremap <silent> <nowait> ,z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD:<C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
-nnoremap <silent> <nowait> ,Z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD^1:<C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
+" nnoremap <silent> <nowait> ,Z :vnew \| setlocal syntax=<C-r>=&syntax<CR> \| r !git show HEAD^1:<C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
+nnoremap <nowait> ,Z :let g:_l_cmd_syntax="<C-r>=&syntax<CR>" \| let g:_l_cmd_file="<C-r>=bufname("%")<CR>" \| call PrepWindowAct()<CR>:call MakeScratchWindow()<CR><ESC><ESC>:call ReadCmd("git show HEAD:" . g:_l_cmd_file, "", 1, 1, '', g:_l_cmd_syntax, 1)<CR>
 
 " ,pf to run pytest in split on the current test file
 " ,pa to run pytest in a split in the current directory
@@ -326,11 +349,12 @@ nnoremap <silent> <nowait> ,t :call PrepWindowAct()<CR>:vnew<CR>:term<CR><C-\><C
 
 " ,g'search here'<CR> to search current git repo and paste results into
 " current file
-nnoremap ,g :call ReadCmd("ggrep_ ", "", 1, 0, '')<CR>
+nnoremap ,g :call ReadCmd("ggrep_ ", "", 1, 0, '', '', 0)<CR>
 " ,gg'search here'<CR> to search current git repo and paste results into
 " new scratch buffer
-nnoremap <nowait> ,gg :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:call ReadCmd("ggrep_ ", "", 1, 1, '')<CR>
-vmap <silent> <nowait> ,gg "gy<ESC><ESC>:call MakeScratchWindow()<CR>:call ReadCmd("ggrep_ '", "'", 1, 0, @@)<CR><ESC><ESC>
+nnoremap <nowait> ,gg :call PrepWindowAct()<CR>:call MakeScratchWindow()<CR>:set wrap<CR><ESC><ESC>:call ReadCmd("ggrep_ ", "", 1, 1, '', '', 0)<CR>
+vmap <silent> <nowait> ,gg "gy<ESC><ESC>:call MakeScratchWindow()<CR>:call ReadCmd("ggrep_ '", "'", 1, 0, @@, '', 0)<CR><ESC><ESC>
+nnoremap <silent> <nowait> <F2> :call MakeEditableHelp()<CR>
 
 nnoremap <silent> <nowait> ,gw :call MakeScratchWindow()<CR><ESC><ESC>
 
@@ -474,6 +498,7 @@ highlight GitGutterChangeDelete term=bold ctermbg=darkyellow ctermfg=black
 let g:gitgutter_escape_grep = 1
 let g:gitgutter_realtime = 0
 let g:gitgutter_eager = 0
+let g:gitgutter_async = 1
 let g:gitgutter_diff_args = '--patience'
 set updatetime=1000
 " 
@@ -572,6 +597,7 @@ nnoremap U :GundoToggle<CR>
 autocmd BufEnter,CursorHold,CursorHoldI,CursorMoved,CursorMovedI,FocusGained,BufEnter,FocusLost,WinLeave * if expand('%') ==# '[Command Line]' | nmap <silent> <nowait> <buffer> <CR> <D-A-C-S-CR> | nmap <silent> <nowait> <buffer> <ESC> <D-A-C-S-ESC> | endif
 
 autocmd FileType html setlocal shiftwidth=2 tabstop=2
+autocmd FileType jinja setlocal shiftwidth=2 tabstop=2
 autocmd FileType ruby setlocal shiftwidth=2 tabstop=2
 
 autocmd BufNewFile,BufFilePre,BufRead,BufWritePost *.md set filetype=markdown
@@ -601,7 +627,7 @@ set linebreak
 
 nnoremap <C-i> :CtrlPChange<CR>
 nnoremap <C-I> :CtrlPChangeAll<CR>
-let g:ctrlp_cmd = 'CtrlPMixed'
+let g:ctrlp_cmd = 'CtrlP'
 "nnoremap <nowait> <silent> <C-m> `
 
 set sidescrolloff=8
