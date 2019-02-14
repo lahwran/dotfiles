@@ -561,6 +561,7 @@ _optional_modules = [
     "cookielib",
     "copy",
     "crypt",
+    "psutil",
     "csv",
     "ctypes",
     "datetime",
