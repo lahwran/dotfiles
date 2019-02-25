@@ -20225,23 +20225,29 @@
 	<false/>
 	<key>NSScrollViewShouldScrollUnderTitlebar</key>
 	<false/>
-	<key>NSTableView Columns KeyBingingTable</key>
-	<array>
-		<data>
-		BAtzdHJlYW10eXBlZIHoA4QBQISEhAhOU1N0cmluZwGEhAhOU09iamVjdACF
-		hAErATCG
-		</data>
-		<string>198</string>
-		<data>
-		BAtzdHJlYW10eXBlZIHoA4QBQISEhAhOU1N0cmluZwGEhAhOU09iamVjdACF
-		hAErATGG
-		</data>
-		<string>330</string>
-	</array>
-	<key>NSTableView Hidden Columns KeyBingingTable</key>
-	<array/>
-	<key>NSTableView Sort Ordering KeyBingingTable</key>
-	<array/>
+	<key>NSTableView Columns v2 KeyBingingTable</key>
+	<data>
+	YnBsaXN0MDDUAQIDBAUGNjdYJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3AS
+	AAGGoK4HCA8aGxwdHh8gJjAxMlUkbnVsbNIJCgsOWk5TLm9iamVjdHNWJGNsYXNzogwN
+	gAKACoAN0xAJChEVGVdOUy5rZXlzoxITFIADgASABaMWFxiABoAHgAiACVpJZGVudGlm
+	aWVyVVdpZHRoVkhpZGRlblEwI0BowAAAAAAACNIhIiMkWiRjbGFzc25hbWVYJGNsYXNz
+	ZXNcTlNEaWN0aW9uYXJ5oiMlWE5TT2JqZWN00xAJCicrGaMSExSAA4AEgAWjLC0YgAuA
+	DIAIgAlRMSNAdKAAAAAAANIhIjM0Xk5TTXV0YWJsZUFycmF5ozM1JVdOU0FycmF5XxAP
+	TlNLZXllZEFyY2hpdmVy0Tg5VUFycmF5gAEACAARABoAIwAtADIANwBGAEwAUQBcAGMA
+	ZgBoAGoAbABzAHsAfwCBAIMAhQCJAIsAjQCPAJEAnACiAKkAqwC0ALUAugDFAM4A2wDe
+	AOcA7gDyAPQA9gD4APwA/gEAAQIBBAEGAQ8BFAEjAScBLwFBAUQBSgAAAAAAAAIBAAAA
+	AAAAADoAAAAAAAAAAAAAAAAAAAFM
+	</data>
+	<key>NSTableView Sort Ordering v2 KeyBingingTable</key>
+	<data>
+	YnBsaXN0MDDUAQIDBAUGFBVYJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3AS
+	AAGGoKMHCA1VJG51bGzSCQoLDFpOUy5vYmplY3RzViRjbGFzc6CAAtIODxARWiRjbGFz
+	c25hbWVYJGNsYXNzZXNeTlNNdXRhYmxlQXJyYXmjEBITV05TQXJyYXlYTlNPYmplY3Rf
+	EA9OU0tleWVkQXJjaGl2ZXLRFhdVQXJyYXmAAQgRGiMtMjc7QUZRWFlbYGt0g4ePmKqt
+	swAAAAAAAAEBAAAAAAAAABgAAAAAAAAAAAAAAAAAAAC1
+	</data>
+	<key>NSTableView Supports v2 KeyBingingTable</key>
+	<true/>
 	<key>NSToolbar Configuration com.apple.NSColorPanel</key>
 	<dict>
 		<key>TB Is Shown</key>
@@ -20250,19 +20256,19 @@
 	<key>NSWindow Frame NSColorPanel</key>
 	<string>3146 519 214 309 2560 0 2560 1418 </string>
 	<key>NSWindow Frame NSFontPanel</key>
-	<string>107 405 445 77 0 0 1920 1177 </string>
+	<string>566 382 445 77 0 0 1920 1178 </string>
 	<key>NSWindow Frame Preferences</key>
 	<string>908 506 606 456 0 0 2560 1417 </string>
 	<key>NSWindow Frame SUAutomaticUpdateAlert</key>
-	<string>652 753 616 174 0 0 1920 1177 </string>
+	<string>652 753 616 174 0 0 1920 1178 </string>
 	<key>NSWindow Frame SessionsPreferences</key>
 	<string>269 57 606 469 0 0 1920 1177 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>104 776 918 394 0 0 1920 1177 </string>
+	<string>356 155 796 473 0 0 1920 1178 </string>
 	<key>NSWindow Frame UKCrashReporter</key>
 	<string>155 593 592 584 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>0 71 1920 1106 0 0 1920 1177 </string>
+	<string>0 1044 325 134 0 0 1920 1178 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>780 157 850 827 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 2</key>
@@ -20274,7 +20280,7 @@
 	<key>NSWindow Frame iTerm Window 5</key>
 	<string>162 180 1319 875 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 6</key>
-	<string>798 103 850 827 0 0 1920 1177 </string>
+	<string>798 246 850 677 0 0 1920 1178 </string>
 	<key>NSWindow Frame iTerm Window 7</key>
 	<string>66 113 850 677 0 0 1920 1177 </string>
 	<key>NSWindow Frame iTerm Window 8</key>
@@ -20775,7 +20781,7 @@
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
-			<false/>
+			<true/>
 			<key>Smart Cursor Color</key>
 			<true/>
 			<key>Smart Selection Rules</key>
@@ -20880,7 +20886,7 @@
 				</dict>
 			</array>
 			<key>Space</key>
-			<integer>2</integer>
+			<integer>5</integer>
 			<key>Sync Title</key>
 			<false/>
 			<key>Tags</key>
@@ -21482,7 +21488,7 @@
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
-			<false/>
+			<true/>
 			<key>Smart Cursor Color</key>
 			<true/>
 			<key>Smart Selection Rules</key>
@@ -21587,7 +21593,7 @@
 				</dict>
 			</array>
 			<key>Space</key>
-			<integer>2</integer>
+			<integer>5</integer>
 			<key>Sync Title</key>
 			<false/>
 			<key>Tags</key>
@@ -22123,7 +22129,7 @@
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
-			<false/>
+			<true/>
 			<key>Smart Cursor Color</key>
 			<true/>
 			<key>Smart Selection Rules</key>
@@ -22768,7 +22774,7 @@
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
-			<false/>
+			<true/>
 			<key>Smart Cursor Color</key>
 			<false/>
 			<key>Smart Selection Rules</key>
@@ -22930,8 +22936,6 @@
 			<string>No</string>
 			<key>Allow Title Reporting</key>
 			<false/>
-			<key>Allow Title Setting</key>
-			<true/>
 			<key>Ambiguous Double Width</key>
 			<false/>
 			<key>Ansi 0 Color</key>
@@ -23151,13 +23155,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.4975238833434863</real>
+				<real>0.42560363632883663</real>
 				<key>Color Space</key>
 				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.21633678115904331</real>
+				<real>0.18506392942058103</real>
 				<key>Red Component</key>
-				<real>0.63629150390625</real>
+				<real>0.5443115234375</real>
 			</dict>
 			<key>Background Image Is Tiled</key>
 			<false/>
@@ -23399,7 +23403,7 @@
 			<key>Log Directory</key>
 			<string></string>
 			<key>Minimum Contrast</key>
-			<real>0.40815873579545453</real>
+			<real>0.42706853693181818</real>
 			<key>Mouse Reporting</key>
 			<true/>
 			<key>Name</key>
@@ -23409,7 +23413,7 @@
 			<key>Non-ASCII Anti Aliased</key>
 			<true/>
 			<key>Normal Font</key>
-			<string>LoveMeChainV2 14</string>
+			<string>Bedstead 14</string>
 			<key>Only The Default BG Color Uses Transparency</key>
 			<false/>
 			<key>Option Key Sends</key>
@@ -23470,7 +23474,7 @@
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
-			<false/>
+			<true/>
 			<key>Smart Cursor Color</key>
 			<true/>
 			<key>Smart Selection Rules</key>
@@ -23575,7 +23579,7 @@
 				</dict>
 			</array>
 			<key>Space</key>
-			<integer>7</integer>
+			<integer>4</integer>
 			<key>Sync Title</key>
 			<false/>
 			<key>Tab Color</key>
@@ -23660,8 +23664,6 @@
 			<string>No</string>
 			<key>Allow Title Reporting</key>
 			<false/>
-			<key>Allow Title Setting</key>
-			<true/>
 			<key>Ambiguous Double Width</key>
 			<false/>
 			<key>Ansi 0 Color</key>
@@ -24108,7 +24110,7 @@
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
-			<false/>
+			<true/>
 			<key>Smart Cursor Color</key>
 			<true/>
 			<key>Smart Selection Rules</key>
@@ -24213,7 +24215,7 @@
 				</dict>
 			</array>
 			<key>Space</key>
-			<integer>8</integer>
+			<integer>1</integer>
 			<key>Sync Title</key>
 			<false/>
 			<key>Tags</key>
@@ -24270,8 +24272,6 @@
 			<string>No</string>
 			<key>Allow Title Reporting</key>
 			<false/>
-			<key>Allow Title Setting</key>
-			<true/>
 			<key>Ambiguous Double Width</key>
 			<false/>
 			<key>Ansi 0 Color</key>
@@ -24718,7 +24718,7 @@
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
-			<false/>
+			<true/>
 			<key>Smart Cursor Color</key>
 			<true/>
 			<key>Smart Selection Rules</key>
@@ -24823,7 +24823,7 @@
 				</dict>
 			</array>
 			<key>Space</key>
-			<integer>9</integer>
+			<integer>7</integer>
 			<key>Sync Title</key>
 			<false/>
 			<key>Tags</key>
@@ -24880,8 +24880,6 @@
 			<string>No</string>
 			<key>Allow Title Reporting</key>
 			<false/>
-			<key>Allow Title Setting</key>
-			<true/>
 			<key>Ambiguous Double Width</key>
 			<false/>
 			<key>Ansi 0 Color</key>
@@ -25332,7 +25330,7 @@
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
-			<false/>
+			<true/>
 			<key>Smart Cursor Color</key>
 			<true/>
 			<key>Smart Selection Rules</key>
@@ -25437,7 +25435,7 @@
 				</dict>
 			</array>
 			<key>Space</key>
-			<integer>4</integer>
+			<integer>3</integer>
 			<key>Sync Title</key>
 			<false/>
 			<key>Tags</key>
@@ -25494,8 +25492,6 @@
 			<string>No</string>
 			<key>Allow Title Reporting</key>
 			<false/>
-			<key>Allow Title Setting</key>
-			<true/>
 			<key>Ambiguous Double Width</key>
 			<false/>
 			<key>Ansi 0 Color</key>
@@ -25946,7 +25942,7 @@
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
-			<false/>
+			<true/>
 			<key>Smart Cursor Color</key>
 			<true/>
 			<key>Smart Selection Rules</key>
@@ -26051,7 +26047,7 @@
 				</dict>
 			</array>
 			<key>Space</key>
-			<integer>5</integer>
+			<integer>6</integer>
 			<key>Sync Title</key>
 			<false/>
 			<key>Tags</key>
@@ -26108,8 +26104,6 @@
 			<string>No</string>
 			<key>Allow Title Reporting</key>
 			<false/>
-			<key>Allow Title Setting</key>
-			<true/>
 			<key>Ambiguous Double Width</key>
 			<false/>
 			<key>Ansi 0 Color</key>
@@ -26556,7 +26550,7 @@
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
-			<false/>
+			<true/>
 			<key>Smart Cursor Color</key>
 			<true/>
 			<key>Smart Selection Rules</key>
@@ -26661,7 +26655,7 @@
 				</dict>
 			</array>
 			<key>Space</key>
-			<integer>6</integer>
+			<integer>9</integer>
 			<key>Sync Title</key>
 			<false/>
 			<key>Tags</key>
@@ -26718,153 +26712,151 @@
 			<string>No</string>
 			<key>Allow Title Reporting</key>
 			<false/>
-			<key>Allow Title Setting</key>
-			<true/>
 			<key>Ambiguous Double Width</key>
 			<false/>
 			<key>Ansi 0 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.10588235294117647</real>
+				<real>0.0</real>
 				<key>Green Component</key>
-				<real>0.066666666666666666</real>
+				<real>0.0</real>
 				<key>Red Component</key>
-				<real>0.12549019607843137</real>
+				<real>0.0</real>
 			</dict>
 			<key>Ansi 1 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.054901960784313725</real>
+				<real>0.0</real>
 				<key>Green Component</key>
-				<real>0.062745098039215685</real>
+				<real>0.0</real>
 				<key>Red Component</key>
-				<real>0.74509803921568629</real>
+				<real>0.59999999999999998</real>
 			</dict>
 			<key>Ansi 10 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.3843137254901961</real>
+				<real>0.0</real>
 				<key>Green Component</key>
-				<real>0.50588235294117645</real>
+				<real>0.85098039215686272</real>
 				<key>Red Component</key>
-				<real>0.52156862745098043</real>
+				<real>0.0</real>
 			</dict>
 			<key>Ansi 11 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.28627450980392155</real>
+				<real>0.0</real>
 				<key>Green Component</key>
-				<real>0.6470588235294118</real>
+				<real>0.89803921568627454</real>
 				<key>Red Component</key>
-				<real>0.91764705882352937</real>
+				<real>0.89803921568627454</real>
 			</dict>
 			<key>Ansi 12 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.47450980392156861</real>
+				<real>1</real>
 				<key>Green Component</key>
-				<real>0.41568627450980394</real>
+				<real>0.0</real>
 				<key>Red Component</key>
-				<real>0.25882352941176473</real>
+				<real>0.0</real>
 			</dict>
 			<key>Ansi 13 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.17254901960784313</real>
+				<real>0.89803921568627454</real>
 				<key>Green Component</key>
-				<real>0.32156862745098042</real>
+				<real>0.0</real>
 				<key>Red Component</key>
-				<real>0.59215686274509804</real>
+				<real>0.89803921568627454</real>
 			</dict>
 			<key>Ansi 14 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.61176470588235299</real>
+				<real>0.89803921568627454</real>
 				<key>Green Component</key>
-				<real>0.60392156862745094</real>
+				<real>0.89803921568627454</real>
 				<key>Red Component</key>
-				<real>0.59607843137254901</real>
+				<real>0.0</real>
 			</dict>
 			<key>Ansi 15 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.72941176470588232</real>
+				<real>0.89803921568627454</real>
 				<key>Green Component</key>
-				<real>0.80000000000000004</real>
+				<real>0.89803921568627454</real>
 				<key>Red Component</key>
-				<real>0.83529411764705885</real>
+				<real>0.89803921568627454</real>
 			</dict>
 			<key>Ansi 2 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.3843137254901961</real>
+				<real>0.0</real>
 				<key>Green Component</key>
-				<real>0.50588235294117645</real>
+				<real>0.65098039215686276</real>
 				<key>Red Component</key>
-				<real>0.52156862745098043</real>
+				<real>0.0</real>
 			</dict>
 			<key>Ansi 3 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.28627450980392155</real>
+				<real>0.0</real>
 				<key>Green Component</key>
-				<real>0.6470588235294118</real>
+				<real>0.59999999999999998</real>
 				<key>Red Component</key>
-				<real>0.91764705882352937</real>
+				<real>0.59999999999999998</real>
 			</dict>
 			<key>Ansi 4 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.47450980392156861</real>
+				<real>0.69803921568627447</real>
 				<key>Green Component</key>
-				<real>0.41568627450980394</real>
+				<real>0.0</real>
 				<key>Red Component</key>
-				<real>0.25882352941176473</real>
+				<real>0.0</real>
 			</dict>
 			<key>Ansi 5 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.17254901960784313</real>
+				<real>0.69803921568627447</real>
 				<key>Green Component</key>
-				<real>0.32156862745098042</real>
+				<real>0.0</real>
 				<key>Red Component</key>
-				<real>0.59215686274509804</real>
+				<real>0.69803921568627447</real>
 			</dict>
 			<key>Ansi 6 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.61176470588235299</real>
+				<real>0.69803921568627447</real>
 				<key>Green Component</key>
-				<real>0.60392156862745094</real>
+				<real>0.65098039215686276</real>
 				<key>Red Component</key>
-				<real>0.59607843137254901</real>
+				<real>0.0</real>
 			</dict>
 			<key>Ansi 7 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.51372549019607838</real>
+				<real>0.74901960784313726</real>
 				<key>Green Component</key>
-				<real>0.5490196078431373</real>
+				<real>0.74901960784313726</real>
 				<key>Red Component</key>
-				<real>0.58823529411764708</real>
+				<real>0.74901960784313726</real>
 			</dict>
 			<key>Ansi 8 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.32156862745098042</real>
+				<real>0.40000000000000002</real>
 				<key>Green Component</key>
-				<real>0.32156862745098042</real>
+				<real>0.40000000000000002</real>
 				<key>Red Component</key>
-				<real>0.36862745098039218</real>
+				<real>0.40000000000000002</real>
 			</dict>
 			<key>Ansi 9 Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.054901960784313725</real>
+				<real>0.0</real>
 				<key>Green Component</key>
-				<real>0.062745098039215685</real>
+				<real>0.0</real>
 				<key>Red Component</key>
-				<real>0.74509803921568629</real>
+				<real>0.89803921568627454</real>
 			</dict>
 			<key>Automatically Log</key>
 			<false/>
@@ -26872,16 +26864,12 @@
 			<true/>
 			<key>Background Color</key>
 			<dict>
-				<key>Alpha Component</key>
-				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.85944275138899684</real>
-				<key>Color Space</key>
-				<string>sRGB</string>
+				<real>0.73725490196078436</real>
 				<key>Green Component</key>
-				<real>0.91441723896415483</real>
+				<real>0.30980392156862746</real>
 				<key>Red Component</key>
-				<real>0.943695068359375</real>
+				<real>0.13333333333333333</real>
 			</dict>
 			<key>Background Image Is Tiled</key>
 			<false/>
@@ -26913,11 +26901,11 @@
 			<key>Bold Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.23529411764705882</real>
+				<real>1</real>
 				<key>Green Component</key>
-				<real>0.21568627450980393</real>
+				<real>1</real>
 				<key>Red Component</key>
-				<real>0.27058823529411763</real>
+				<real>1</real>
 			</dict>
 			<key>Bound Hosts</key>
 			<array/>
@@ -26934,11 +26922,11 @@
 			<key>Cursor Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.23529411764705882</real>
+				<real>0.49803921568627452</real>
 				<key>Green Component</key>
-				<real>0.21568627450980393</real>
+				<real>0.49803921568627452</real>
 				<key>Red Component</key>
-				<real>0.27058823529411763</real>
+				<real>0.49803921568627452</real>
 			</dict>
 			<key>Cursor Guide Color</key>
 			<dict>
@@ -26956,11 +26944,11 @@
 			<key>Cursor Text Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.72941176470588232</real>
+				<real>1</real>
 				<key>Green Component</key>
-				<real>0.80000000000000004</real>
+				<real>1</real>
 				<key>Red Component</key>
-				<real>0.83529411764705885</real>
+				<real>1</real>
 			</dict>
 			<key>Cursor Type</key>
 			<integer>2</integer>
@@ -26981,11 +26969,11 @@
 			<key>Foreground Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.23529411764705882</real>
+				<real>1</real>
 				<key>Green Component</key>
-				<real>0.21568627450980393</real>
+				<real>1</real>
 				<key>Red Component</key>
-				<real>0.27058823529411763</real>
+				<real>1</real>
 			</dict>
 			<key>Guid</key>
 			<string>BF505633-14BC-4E50-98F6-1443605690E1</string>
@@ -27139,20 +27127,20 @@
 			<key>Selected Text Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.23529411764705882</real>
+				<real>1</real>
 				<key>Green Component</key>
-				<real>0.21568627450980393</real>
+				<real>1</real>
 				<key>Red Component</key>
-				<real>0.27058823529411763</real>
+				<real>1</real>
 			</dict>
 			<key>Selection Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.51372549019607838</real>
+				<real>1</real>
 				<key>Green Component</key>
-				<real>0.5490196078431373</real>
+				<real>0.42745098471641541</real>
 				<key>Red Component</key>
-				<real>0.58823529411764708</real>
+				<real>0.12941177189350128</real>
 			</dict>
 			<key>Semantic History</key>
 			<dict>
@@ -27170,7 +27158,7 @@
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
-			<false/>
+			<true/>
 			<key>Smart Cursor Color</key>
 			<true/>
 			<key>Smart Selection Rules</key>
@@ -27275,7 +27263,7 @@
 				</dict>
 			</array>
 			<key>Space</key>
-			<integer>1</integer>
+			<integer>2</integer>
 			<key>Sync Title</key>
 			<false/>
 			<key>Tags</key>
@@ -27332,8 +27320,6 @@
 			<string>No</string>
 			<key>Allow Title Reporting</key>
 			<false/>
-			<key>Allow Title Setting</key>
-			<true/>
 			<key>Ambiguous Double Width</key>
 			<false/>
 			<key>Ansi 0 Color</key>
@@ -27780,7 +27766,7 @@
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
-			<false/>
+			<true/>
 			<key>Smart Cursor Color</key>
 			<true/>
 			<key>Smart Selection Rules</key>
@@ -27885,7 +27871,7 @@
 				</dict>
 			</array>
 			<key>Space</key>
-			<integer>3</integer>
+			<integer>8</integer>
 			<key>Sync Title</key>
 			<false/>
 			<key>Tags</key>
@@ -27942,8 +27928,6 @@
 			<string>No</string>
 			<key>Allow Title Reporting</key>
 			<false/>
-			<key>Allow Title Setting</key>
-			<true/>
 			<key>Ambiguous Double Width</key>
 			<false/>
 			<key>Ansi 0 Color</key>
@@ -28390,7 +28374,7 @@
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
-			<false/>
+			<true/>
 			<key>Smart Cursor Color</key>
 			<true/>
 			<key>Smart Selection Rules</key>
@@ -28495,7 +28479,7 @@
 				</dict>
 			</array>
 			<key>Space</key>
-			<integer>3</integer>
+			<integer>8</integer>
 			<key>Sync Title</key>
 			<false/>
 			<key>Tags</key>
@@ -28636,9 +28620,9 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2019-02-07T17:32:49Z</date>
+	<date>2019-02-23T21:25:17Z</date>
 	<key>SUSkippedVersion</key>
-	<string>3.1.7</string>
+	<string>3.2.7beta4</string>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>Secure Input</key>
@@ -28704,7 +28688,7 @@
 	<key>iTerm Version</key>
 	<string>3.1.6beta4</string>
 	<key>kCPKSelectionViewPreferredModeKey</key>
-	<integer>0</integer>
+	<integer>1</integer>
 	<key>kCPKSelectionViewShowHSBTextFieldsKey</key>
 	<false/>
 	<key>moveToApplicationsFolderAlertSuppress</key>
