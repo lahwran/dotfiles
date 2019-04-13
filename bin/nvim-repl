@@ -1,7 +1,13 @@
 #!/usr/bin/env python -i
 import os
 
-import neovim
+try:
+    import pynvim
+    neovim = pynvim
+except ImportError:
+    import neovim
+    pynvim = neovim
+
 
 
 addr = os.environ.get("NVIM_LISTEN_ADDRESS", None)

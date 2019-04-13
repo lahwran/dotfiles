@@ -63,7 +63,16 @@ another great one:
 
 from __future__ import print_function
 
-import builtins
+from datetime import datetime as dt
+from datetime import timedelta as td
+from random import *
+r=random
+import random
+try:
+    import builtins
+except ImportError:
+    import __builtin__ as builtins
+
 import sys
 import codecs
 import ast
@@ -212,7 +221,8 @@ def chunks(generator, size, pad=_chunks_guard):
     q = itertools.zip_longest(*[iter(generator)]*size, fillvalue=pad)
     return ([a for a in b if a is not _chunks_guard] for b in q)
 
-
+def lerp(x, y, v):
+    return x + (y - x) * v
 def delays(delta, iterable=None):
     "delays(secs, i=itertools.repeat(None)) - Wraps iterator with delays."
     if iterable is None:
@@ -571,6 +581,7 @@ _optional_modules = [
     "cookielib",
     "copy",
     "crypt",
+    "psutil",
     "csv",
     "ctypes",
     "datetime",

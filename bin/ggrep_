@@ -77,7 +77,7 @@ existant_files = set()
 def exists(filename):
     if filename in existant_files:
         return True
-    res = os.path.exists(filename)
+    res = os.path.exists(filename.replace("\0", ""))
     if res:
         existant_files.add(filename)
     return res

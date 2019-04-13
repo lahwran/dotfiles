@@ -496,5 +496,18 @@ def execute(command):
         pprint.pprint(rlog)
     return process.poll()
 
+def execute_dumb(command):
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p2 = subprocess.Popen(["fold", "-w", str(term.width-1)], stdin=process.stdout, stdout=subprocess.PIPE)
+    process.stdout.close()
+    p2 = subprocess.Popen(["head", "-n", str(term.height-1)], stdin=p2.stdout, stdout=subprocess.PIPE)
+    #p2.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
+    output = p2.communicate()[0]
+    sys.stdout.buffer.write(
+            (term.move(0,0)
+            + term.clear_eos
+            + term.move(0,0)).encode("utf-8") + output)
+    sys.stdout.flush()
 
-sys.exit(execute(argv))
+
+sys.exit(execute_dumb(argv))
