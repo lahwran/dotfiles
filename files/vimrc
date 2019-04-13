@@ -500,16 +500,17 @@ let g:gitgutter_realtime = 0
 let g:gitgutter_eager = 0
 let g:gitgutter_async = 1
 let g:gitgutter_diff_args = '--patience'
-set updatetime=1000
+set updatetime=2000
 " 
 "
 let g:auto_save = 1
 let g:auto_save_no_updatetime = 1
 let g:auto_save_silent = 1
 let g:auto_save_in_insert_mode = 0
+let g:auto_save_events = ["CursorHold"]
 augroup auto_save_2
     autocmd!
-    au BufEnter,BufLeave,BufWinEnter,BufWinLeave,BufHidden,ShellFilterPost,ShellCmdPost,VimResized,WinEnter,WinLeave,TabEnter,TabLeave,CmdwinEnter,CmdwinLeave,InsertEnter,FocusGained,FocusLost,TextChanged * nested call AutoSave()
+    au BufEnter,BufLeave,BufWinEnter,BufWinLeave,BufHidden,VimResized,WinEnter,WinLeave,TabEnter,TabLeave,FocusGained,FocusLost * nested call AutoSave()
 augroup END
 
 

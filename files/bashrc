@@ -134,28 +134,126 @@ function display_status() {
 }
 add_prompt_command display_status
 
+#AUTOVE_DEBUG=1
+function avecho() {
+    if [ "$AUTOVE_DEBUG" != "" ]; then echo "$@"; fi
+}
+function get_pwd_ve() {
+    [ -e ve ] && echo ve || echo ve-*
+}
+function autove_label() {
+    local pwd_ve="$(get_pwd_ve)"
+    # prepend a symbol to indicate automatic activation
+    local should_be_active="n";
+    if [ "$AUTOVE_ACTIVATED" = "$VIRTUAL_ENV" ] && [ "$AUTOVE_ACTIVATED" != "" ]; then
+        should_be_active="y";
+    fi
+    avecho "label sba=[$should_be_active] ava=[$AUTOVE_ACTIVATED] ve=[$VIRTUAL_ENV] al=[$AUTOVE_ALREADY_LABELED]"
+    if [ "$should_be_active" = "y" ] && [ "${PS1:0:1}" != "@" ]; then
+        # if the currently active venv was activated automatically, but it's also the one for the dir we're currently in,
+        # and we've previously labeled for it before, and the label disappeared, then it's been manually reactivated,
+        # and the automatic flag should be cleared
+        avecho "label 1. add auto label"
+        if [ "$VIRTUAL_ENV" = "$PWD/$pwd_ve" ] && [ "$AUTOVE_ALREADY_LABELED" = "$PWD" ]; then
+            avecho "label 2. wait no, this was manual, clear auto flag"
+            AUTOVE_ACTIVATED=""
+            AUTOVE_ALREADY_LABELED=""
+        else
+            # but if the currently active venv was activated automatically, and we haven't labeled it before,
+            # add a note to PS1 and a note to our future invocations
+            avecho "label 3. not manual, add flag"
+            PS1="@$PS1"
+            AUTOVE_ALREADY_LABELED="$PWD"
+        fi
+    elif [ "$should_be_active" != "y" ] && [ "${PS1:0:1}" == "@" ]; then
+        # if either the currently active venv wasn't activated automatically or there's no active venv,
+        # and we still have an automatic label, then we should strip ps1 back to vanilla
+        avecho "label 4. no automatic ve but label present, clear label and already_labeled"
+        PS1="${PS1:1}"
+        AUTOVE_ALREADY_LABELED=""
+    elif [ "$should_be_active" != "y" ]; then
+        AUTOVE_ALREADY_LABELED=""
+    fi
+    avecho "label sba=[$should_be_active] ava=[$AUTOVE_ACTIVATED] ve=[$VIRTUAL_ENV] al=[$AUTOVE_ALREADY_LABELED]"
+}
 function autove() {
-    local pwd_ve="$([ -e ve ] && echo ve || echo ve-*)"
+    local pwd_ve="$(get_pwd_ve)"
+    # if we have a venv active, but its deactivate command is missing, manually do 
+    # the steps of deactivate, to reset to a blank slate. this will usually happen
+    # due to shell nesting
+    avecho "autove 1. start"
+    if [ "$VIRTUAL_ENV" != "" ] && ! type deactivate >&/dev/null ; then
+        avecho "autove 1. active but no deactivate, manual deactivate"
+        AUTOVE_ALREADY_LABELED=""
+        if [ -n "${_OLD_VIRTUAL_PATH:-}" ]; then
+            PATH="${_OLD_VIRTUAL_PATH:-}";
+            export PATH;
+            unset _OLD_VIRTUAL_PATH;
+        fi;
+        if [ -n "${_OLD_VIRTUAL_PYTHONHOME:-}" ]; then
+            PYTHONHOME="${_OLD_VIRTUAL_PYTHONHOME:-}";
+            export PYTHONHOME;
+            unset _OLD_VIRTUAL_PYTHONHOME;
+        fi;
+        if [ -n "${BASH:-}" -o -n "${ZSH_VERSION:-}" ]; then
+            hash -r;
+        fi;
+        if [ -n "${_OLD_VIRTUAL_PS1:-}" ]; then
+            PS1="${_OLD_VIRTUAL_PS1:-}";
+            export PS1;
+            unset _OLD_VIRTUAL_PS1;
+        fi;
+        unset VIRTUAL_ENV;
+        if [ ! "$1" = "nondestructive" ]; then
+            unset -f deactivate;
+        fi
+    fi
+
+    # if we have the current dir active, it doesn't matter who activated it, don't mess with it
     if [ "$VIRTUAL_ENV" = "$PWD/$pwd_ve" ]; then
+        avecho "autove 2. current dir is active, no further action needed"
+        autove_label
         return
     fi
+    # if we don't have the current dir active, but we don't have anything else active, and
+    # it was activated automatically, don't reactivate it
+    if [ "$AUTOVE_ACTIVATED" = "$PWD/$pwd_ve" ] && [ "$VIRTUAL_ENV" = "" ]; then
+        avecho "autove 3. current dir was activated automatically and then manually deactivated, no action needed"
+        autove_label
+        return
+    fi
+    # if we don't have the current dir active, but the active venv wasn't automatic, also don't mess with it
     if [ "$VIRTUAL_ENV" != "$AUTOVE_ACTIVATED" ]; then
+        avecho "autove 4. different dir was activated manually, no action needed"
         AUTOVE_ACTIVATED=""
+        autove_label
         return
     fi
+    # but if we have an automatically activated venv, and it isn't the current dir, then that should get reset
     if [ "$AUTOVE_ACTIVATED" != "" ]; then
+        avecho "autove 5. different dir was activated automatically, deactivate it, clear already_labeled and activated flags"
         deactivate
+        AUTOVE_ALREADY_LABELED=""
         AUTOVE_ACTIVATED=""
     fi
+    # and at this point we know that there's not a venv active, so check if there's one in the current dir to activate
+    avecho "autove 6. no venv is active"
     if [[ $EUID -ne 0 ]] && [ -d $pwd_ve/bin/ ] ; then
+        # check that the permissions of the venv base dir are restrictive in case of multi-user systems
+        avecho "autove 7. a venv is available to activate"
         if [ "$(stat -c "%a %u" "$pwd_ve")" = "700 $(id -u)" ]; then
+            avecho "autove 8. and its permissions match, so activate it"
+            # nice, go for it
             source "$pwd_ve"/bin/activate
             AUTOVE_ACTIVATED="$VIRTUAL_ENV"
         elif ! [ "$WARNED_VE" = "$PWD" ]; then
+            # complain once per cd into an unsafe directory
+            avecho "autove 9. and its permissions match, so don't activate it, and set warned_ve flag"
             WARNED_VE="$PWD"
             echo "bash: AUTOVE: tried to activate $pwd_ve/, but its permissions are $(stat -c "%a" $pwd_ve), owned by user $(stat -c "%u" $pwd_ve). run 'chmod 0700 $pwd_ve', and if needed, 'sudo chown $(id -u) $pwd_ve/'."
         fi
     fi
+    autove_label
 }
 add_prompt_command autove
 
