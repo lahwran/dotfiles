@@ -43,15 +43,15 @@ pip_dependencies = [
     "virtualenv",
     "pytest",
     "twisted",
-    "blessings",
+    #"blessings",
     "blessed",
     "watchdog",
     "chardet",
     "decorator",
     "flask",
     "husl",
-    "ptpython",
-    "prompt_toolkit",
+    #"ptpython",
+    #"prompt_toolkit",
     "pudb",
     "py",
     "requests",
@@ -298,12 +298,13 @@ def user_install():
     #    wrap_process.call("pip2", [python2, "-m", "pip", "uninstall"] + legacy_pip_remove)
     #    wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user"] + legacy_pip_dependencies)
     for python3 in python3s:
+        bn = python3.strip("/").rpartition("/")[-1]
         wrap_process.call(python3, [python3, path("get-pip.py"), "--user", "--upgrade"])
         # install pip packages
         logger.info("Installing pip packages (py3: {})...".format(python3.rsplit("/")[-1]))
-        wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade", "pip", "setuptools"])
-        wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade"] + fix_pypy(pip_dependencies, is_pypy="pypy" in python3))
-        wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
+        wrap_process.call(bn, [python3, "-m", "pip", "install", "--user", "--upgrade", "pip", "setuptools"])
+        wrap_process.call(bn, [python3, "-m", "pip", "install", "--user", "--upgrade"] + pip_dependencies)
+        wrap_process.call(bn, [python3, "-m", "pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
 
 
     logger = logging.getLogger("u")
