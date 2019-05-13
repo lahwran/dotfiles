@@ -139,7 +139,13 @@ function avecho() {
     if [ "$AUTOVE_DEBUG" != "" ]; then echo "$@"; fi
 }
 function get_pwd_ve() {
-    [ -e ve ] && echo ve || echo ve-*
+    if [ -e ve ] ; then
+        echo ve
+    elif [ -e .venv ] ; then
+        echo .venv
+    else
+        echo ve-*
+    fi
 }
 function autove_label() {
     local pwd_ve="$(get_pwd_ve)"
