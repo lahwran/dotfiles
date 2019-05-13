@@ -71,7 +71,6 @@ pip_dependencies = [
 ]
 legacy_pip_remove = [
     "neovim",
-    ""
 ]
 legacy_pip_dependencies = [
     "progressbar",
@@ -292,12 +291,12 @@ def user_install():
 
     wrap_process.call("wget", ["wget", "https://bootstrap.pypa.io/get-pip.py", "-O", path("get-pip.py")])
 
-    for python2 in python2s:
-        wrap_process.call(python2, [python2, path("get-pip.py"), "--user"])
+    #for python2 in python2s:
+        #wrap_process.call(python2, [python2, path("get-pip.py"), "--user"])
         # install pip packages
-        logger.info("Installing pip packages (py2: {})...".format(python2.rsplit("/")[-1]))
-        wrap_process.call("pip2", [python2, "-m", "pip", "uninstall"] + legacy_pip_remove)
-        wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user"] + legacy_pip_dependencies)
+    #    logger.info("Installing pip packages (py2: {})...".format(python2.rsplit("/")[-1]))
+    #    wrap_process.call("pip2", [python2, "-m", "pip", "uninstall"] + legacy_pip_remove)
+    #    wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user"] + legacy_pip_dependencies)
     for python3 in python3s:
         wrap_process.call(python3, [python3, path("get-pip.py"), "--user", "--upgrade"])
         # install pip packages
