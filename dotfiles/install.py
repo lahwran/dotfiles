@@ -71,11 +71,7 @@ pip_dependencies = [
 ]
 legacy_pip_dependencies = [
     "progressbar",
-    "ipython<=6",
     "six",
-    "pytest-regtest",
-    "neovim",
-    "python-pcre",
 ]
 
 ensure_nonexistant = [
@@ -273,14 +269,6 @@ def check_py(name, found, sites, check_version=None):
     sites[out] = binary
     found.append(binary)
 
-def fix_pypy(packages, is_pypy):
-    if not is_pypy:
-        return packages
-    mapping = {
-        "numpy": "git+https://bitbucket.org/pypy/numpy.git"
-    }
-    return [mapping.get(x, x) for x in packages]
-
 def user_install():
     global logger
     sites2 = {}
@@ -301,16 +289,14 @@ def user_install():
     wrap_process.call("wget", ["wget", "https://bootstrap.pypa.io/get-pip.py", "-O", path("get-pip.py")])
 
     for python2 in python2s:
-        wrap_process.call(python2, [python2, path("get-pip.py"), "--user", "--upgrade"])
+        wrap_process.call(python2, [python2, path("get-pip.py"), "--user"])
         # install pip packages
-        logger.info("Installing pip packages...")
-        wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user", "--upgrade", "pip", "setuptools"])
-        wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user", "--upgrade"] + fix_pypy(legacy_pip_dependencies, is_pypy="pypy" in python_legacy))
-        wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
+        logger.info("Installing pip packages (py2)...")
+        wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user"] + legacy_pip_dependencies)
     for python3 in python3s:
         wrap_process.call(python3, [python3, path("get-pip.py"), "--user", "--upgrade"])
         # install pip packages
-        logger.info("Installing pip packages...")
+        logger.info("Installing pip packages (py3: {})...".format(python3))
         wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade", "pip", "setuptools"])
         wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade"] + fix_pypy(pip_dependencies, is_pypy="pypy" in python3))
         wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
