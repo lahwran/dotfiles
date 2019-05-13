@@ -69,6 +69,10 @@ pip_dependencies = [
     "neovim",
     "python-pcre",
 ]
+legacy_pip_remove = [
+    "neovim",
+    ""
+]
 legacy_pip_dependencies = [
     "progressbar",
     "six",
@@ -291,12 +295,13 @@ def user_install():
     for python2 in python2s:
         wrap_process.call(python2, [python2, path("get-pip.py"), "--user"])
         # install pip packages
-        logger.info("Installing pip packages (py2)...")
+        logger.info("Installing pip packages (py2: {})...".format(python2.rsplit("/")[-1]))
+        wrap_process.call("pip2", [python2, "-m", "pip", "uninstall"] + legacy_pip_remove)
         wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user"] + legacy_pip_dependencies)
     for python3 in python3s:
         wrap_process.call(python3, [python3, path("get-pip.py"), "--user", "--upgrade"])
         # install pip packages
-        logger.info("Installing pip packages (py3: {})...".format(python3))
+        logger.info("Installing pip packages (py3: {})...".format(python3.rsplit("/")[-1]))
         wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade", "pip", "setuptools"])
         wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade"] + fix_pypy(pip_dependencies, is_pypy="pypy" in python3))
         wrap_process.call("pip3", [python3, "-m", "pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
