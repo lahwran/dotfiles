@@ -690,7 +690,7 @@ nnoremap <silent> * *:call OnSearch()<CR>
 nnoremap <silent> <C-L> :silent! call matchdelete(b:ring)<CR>:nohlsearch<CR>:set nolist nospell<CR><C-L>
 
 let g:jsx_ext_required = 0
-let g:markology_include = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'`^<>[]()\""
+let g:markology_include = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 highlight MarkologyHLl ctermbg=none ctermfg=none
 highlight MarkologyHLu ctermbg=none ctermfg=none
 highlight MarkologyHLo ctermbg=none ctermfg=none
