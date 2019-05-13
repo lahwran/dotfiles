@@ -69,9 +69,13 @@ pip_dependencies = [
     "neovim",
     "python-pcre",
 ]
-py2_pip_dependencies = [
+legacy_pip_dependencies = [
     "progressbar",
-    "ipython<=6"
+    "ipython<=6",
+    "six",
+    "pytest-regtest",
+    "neovim",
+    "python-pcre",
 ]
 
 ensure_nonexistant = [
@@ -301,7 +305,7 @@ def user_install():
         # install pip packages
         logger.info("Installing pip packages...")
         wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user", "--upgrade", "pip", "setuptools"])
-        wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user", "--upgrade"] + fix_pypy(pip_dependencies + py2_pip_dependencies, is_pypy="pypy" in python2))
+        wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user", "--upgrade"] + fix_pypy(legacy_pip_dependencies, is_pypy="pypy" in python_legacy))
         wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
     for python3 in python3s:
         wrap_process.call(python3, [python3, path("get-pip.py"), "--user", "--upgrade"])
