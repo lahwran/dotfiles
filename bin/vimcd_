@@ -1,15 +1,19 @@
 #!/usr/bin/python
+from __future__ import print_function
 import os
 import sys
 
 try:
     from pynvim import attach
 except ImportError:
-    from neovim import attach
+    try:
+        from neovim import attach
+    except ImportError:
+        attach = None
 
 args = sys.argv[1:]
 if len(args) != 1:
-    print "Usage: {} <dir>".format(sys.argv[0])
+    print("Usage: {} <dir>".format(sys.argv[0]))
     sys.exit(1)
 
 
@@ -20,8 +24,9 @@ def fullpath(*args):
 
 
 addr = os.environ.get("NVIM_LISTEN_ADDRESS", None)
-if not addr:
-    print "not in nvim, please cd manually"
+if not addr or not attach:
+    print("not in nvim, please cd manually")
+    sys.exit()
 
 nvim = attach("socket", path=addr)
 

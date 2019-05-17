@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ -e ~/.dotfiles ] && ! [ -e ~/dotfiles ]; then
+    mv $HOME/.dotfiles $HOME/dotfiles
+fi
+cd ~/dotfiles
+bin/dotfiles-install init

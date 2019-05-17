@@ -1,8 +1,7 @@
 
 unset COLORFGBG
 
-pathappend $HOME/Library/Python/2.7/bin
-pathappend $HOME/Library/Python/3.5/bin
+pathappend $HOME/Library/Python/3.7/bin
 pathprepend /usr/local/opt/findutils/libexec/gnubin
 export ANDROID_HOME="$HOME/adt/sdk"
 export ANDROID_SDK="$ANDROID_HOME"

@@ -6,7 +6,11 @@ import sys
 try:
     from pynvim import attach
 except ImportError:
-    from neovim import attach
+    try:
+        from neovim import attach
+    except ImportError:
+        print("WARNING: don't have nvim python module, launching without it")
+        attach = None
 
 args = sys.argv[1:]
 if not args or len(args) > 1:
@@ -14,9 +18,34 @@ if not args or len(args) > 1:
     sys.exit(1)
 
 
+def which(program):
+    import os
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file) and os.path.abspath(exe_file) != os.path.abspath(__file__):
+                return exe_file
+
+    return None
+
 addr = os.environ.get("NVIM_LISTEN_ADDRESS", None)
-if not addr:
-    os.execvp('nvim', args)
+if not addr or not args:
+    if addr:
+        print("Launching from inside nvim, but no pynvim available - cancelling")
+        sys.exit()
+    try:
+        os.execvp('nvim', ["nvim", "-p"] + args)
+    except OSError:
+        print("Missing nvim, trying vim")
+        os.execvp(which('vim'), ["vim", "-p"] + args)
 
 nvim = attach("socket", path=addr)
 

@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+cd ~/dotfiles
+if which vim && vim --help &> /dev/null ; then
+    vim dotfiles/install.py || exit
+elif [ -x /usr/bin/vim ] && /usr/bin/vim --help &>/dev/null; then
+    /usr/bin/vim dotfiles/install.py || exit
+fi
+~/dotfiles/bin/dotfiles-install
