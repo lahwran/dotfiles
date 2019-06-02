@@ -334,8 +334,8 @@ nnoremap <nowait> ,Z :let g:_l_cmd_syntax="<C-r>=&syntax<CR>" \| let g:_l_cmd_fi
 " ,pa to run pytest in a split in the current directory
 " nnoremap ,pf :vnew \| r !py.test <C-r>=bufname("%")<CR><CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
 " nnoremap ,pa :vnew \| r !py.test<CR><ESC>:setlocal buftype=nofile bufhidden=hide nobuflisted noswapfile nomodifiable<CR><ESC><ESC>
-nnoremap <silent> <nowait> ,p :%!unknown_shift extract /dev/stdin<CR><ESC><ESC>
-nnoremap <silent> <nowait> ,P :%!unknown_shift inline /dev/stdin<CR><ESC><ESC>
+"nnoremap <silent> <nowait> ,p :%!unknown_shift extract /dev/stdin<CR><ESC><ESC>
+"nnoremap <silent> <nowait> ,P :%!unknown_shift inline /dev/stdin<CR><ESC><ESC>
 
 nnoremap <silent> <nowait> ,b :call PrepWindowAct()<CR>:vnew<CR>:term build.sh<CR><C-\><C-n>:call CancelWindowCommandAction()<CR>
 nnoremap <silent> <nowait> ,r :call PrepWindowAct()<CR>:vnew<CR>:term ./launch.sh inner<CR><C-\><C-n>:call CancelWindowCommandAction()<CR>i
@@ -360,7 +360,7 @@ nnoremap <silent> <nowait> ,gw :call MakeScratchWindow()<CR><ESC><ESC>
 
 " nnoremap ,ban :vnew<CR>:term ./gradlew --daemon installDebug<SPACE>
 
-if exists(':tnoremap')
+if exists('nvim')
     set breakindent
     set breakindentopt=min:30,shift:4
     set shada='10000000,f1,<25000,@10000000,:10000000,/10000000,h,s100000
@@ -696,6 +696,7 @@ highlight MarkologyHLu ctermbg=none ctermfg=none
 highlight MarkologyHLo ctermbg=none ctermfg=none
 highlight MarkologyHLm ctermbg=none ctermfg=none
 
+set noexrc
 
 " for some reason after loading ~/.vimrc with `source ~/.vimrc` inside vim,
 " everything gets highlighted. this works around that.

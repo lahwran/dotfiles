@@ -96,6 +96,7 @@ debian_install = [
 
 pip_dependencies = [
     "pip",
+    "pipenv",
     "virtualenv",
     "pytest",
     "twisted",
