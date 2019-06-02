@@ -1,5 +1,0 @@
-os: osx
-osx_image: xcode10.2
-language: minimal
-script:
-    - bash ./travis_experimentation.sh
