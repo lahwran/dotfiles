@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function r() {
+r() {
     echo "<$*>"
     "$@"
     err="$?"
