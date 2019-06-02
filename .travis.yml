@@ -2,4 +2,4 @@ os: osx
 osx_image: xcode10.2
 language: minimal
 script:
-    - travis_experimentation.sh
+    - bash ./travis_experimentation.sh
