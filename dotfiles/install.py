@@ -566,7 +566,7 @@ def user_install():
             install_dir("~/.py2_pip")
             wrap_process.call(python2, [python2, path("get-pip.py"), "--user"])
             logger.info("Installing pip packages (py2: {})...".format(python2.rsplit("/")[-1]))
-            wrap_process.call("pip2", [python2, "-m", "pip", "uninstall"] + legacy_pip_remove)
+            wrap_process.call("pip2", [python2, "-m", "pip", "uninstall", "-yqqq"] + legacy_pip_remove)
             wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user"] + legacy_pip_dependencies)
     for python3 in python3s:
         bn = python3.strip("/").rpartition("/")[-1]
