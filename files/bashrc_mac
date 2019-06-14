@@ -10,6 +10,7 @@ export ANDROID_TOOLCHAIN="$HOME/adt/toolchain-android-18-arm-ndk-llvm"
 pathappend "$ANDROID_SDK/platform-tools"
 pathappend "$ANDROID_SDK/tools"
 #pathappend "$ANDROID_TOOLCHAIN/bin"
+pathappend "/usr/local/sbin/"
 
 export CFLAGS=-Qunused-arguments
 export CPPFLAGS=-Qunused-arguments
