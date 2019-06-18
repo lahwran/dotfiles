@@ -1,0 +1,10 @@
+#!/bin/bash
+##!/usr/bin/env python3
+
+
+#import argparse
+#parser = argparse.ArgumentParser()
+#parser.add_argument()
+#args = parser.parse_args()
+
+ffmpeg -loglevel panic -i $1 -lavfi showwavespic=split_channels=1:s=1024x800 -y /tmp/waveform.png; ~/.iterm2/imgcat /tmp/waveform.png

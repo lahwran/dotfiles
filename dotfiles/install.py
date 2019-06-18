@@ -576,6 +576,7 @@ def user_install():
         wrap_process.call(bn, [python3, "-m", "pip", "install", "--user", "--upgrade", "pip", "setuptools"])
         wrap_process.call(bn, [python3, "-m", "pip", "install", "--user", "--upgrade"] + pip_dependencies)
         wrap_process.call(bn, [python3, "-m", "pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
+    #wrap_process.call("pipenv", [which("pipenv"), "install"])
 
 
     logger = logging.getLogger("u")

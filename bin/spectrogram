@@ -1,0 +1,5 @@
+#!/bin/bash
+
+filename="$1"
+shift
+sox "$filename" -n spectrogram "$@" -o - | ~/.iterm2/imgcat
