@@ -20232,7 +20232,7 @@
 	gAKACoAN0xAJChEVGVdOUy5rZXlzoxITFIADgASABaMWFxiABoAHgAiACVpJZGVudGlm
 	aWVyVVdpZHRoVkhpZGRlblEwI0BowAAAAAAACNIhIiMkWiRjbGFzc25hbWVYJGNsYXNz
 	ZXNcTlNEaWN0aW9uYXJ5oiMlWE5TT2JqZWN00xAJCicrGaMSExSAA4AEgAWjLC0YgAuA
-	DIAIgAlRMSNAc7Gdsi0OVtIhIjM0Xk5TTXV0YWJsZUFycmF5ozM1JVdOU0FycmF5XxAP
+	DIAIgAlRMSNAdKGdsi0OVtIhIjM0Xk5TTXV0YWJsZUFycmF5ozM1JVdOU0FycmF5XxAP
 	TlNLZXllZEFyY2hpdmVy0Tg5VUFycmF5gAEACAARABoAIwAtADIANwBGAEwAUQBcAGMA
 	ZgBoAGoAbABzAHsAfwCBAIMAhQCJAIsAjQCPAJEAnACiAKkAqwC0ALUAugDFAM4A2wDe
 	AOcA7gDyAPQA9gD4APwA/gEAAQIBBAEGAQ8BFAEjAScBLwFBAUQBSgAAAAAAAAIBAAAA
@@ -20258,7 +20258,7 @@
 	<key>NSWindow Frame SharedPreferences</key>
 	<string>1709 -149 796 486 1440 -258 3440 1417 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>2113 162 1466 960 1920 42 3440 1417 </string>
+	<string>0 0 1440 877 0 0 1440 877 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>1815 -323 850 676 1440 -540 3440 1417 </string>
 	<key>NeverWarnAboutOverrides</key>
@@ -20493,7 +20493,7 @@
 				<real>1</real>
 			</dict>
 			<key>Blend</key>
-			<real>0.52827098099226799</real>
+			<real>0.47616482764175255</real>
 			<key>Blink Allowed</key>
 			<false/>
 			<key>Blinking Cursor</key>
@@ -21180,7 +21180,7 @@
 				<real>1</real>
 			</dict>
 			<key>Blend</key>
-			<real>0.61105931862113405</real>
+			<real>0.47310426063144329</real>
 			<key>Blink Allowed</key>
 			<false/>
 			<key>Blinking Cursor</key>
@@ -29306,18 +29306,18 @@
 			<key>Background Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.12433115279330192</real>
+				<real>0.092738748037400176</real>
 				<key>Color Space</key>
 				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.1376183665993371</real>
+				<real>0.16866253028153111</real>
 				<key>Red Component</key>
-				<real>0.11567628260311788</real>
+				<real>0.15526421576785576</real>
 			</dict>
 			<key>Background Image Is Tiled</key>
 			<false/>
 			<key>Background Image Location</key>
-			<string>/Users/lahwran/.blurcache/18e87ecfc7cf6edfeb04ad13fab955321752410571f95678049fd7e68d758dab.jpg</string>
+			<string>/Users/lahwran/.blurcache/c467724a86844267531382dc3d7a2b9ac886151d4a8610ed0861c0bfb637a44f.jpg</string>
 			<key>Background Image Mode</key>
 			<integer>2</integer>
 			<key>Badge Color</key>
@@ -29334,7 +29334,7 @@
 				<real>1</real>
 			</dict>
 			<key>Blend</key>
-			<real>0.52827098099226799</real>
+			<real>0.47616482764175255</real>
 			<key>Blink Allowed</key>
 			<false/>
 			<key>Blinking Cursor</key>
@@ -29703,7 +29703,7 @@
 				<key>sky</key>
 				<array>
 					<integer>1</integer>
-					<real>0.80000000000000004</real>
+					<integer>1</integer>
 					<real>0.5</real>
 				</array>
 			</dict>
@@ -29942,18 +29942,18 @@
 			<key>Background Color</key>
 			<dict>
 				<key>Blue Component</key>
-				<real>0.12865791758872402</real>
+				<real>0.16160421051574378</real>
 				<key>Color Space</key>
 				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.13291482939351607</real>
+				<real>0.18040818100050346</real>
 				<key>Red Component</key>
-				<real>0.12604409486183504</real>
+				<real>0.17647947846682327</real>
 			</dict>
 			<key>Background Image Is Tiled</key>
 			<false/>
 			<key>Background Image Location</key>
-			<string>/Users/lahwran/.blurcache/18e87ecfc7cf6edfeb04ad13fab955321752410571f95678049fd7e68d758dab.jpg</string>
+			<string>/Users/lahwran/.blurcache/c467724a86844267531382dc3d7a2b9ac886151d4a8610ed0861c0bfb637a44f.jpg</string>
 			<key>Background Image Mode</key>
 			<integer>2</integer>
 			<key>Badge Color</key>
@@ -29970,7 +29970,7 @@
 				<real>1</real>
 			</dict>
 			<key>Blend</key>
-			<real>0.61105931862113405</real>
+			<real>0.47310426063144329</real>
 			<key>Blink Allowed</key>
 			<false/>
 			<key>Blinking Cursor</key>
@@ -30374,16 +30374,16 @@
 	<key>NoSyncFrame_SharedPreferences</key>
 	<dict>
 		<key>screenFrame</key>
-		<string>{{1920, 42}, {3440, 1440}}</string>
+		<string>{{0, 0}, {1440, 900}}</string>
 		<key>topLeft</key>
-		<string>{4197, 1197}</string>
+		<string>{479, 734}</string>
 	</dict>
 	<key>NoSyncHaveWarnedAboutPasteConfirmationChange</key>
 	<true/>
 	<key>NoSyncInstallationId</key>
 	<string>7DF270E1-17DE-4869-A58B-1FEDE7791322</string>
 	<key>NoSyncLaunchExperienceControllerRunCount</key>
-	<integer>5</integer>
+	<integer>6</integer>
 	<key>NoSyncNextAnnoyanceTime</key>
 	<real>580413266.340343</real>
 	<key>NoSyncOnboardingWindowHasBeenShown</key>
@@ -31074,7 +31074,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2019-05-21T23:26:28Z</date>
+	<date>2019-06-03T18:28:35Z</date>
 	<key>SUSendProfileInfo</key>
 	<false/>
 	<key>SavePasteHistory</key>
