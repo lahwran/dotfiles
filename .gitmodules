@@ -64,3 +64,6 @@
 [submodule "submodules/xonsh-vim"]
 	path = submodules/xonsh-vim
 	url = https://github.com/linkinpark342/xonsh-vim
+[submodule "submodules/vim-elixir"]
+	path = submodules/vim-elixir
+	url = https://github.com/elixir-lang/vim-elixir.git

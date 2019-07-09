@@ -658,6 +658,7 @@ def user_install():
     install_file("submodules/vim-markology/", "~/.vim/bundle/vim-markology/")
     install_file("submodules/vim-terraform/", "~/.vim/bundle/vim-terraform/")
     install_file("submodules/xonsh-vim/", "~/.vim/bundle/xonsh-vim/")
+    install_file("submodules/vim-elixir/", "~/.vim/bundle/vim-elixir/")
 
     install_file("files/tmux.conf", "~/.tmux.conf")
 
