@@ -5,7 +5,9 @@ import pty
 import os
 import sys
 
-from highlight import highlight
+def highlight(string):
+    prefix = "\033[32m"
+    return prefix + string + "\033[m"
 
 def de_ret(line):
     thelist = []

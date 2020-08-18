@@ -25,13 +25,12 @@ import time
 import pwd
 import glob
 
+def highlight(string):
+    prefix = "\033[32m"
+    return prefix + string + "\033[m"
 from dotfiles import wrap_process
-from contextlib import contextmanager
 
-from dotfiles.highlight import highlight
-from dotfiles import wrap_process
-
-assert (0644 ==
+assert (0o644 ==
         stat.S_IRUSR |
         stat.S_IWUSR |
         stat.S_IRGRP |
@@ -88,9 +87,10 @@ cask_install = [
 ]
 debian_install = [
     "build-essential",
-    "zsh",
     "fail2ban",
-    "python-dev",
+    "python3-dev",
+    "libpcre3-dev",
+    "pipenv",
     "ntp",
 ]
 
@@ -299,7 +299,7 @@ def set_defaults(domain, key, value, is_defaults_data=False, typed=False):
         typed = False
         f = lambda x: None
         t = lambda x: x
-    elif isinstance(value, basestring):
+    elif isinstance(value, str) or isinstance(value, bytes):
         v = []
         f = lambda x: x
         t = lambda x: x
@@ -310,7 +310,7 @@ def set_defaults(domain, key, value, is_defaults_data=False, typed=False):
             t = lambda x: "true" if x else "false"
         else:
             t = lambda x: "1" if x else "0"
-    elif type(value) in [long, int]:
+    elif type(value) == int:
         v = ["-int"]
         f = int
         t = str
@@ -328,7 +328,7 @@ def set_defaults(domain, key, value, is_defaults_data=False, typed=False):
             stderr=devnull).strip()
 
     if output != '' and f(output) != value:
-        print "output: %r (<- %r) != %r (-> %r)" % (f(output), output, value, t(value))
+        print("output: %r (<- %r) != %r (-> %r)" % (f(output), output, value, t(value)))
         p_check(["defaults", "write", domain, key] + v + [t(value)])
         return True
     return False
@@ -478,7 +478,7 @@ def readfile(filename):
 
 
 def host_colors(hostname):
-    hash = int(hashlib.sha256(hostname).hexdigest(), 16) + 3
+    hash = int(hashlib.sha256(hostname.encode("utf-8")).hexdigest(), 16) + 3
 
     r = random.Random(hash)
     rc = r.choice
@@ -543,10 +543,6 @@ def check_py(name, found, sites, check_version=None):
 
 def user_install():
     global logger
-    sites2 = {}
-    python2s = []
-    check_py("python", python2s, sites2, check_version=[2, 7])
-
     sites3 = {}
     python3s = []
     for x in range(5, 10):
@@ -560,14 +556,6 @@ def user_install():
     else:
         wrap_process.call("curl", ["curl", "https://bootstrap.pypa.io/get-pip.py", "-o", path("get-pip.py")])
 
-    if not os.path.exists("~/.py2_pip"):
-        for python2 in python2s:
-            # this is dumb, kill py2 when
-            install_dir("~/.py2_pip")
-            wrap_process.call(python2, [python2, path("get-pip.py"), "--user"])
-            logger.info("Installing pip packages (py2: {})...".format(python2.rsplit("/")[-1]))
-            wrap_process.call("pip2", [python2, "-m", "pip", "uninstall", "-yqqq"] + legacy_pip_remove)
-            wrap_process.call("pip2", [python2, "-m", "pip", "install", "--user"] + legacy_pip_dependencies)
     for python3 in python3s:
         bn = python3.strip("/").rpartition("/")[-1]
         wrap_process.call(python3, [python3, path("get-pip.py"), "--user", "--upgrade"])
@@ -576,6 +564,7 @@ def user_install():
         wrap_process.call(bn, [python3, "-m", "pip", "install", "--user", "--upgrade", "pip", "setuptools"])
         wrap_process.call(bn, [python3, "-m", "pip", "install", "--user", "--upgrade"] + pip_dependencies)
         wrap_process.call(bn, [python3, "-m", "pip", "install", "--user", "--upgrade", "--editable", path("packages/at/")])
+
     #wrap_process.call("pipenv", [which("pipenv"), "install"])
 
 
@@ -606,7 +595,7 @@ def user_install():
             before=True, prev_existence=False)
     install_text("~/.vimrc", "source ~/.vimrc_global",
             before=True, prev_existence=False)
-    install_text("~/.vimrc", "set nocompatible", 0600,
+    install_text("~/.vimrc", "set nocompatible", 0o600,
             before=True)
     install_file("files/vimrc", "~/.vimrc_global")
     install_file("files/vimrc_newsession", "~/.vimrc_newsession")
@@ -679,10 +668,10 @@ def user_install():
     except subprocess.CalledProcessError:
         pass
     if not realname:
-        realname = raw_input("Need a realname for git: ")
+        realname = input("Need a realname for git: ")
         gitconfig("user.name", realname)
     if not email:
-        email = raw_input("Need an email for git: ")
+        email = input("Need an email for git: ")
         gitconfig("user.email", email)
 
     gitconfig("alias.shortlog", "log --graph --pretty=format:'%Cred%h%Creset %cn -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative")
